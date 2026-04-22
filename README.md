@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 secretcrewii
+
+> 시크릿크루 바이브코딩 프로젝트
+
+**Live**: https://secretcrewii.vercel.app
+
+## Stack
+
+- **Framework**: Next.js 14 (App Router) + TypeScript
+- **Styling**: Tailwind CSS
+- **Auth/DB**: Supabase (@supabase/ssr)
+- **Hosting**: Vercel (main 푸시 시 자동 배포)
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# 1. 의존성 설치
+npm install
+
+# 2. 환경변수 세팅
+cp .env.example .env.local
+# .env.local 에 Supabase 키 채우기
+
+# 3. 개발 서버 실행
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Key | Scope | Description |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | client + server | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | client + server | Public anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | **server only** | Server Action / API Route 전용 |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+- `npm run dev` — 로컬 개발 서버
+- `npm run build` — 프로덕션 빌드
+- `npm run start` — 프로덕션 서버 실행
+- `npm run lint` — ESLint 검사
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`main` 브랜치에 푸시하면 Vercel이 자동으로 빌드 + 배포합니다.
+수동 배포는 `vercel --prod --yes`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Progress
 
-## Deploy on Vercel
+- [x] **Day 1** — 랜딩 페이지 + Supabase 연결 스모크 테스트
+- [ ] Day 2 —
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Co-built with [Claude Code](https://claude.com/claude-code).
