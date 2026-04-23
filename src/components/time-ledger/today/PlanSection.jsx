@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Plus, Trash2, Play, Check, Timer } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Plus, Trash2, Play, Pause, Square, Check, Timer, X } from 'lucide-react';
 import Section from '../common/Section.jsx';
 import CategoryPicker from '../common/CategoryPicker.jsx';
 import BlindSpotHint from '../common/BlindSpotHint.jsx';
 import { plansWithProgress } from '@/lib/time-ledger/analysis.js';
+import { formatMMSS, remainingMs, isPaused, elapsedMs } from '@/lib/time-ledger/timer.js';
 
 function formatDuration(h) {
   if (h <= 0) return '0분';
@@ -15,9 +16,98 @@ function formatDuration(h) {
   return `${hr}시간 ${m}분`;
 }
 
+// 진행 중 plan 카드에 삽입되는 라이브 타이머 컨트롤
+function LivePlanTimer({ timer, color, onPause, onResume, onStop, onCancel }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(id);
+  }, []);
+  const rem = remainingMs(timer, now);
+  const el = Math.max(0, elapsedMs(timer, now));
+  const total = timer.planMinutes * 60_000;
+  const pct = Math.min(100, (el / total) * 100);
+  const overtime = rem < 0;
+  const paused = isPaused(timer);
+
+  return (
+    <div className="mt-3">
+      {/* 시각화 — 남은 시간을 색 게이지로 */}
+      <div
+        className="relative rounded-full overflow-hidden"
+        style={{ background: '#F3EDE1', height: 10 }}
+      >
+        <div
+          className="absolute left-0 top-0 bottom-0 transition-all"
+          style={{
+            width: `${pct}%`,
+            background: overtime
+              ? 'linear-gradient(90deg, #FF6B6B, #FF8FAB)'
+              : `linear-gradient(90deg, ${color}, ${color}AA)`,
+          }}
+        />
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <span
+            className="display italic tabular-nums"
+            style={{ fontSize: 22, color: overtime ? '#FF6B6B' : color, lineHeight: 1 }}
+          >
+            {overtime ? '+' : ''}{formatMMSS(overtime ? -rem : rem)}
+          </span>
+          <span className="text-xs" style={{ color: '#8A7F73' }}>
+            {overtime ? '초과' : '남음'}
+            {paused && <span className="ml-1" style={{ color: '#A89D8E' }}>· 일시정지</span>}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {paused ? (
+            <button
+              onClick={onResume}
+              className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition"
+              style={{ background: color, color: '#fff', boxShadow: `0 2px 8px ${color}66` }}
+            >
+              <Play size={12} fill="currentColor" /> 재개
+            </button>
+          ) : (
+            <button
+              onClick={onPause}
+              className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition"
+              style={{
+                background: '#FFF5E1', color: '#B8860B', border: '1px solid #F3C969',
+              }}
+            >
+              <Pause size={12} /> 잠시 멈춤
+            </button>
+          )}
+          <button
+            onClick={onStop}
+            className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition"
+            style={{
+              background: '#D1F5E4', color: '#1F7A5A', border: '1px solid #5AD2B3',
+            }}
+          >
+            <Square size={12} fill="currentColor" /> 완료
+          </button>
+          <button
+            onClick={onCancel}
+            className="inline-flex items-center gap-1 rounded-full px-2 py-1.5 text-xs transition hover:bg-stone-100"
+            style={{ color: '#A89D8E' }}
+            aria-label="기록 없이 취소"
+            title="기록 없이 취소"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PlanSection({
   plan, logs = [], categories, onChange, incidentsByCat = {},
   onStartTimer, onStartBlankTimer, activeTimer, date,
+  onPauseTimer, onResumeTimer, onStopTimer, onCancelTimer,
 }) {
   const [catId, setCatId] = useState(categories[0]?.id ?? '');
   const [hours, setHours] = useState('');
@@ -170,21 +260,20 @@ export default function PlanSection({
                         </div>
                       )}
                     </div>
-                    {onStartTimer && p.hours > 0 && !p.done && (
+                    {onStartTimer && p.hours > 0 && !p.done && !running && (
                       <button
                         onClick={() => onStartTimer(p.index)}
                         className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition"
                         style={{
-                          background: running ? '#fff' : color,
-                          color: running ? color : '#fff',
-                          border: running ? `2px solid ${color}` : 'none',
-                          boxShadow: running ? 'none' : `0 2px 8px ${color}66`,
+                          background: color,
+                          color: '#fff',
+                          boxShadow: `0 2px 8px ${color}66`,
                         }}
-                        aria-label={running ? '진행 중' : '타이머 시작'}
-                        title={running ? '이 항목으로 타이머 진행 중' : `${formatDuration(p.hours)} 타이머 시작`}
+                        aria-label="타이머 시작"
+                        title={`${formatDuration(p.hours)} 타이머 시작`}
                       >
                         <Play size={14} fill="currentColor" />
-                        {running ? '진행 중' : '시작'}
+                        시작
                       </button>
                     )}
                     <button
@@ -197,8 +286,8 @@ export default function PlanSection({
                     </button>
                   </div>
 
-                  {/* 진행 바 */}
-                  {p.hours > 0 && (
+                  {/* 진행 바 (비활성 상태) */}
+                  {p.hours > 0 && !running && (
                     <div className="mt-3">
                       <div
                         className="h-2 rounded-full overflow-hidden"
@@ -233,6 +322,18 @@ export default function PlanSection({
                         </span>
                       </div>
                     </div>
+                  )}
+
+                  {/* 진행 중: 라이브 타이머 컨트롤 */}
+                  {running && activeTimer && (
+                    <LivePlanTimer
+                      timer={activeTimer}
+                      color={color}
+                      onPause={onPauseTimer}
+                      onResume={onResumeTimer}
+                      onStop={onStopTimer}
+                      onCancel={onCancelTimer}
+                    />
                   )}
                 </li>
               );

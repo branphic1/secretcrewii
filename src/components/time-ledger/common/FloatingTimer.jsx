@@ -138,37 +138,44 @@ export default function FloatingTimer({ timer, categories, onPause, onResume, on
         {paused ? (
           <button
             onClick={onResume}
-            className="p-1.5 rounded transition hover:bg-stone-100"
-            style={{ color: '#57534E' }}
+            className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition"
+            style={{ background: accent, color: '#fff' }}
             aria-label="재개"
             title="재개"
           >
-            <Play size={14} />
+            <Play size={12} fill="currentColor" />
+            <span className="hidden sm:inline">재개</span>
           </button>
         ) : (
           <button
             onClick={onPause}
-            className="p-1.5 rounded transition hover:bg-stone-100"
-            style={{ color: '#57534E' }}
-            aria-label="일시정지"
-            title="일시정지"
+            className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition"
+            style={{
+              background: '#FFF5E1', color: '#B8860B', border: '1px solid #F3C969',
+            }}
+            aria-label="잠시 멈춤"
+            title="잠시 멈춤"
           >
-            <Pause size={14} />
+            <Pause size={12} />
+            <span className="hidden sm:inline">잠시 멈춤</span>
           </button>
         )}
         <button
           onClick={handleStop}
-          className="p-1.5 rounded transition hover:bg-stone-100"
-          style={{ color: '#5C8A6E' }}
+          className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition"
+          style={{
+            background: '#D1F5E4', color: '#1F7A5A', border: '1px solid #5AD2B3',
+          }}
           aria-label="완료 후 기록"
           title="완료하고 기록에 저장"
         >
-          <Square size={14} fill="currentColor" />
+          <Square size={12} fill="currentColor" />
+          <span className="hidden sm:inline">완료</span>
         </button>
         <button
           onClick={handleCancel}
-          className="p-1.5 rounded transition hover:bg-stone-100"
-          style={{ color: '#A8A29E' }}
+          className="p-1.5 rounded-full transition hover:bg-stone-100"
+          style={{ color: '#A89D8E' }}
           aria-label="기록 없이 취소"
           title="기록 없이 취소"
         >

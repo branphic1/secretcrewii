@@ -17,6 +17,7 @@ import { todayStr } from '@/lib/time-ledger/dates.js';
 import { incidentsByTimeCategory } from '@/lib/time-ledger/analysis.js';
 import {
   createTimer, pause as pauseTimer, resume as resumeTimer, playBell,
+  elapsedHoursRounded,
 } from '@/lib/time-ledger/timer.js';
 import { uid } from '@/lib/time-ledger/id.js';
 
@@ -141,6 +142,15 @@ export default function TimeLedgerApp() {
   const handleTimerCancel = () => setTimer(null);
   const handleTimerComplete = () => { playBell(); };
 
+  // 현재 타이머를 그대로 기록으로 저장 (인자 없이 호출 가능)
+  const handleTimerStopCurrent = () => {
+    if (!timer) return;
+    const hours = elapsedHoursRounded(timer);
+    const cat = categories.find((c) => c.id === timer.categoryId);
+    const content = (timer.taskName || cat?.name || '타이머').trim();
+    handleTimerStop({ hours, content, categoryId: timer.categoryId, date: timer.date });
+  };
+
   const openTimerDialog = (defaultTaskName = '') => {
     setTimerDialogDefault(defaultTaskName);
     setTimerDialogOpen(true);
@@ -169,6 +179,10 @@ export default function TimeLedgerApp() {
                 onStartTimerFromPlan={startTimerFromPlan}
                 onOpenTimerDialog={openTimerDialog}
                 activeTimer={timer}
+                onPauseTimer={handleTimerPause}
+                onResumeTimer={handleTimerResume}
+                onStopTimer={handleTimerStopCurrent}
+                onCancelTimer={handleTimerCancel}
               />
             )}
             {tab === 'monthly' && (

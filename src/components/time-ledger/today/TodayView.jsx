@@ -8,6 +8,7 @@ import WeekStrip from './WeekStrip.jsx';
 export default function TodayView({
   date, setDate, entries, setEntries, categories, incidentsByCat = {},
   onStartTimerFromPlan, onOpenTimerDialog, activeTimer,
+  onPauseTimer, onResumeTimer, onStopTimer, onCancelTimer,
 }) {
   const entry = entries[date] || { plan: [], logs: [] };
 
@@ -73,6 +74,10 @@ export default function TodayView({
         timer={timerOnThisDate}
         onStartNext={(idx) => onStartTimerFromPlan?.(date, idx)}
         onOpenTimerDialog={onOpenTimerDialog}
+        onPauseTimer={onPauseTimer}
+        onResumeTimer={onResumeTimer}
+        onStopTimer={onStopTimer}
+        onCancelTimer={onCancelTimer}
       />
 
       <WeekStrip
@@ -92,6 +97,10 @@ export default function TodayView({
         onStartBlankTimer={() => onOpenTimerDialog?.('')}
         activeTimer={activeTimer}
         date={date}
+        onPauseTimer={onPauseTimer}
+        onResumeTimer={onResumeTimer}
+        onStopTimer={onStopTimer}
+        onCancelTimer={onCancelTimer}
       />
 
       <LogSection

@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { Play, Sparkles, Timer as TimerIcon, PartyPopper } from 'lucide-react';
+import { Play, Pause, Square, X, Sparkles, Timer as TimerIcon, PartyPopper } from 'lucide-react';
 import { dayGap, plansWithProgress, nextTodo } from '@/lib/time-ledger/analysis.js';
-import { formatMMSS, remainingMs, isPaused } from '@/lib/time-ledger/timer.js';
+import { formatMMSS, remainingMs, isPaused, elapsedMs } from '@/lib/time-ledger/timer.js';
 
 // 다층 도넛: 전체 달성률 + (선택) 카테고리별 스택
 function MultiRing({ size = 160, stroke = 14, rate, rows }) {
@@ -120,7 +120,156 @@ function ConfettiDots() {
   );
 }
 
-export default function ProgressHero({ entry, categories, timer, onStartNext, onOpenTimerDialog }) {
+// 큰 타이머 배너 — Hero 내부에서 사용
+function HeroTimerBanner({ timer, categories, onPause, onResume, onStop, onCancel }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(id);
+  }, []);
+  const cat = categories.find((c) => c.id === timer.categoryId);
+  const color = cat?.color ?? '#FFB547';
+  const rem = remainingMs(timer, now);
+  const el = Math.max(0, elapsedMs(timer, now));
+  const total = timer.planMinutes * 60_000;
+  const progress = Math.min(1, el / total);
+  const overtime = rem < 0;
+  const paused = isPaused(timer);
+
+  // 원형 링
+  const size = 72;
+  const stroke = 7;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+
+  return (
+    <div
+      className="relative rounded-2xl p-4"
+      style={{
+        background: overtime
+          ? 'linear-gradient(135deg, #FFE4E1, #FFD0DC)'
+          : `linear-gradient(135deg, ${color}22, ${color}0A)`,
+        border: `2px solid ${overtime ? '#FF6B6B' : color}`,
+      }}
+    >
+      <div className="flex items-center gap-4 flex-wrap">
+        {/* 원형 링 */}
+        <div style={{ width: size, height: size, position: 'relative', flexShrink: 0 }}>
+          <svg width={size} height={size}>
+            <circle
+              cx={size / 2} cy={size / 2} r={r}
+              fill="none" stroke="#F3EDE1" strokeWidth={stroke}
+            />
+            <circle
+              cx={size / 2} cy={size / 2} r={r}
+              fill="none"
+              stroke={overtime ? '#FF6B6B' : color}
+              strokeWidth={stroke}
+              strokeDasharray={circ}
+              strokeDashoffset={overtime ? 0 : circ * (1 - progress)}
+              strokeLinecap="round"
+              style={{
+                transform: 'rotate(-90deg)',
+                transformOrigin: `${size / 2}px ${size / 2}px`,
+                transition: 'stroke-dashoffset 0.5s linear',
+              }}
+            />
+          </svg>
+          {paused && (
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ color: '#8A7F73' }}
+            >
+              <Pause size={18} />
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span
+              className="text-[11px] uppercase tracking-wider"
+              style={{ color: color }}
+            >
+              {overtime ? '초과 시간' : '남은 시간'}
+            </span>
+            {paused && (
+              <span
+                className="text-[10px] px-1.5 py-0.5 rounded-full"
+                style={{ background: '#FFF5E1', color: '#B8860B' }}
+              >
+                일시정지
+              </span>
+            )}
+          </div>
+          <div
+            className="display italic tabular-nums"
+            style={{
+              color: overtime ? '#FF6B6B' : '#2B2620',
+              fontSize: 36,
+              lineHeight: 1.1,
+            }}
+          >
+            {overtime ? '+' : ''}{formatMMSS(overtime ? -rem : rem)}
+          </div>
+          <div className="text-xs mt-0.5 truncate" style={{ color: '#57534E' }}>
+            {cat?.name} · {timer.taskName || '타이머'}
+            <span className="ml-2 display italic" style={{ color: '#8A7F73' }}>
+              {timer.planMinutes}분 중 {Math.round(el / 60000)}분 경과
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {paused ? (
+            <button
+              onClick={onResume}
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition"
+              style={{ background: color, color: '#fff', boxShadow: `0 2px 8px ${color}66` }}
+            >
+              <Play size={14} fill="currentColor" /> 재개
+            </button>
+          ) : (
+            <button
+              onClick={onPause}
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition"
+              style={{
+                background: '#FFF5E1', color: '#B8860B', border: '1.5px solid #F3C969',
+              }}
+              title="잠시 멈춤"
+            >
+              <Pause size={14} /> 잠시 멈춤
+            </button>
+          )}
+          <button
+            onClick={onStop}
+            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition"
+            style={{
+              background: '#D1F5E4', color: '#1F7A5A', border: '1.5px solid #5AD2B3',
+            }}
+            title="완료하고 기록"
+          >
+            <Square size={14} fill="currentColor" /> 완료
+          </button>
+          <button
+            onClick={onCancel}
+            className="p-2 rounded-full transition hover:bg-stone-100"
+            style={{ color: '#A89D8E' }}
+            aria-label="기록 없이 취소"
+            title="기록 없이 취소"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ProgressHero({
+  entry, categories, timer, onStartNext, onOpenTimerDialog,
+  onPauseTimer, onResumeTimer, onStopTimer, onCancelTimer,
+}) {
   const gaps = useMemo(() => dayGap(entry), [entry]);
   const rows = useMemo(() => {
     return gaps.map((r) => {
@@ -144,19 +293,6 @@ export default function ProgressHero({ entry, categories, timer, onStartNext, on
   );
   const totalPlans = (entry.plan || []).length;
   const allDone = totalPlans > 0 && completedCount === totalPlans;
-
-  // 라이브 타이머 표시용 틱
-  const [now, setNow] = useState(Date.now());
-  useEffect(() => {
-    if (!timer) return;
-    const id = setInterval(() => setNow(Date.now()), 500);
-    return () => clearInterval(id);
-  }, [timer]);
-
-  const timerCat = timer ? categories.find((c) => c.id === timer.categoryId) : null;
-  const timerRem = timer ? remainingMs(timer, now) : 0;
-  const timerOvertime = timerRem < 0;
-  const paused = timer ? isPaused(timer) : false;
 
   const emptyState = planTotal === 0 && logTotal === 0;
 
@@ -342,37 +478,22 @@ export default function ProgressHero({ entry, categories, timer, onStartNext, on
               </ul>
             )}
 
-            {/* 타이머 라이브 배너 */}
-            {timer && (
-              <div
-                className="rounded-2xl flex items-center gap-3 px-4 py-3"
-                style={{
-                  background: (timerCat?.color ?? '#FFB547') + '18',
-                  border: `1.5px solid ${(timerCat?.color ?? '#FFB547')}55`,
-                }}
-              >
-                <TimerIcon size={14} style={{ color: timerCat?.color ?? '#FFB547' }} />
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs" style={{ color: '#57534E' }}>
-                    지금 진행 중 {paused && <span style={{ color: '#A89D8E' }}>· 일시정지</span>}
-                  </div>
-                  <div className="text-sm truncate" style={{ color: '#2B2620' }}>
-                    {timer.taskName || timerCat?.name || '타이머'}
-                  </div>
-                </div>
-                <div
-                  className="display italic tabular-nums"
-                  style={{
-                    color: timerOvertime ? '#FF6B6B' : timerCat?.color ?? '#2B2620',
-                    fontSize: 22,
-                  }}
-                >
-                  {timerOvertime ? '+' : ''}{formatMMSS(timerOvertime ? -timerRem : timerRem)}
-                </div>
-              </div>
-            )}
           </div>
         </div>
+
+        {/* 큰 타이머 배너 — 진행 중일 때 눈에 확 띄게 */}
+        {timer && (
+          <div className="relative mt-5">
+            <HeroTimerBanner
+              timer={timer}
+              categories={categories}
+              onPause={onPauseTimer}
+              onResume={onResumeTimer}
+              onStop={onStopTimer}
+              onCancel={onCancelTimer}
+            />
+          </div>
+        )}
 
         {allDone && (
           <div
