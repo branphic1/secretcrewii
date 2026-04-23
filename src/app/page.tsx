@@ -69,14 +69,32 @@ export default async function Home() {
           )}
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8 space-y-3">
           <Link
             href="/time-ledger"
             className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 transition px-5 py-2.5 text-sm font-medium ring-1 ring-white/20"
           >
             ⏳ Time Ledger 열기 <span className="opacity-70">→</span>
           </Link>
-          <p className="mt-2 text-xs text-white/60">시간의 궤적 · 일간 · 월간 · 연간 · 블라인드 스팟</p>
+          <p className="text-xs text-white/60">시간의 궤적 · 일간 · 월간 · 연간 · 블라인드 스팟</p>
+
+          <div className="pt-3 border-t border-white/10" />
+
+          <Link
+            href="/cafe-writer"
+            className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 transition px-5 py-2.5 text-sm font-medium ring-1 ring-white/20"
+          >
+            ☕ 카페 원고 생성기 열기 <span className="opacity-70">→</span>
+          </Link>
+          <p className="text-xs text-white/60">로그인 & 승인 필요 · 내부 크루 전용</p>
+
+          {!supabaseStatus.ok || !supabaseStatus.hasSession ? (
+            <div className="pt-2 flex items-center justify-center gap-2 text-xs">
+              <Link href="/login" className="text-white/80 hover:text-white underline underline-offset-2">로그인</Link>
+              <span className="text-white/30">·</span>
+              <Link href="/signup" className="text-white/80 hover:text-white underline underline-offset-2">회원가입</Link>
+            </div>
+          ) : null}
         </div>
       </div>
     </main>
