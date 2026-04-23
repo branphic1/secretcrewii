@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -66,6 +67,16 @@ export default async function Home() {
               </p>
             </div>
           )}
+        </div>
+
+        <div className="mt-8">
+          <Link
+            href="/time-ledger"
+            className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 transition px-5 py-2.5 text-sm font-medium ring-1 ring-white/20"
+          >
+            ⏳ Time Ledger 열기 <span className="opacity-70">→</span>
+          </Link>
+          <p className="mt-2 text-xs text-white/60">시간의 궤적 · 일간 · 월간 · 연간 · 블라인드 스팟</p>
         </div>
       </div>
     </main>

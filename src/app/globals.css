@@ -1,3 +1,6 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -24,4 +27,41 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* -------- Time Ledger scoped styles -------- */
+
+.time-ledger-root {
+  color: #1C1917;
+  font-family: 'Pretendard Variable', Pretendard, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'ss02';
+}
+
+.time-ledger-root .display {
+  font-family: 'Fraunces', serif;
+  font-feature-settings: 'ss01';
+}
+
+.time-ledger-root button { font-family: inherit; }
+.time-ledger-root input,
+.time-ledger-root textarea,
+.time-ledger-root select {
+  font-family: inherit;
+  color: inherit;
+}
+
+.time-ledger-root *::-webkit-scrollbar { width: 10px; height: 10px; }
+.time-ledger-root *::-webkit-scrollbar-thumb { background: #E7E5E0; border-radius: 999px; }
+.time-ledger-root *::-webkit-scrollbar-thumb:hover { background: #D6D3D1; }
+.time-ledger-root *::-webkit-scrollbar-track { background: transparent; }
+
+.time-ledger-root .row-hover .on-hover { opacity: 0; transition: opacity 0.12s ease; }
+.time-ledger-root .row-hover:hover .on-hover { opacity: 1; }
+
+.time-ledger-root .fade-in { animation: tl-fade-in 0.24s ease; }
+@keyframes tl-fade-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: none; }
 }

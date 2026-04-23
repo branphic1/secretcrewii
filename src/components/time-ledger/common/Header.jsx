@@ -1,0 +1,37 @@
+import { Search } from 'lucide-react';
+import { longKoreanDate, todayStr } from '@/lib/time-ledger/dates.js';
+
+export default function Header({ onOpenSearch }) {
+  return (
+    <header
+      className="w-full border-b"
+      style={{ borderColor: '#E7E5E0', background: '#FAF8F3' }}
+    >
+      <div className="mx-auto flex items-center justify-between px-6 py-5" style={{ maxWidth: '64rem' }}>
+        <div>
+          <div className="display text-2xl italic" style={{ color: '#1C1917', letterSpacing: '-0.02em' }}>
+            Time Ledger
+          </div>
+          <div className="text-xs mt-0.5" style={{ color: '#78716C' }}>시간의 궤적</div>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onOpenSearch}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs transition hover:bg-stone-100"
+            style={{ color: '#57534E', border: '1px solid #E7E5E0', background: '#FFFDF8' }}
+            aria-label="검색"
+            title="검색 (⌘/Ctrl + K)"
+          >
+            <Search size={12} />
+            <span className="hidden sm:inline">검색</span>
+            <kbd className="hidden md:inline text-[10px] px-1 rounded" style={{ background: '#F0EEE8', color: '#A8A29E' }}>⌘K</kbd>
+          </button>
+          <div className="text-xs text-right" style={{ color: '#78716C' }}>
+            <div>Today</div>
+            <div className="display italic text-base" style={{ color: '#1C1917' }}>{longKoreanDate(todayStr())}</div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
