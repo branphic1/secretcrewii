@@ -85,6 +85,88 @@ function MultiRing({ size = 160, stroke = 14, rate, rows }) {
   );
 }
 
+// 성장 마스코트 — 달성률에 따라 씨앗 → 새싹 → 잎 → 봉오리 → 꽃
+function GrowingMascot({ rate, size = 56 }) {
+  const stage = rate >= 1 ? 4
+    : rate >= 0.7 ? 3
+      : rate >= 0.4 ? 2
+        : rate >= 0.15 ? 1
+          : 0;
+
+  // 공통: 화분 (모든 스테이지)
+  const pot = (
+    <g>
+      <path
+        d="M 18 44 Q 20 52 28 52 L 44 52 Q 52 52 54 44 L 50 42 L 22 42 Z"
+        fill="#D4A574"
+      />
+      <rect x="20" y="40" width="32" height="4" rx="1" fill="#C89664" />
+    </g>
+  );
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 72 60" style={{ overflow: 'visible' }}>
+      {/* 흙 */}
+      <ellipse cx="36" cy="42" rx="14" ry="2" fill="#8B5A3B" />
+
+      {stage === 0 && (
+        <>
+          <circle cx="36" cy="40" r="2.5" fill="#8B5A3B" />
+          <path d="M 36 40 L 36 36" stroke="#86C49A" strokeWidth="1.5" strokeLinecap="round" />
+        </>
+      )}
+
+      {stage === 1 && (
+        <>
+          <path d="M 36 42 L 36 30" stroke="#5AD2B3" strokeWidth="2" strokeLinecap="round" />
+          <ellipse cx="32" cy="32" rx="4" ry="2.5" fill="#5AD2B3" transform="rotate(-25 32 32)" />
+          <ellipse cx="40" cy="30" rx="4" ry="2.5" fill="#5AD2B3" transform="rotate(25 40 30)" />
+        </>
+      )}
+
+      {stage === 2 && (
+        <>
+          <path d="M 36 42 L 36 22" stroke="#29C7B9" strokeWidth="2.5" strokeLinecap="round" />
+          <ellipse cx="30" cy="32" rx="5.5" ry="3" fill="#5AD2B3" transform="rotate(-30 30 32)" />
+          <ellipse cx="42" cy="30" rx="5.5" ry="3" fill="#5AD2B3" transform="rotate(30 42 30)" />
+          <ellipse cx="32" cy="24" rx="4" ry="2.5" fill="#86C49A" transform="rotate(-20 32 24)" />
+          <ellipse cx="40" cy="22" rx="4" ry="2.5" fill="#86C49A" transform="rotate(20 40 22)" />
+        </>
+      )}
+
+      {stage === 3 && (
+        <>
+          <path d="M 36 42 L 36 16" stroke="#29C7B9" strokeWidth="2.5" strokeLinecap="round" />
+          <ellipse cx="28" cy="32" rx="6" ry="3" fill="#5AD2B3" transform="rotate(-30 28 32)" />
+          <ellipse cx="44" cy="30" rx="6" ry="3" fill="#5AD2B3" transform="rotate(30 44 30)" />
+          <ellipse cx="30" cy="22" rx="5" ry="3" fill="#86C49A" transform="rotate(-25 30 22)" />
+          <ellipse cx="42" cy="20" rx="5" ry="3" fill="#86C49A" transform="rotate(25 42 20)" />
+          {/* 봉오리 */}
+          <circle cx="36" cy="14" r="4" fill="#FF8FAB" />
+          <circle cx="36" cy="14" r="2.5" fill="#FFB547" />
+        </>
+      )}
+
+      {stage === 4 && (
+        <>
+          <path d="M 36 42 L 36 18" stroke="#29C7B9" strokeWidth="2.5" strokeLinecap="round" />
+          <ellipse cx="26" cy="34" rx="7" ry="3.5" fill="#5AD2B3" transform="rotate(-30 26 34)" />
+          <ellipse cx="46" cy="32" rx="7" ry="3.5" fill="#5AD2B3" transform="rotate(30 46 32)" />
+          {/* 꽃잎 */}
+          <circle cx="36" cy="10" r="5" fill="#FF8FAB" />
+          <circle cx="28" cy="14" r="5" fill="#FFB547" />
+          <circle cx="44" cy="14" r="5" fill="#A78BFA" />
+          <circle cx="30" cy="4" r="5" fill="#4D96FF" />
+          <circle cx="42" cy="4" r="5" fill="#FF6B6B" />
+          <circle cx="36" cy="9" r="3.5" fill="#FFF5D1" />
+        </>
+      )}
+
+      {pot}
+    </svg>
+  );
+}
+
 // 경량 색종이 점
 function ConfettiDots() {
   const dots = [
@@ -117,6 +199,171 @@ function ConfettiDots() {
         />
       ))}
     </>
+  );
+}
+
+// 4 그룹(진행 중/대기/즉석/완료) 분리된 카테고리 리스트
+function GroupedCategoryList({ rows }) {
+  const inProgress = rows.filter((r) => r.planned > 0 && r.actual > 0 && r.actual < r.planned);
+  const pending    = rows.filter((r) => r.planned > 0 && r.actual === 0);
+  const spontaneous = rows.filter((r) => r.planned === 0 && r.actual > 0);
+  const done       = rows.filter((r) => r.planned > 0 && r.actual >= r.planned);
+
+  const GroupHeader = ({ label, count, color }) => (
+    <div className="flex items-center gap-2 mt-2 first:mt-0 mb-1.5">
+      <span
+        className="rounded-full"
+        style={{ width: 6, height: 6, background: color }}
+      />
+      <span className="text-[11px] uppercase tracking-wider" style={{ color }}>
+        {label}
+      </span>
+      <span className="display italic text-[11px]" style={{ color: '#8A7F73' }}>
+        {count}
+      </span>
+      <span className="flex-1 border-t" style={{ borderColor: '#F3EDE1' }} />
+    </div>
+  );
+
+  return (
+    <div className="space-y-1">
+      {inProgress.length > 0 && (
+        <>
+          <GroupHeader label="지금 진행 중" count={inProgress.length} color="#FFB547" />
+          {inProgress.map((r) => <InProgressRow key={r.categoryId} row={r} />)}
+        </>
+      )}
+
+      {pending.length > 0 && (
+        <>
+          <GroupHeader label="아직 안 한 일" count={pending.length} color="#8A7F73" />
+          {pending.map((r) => <PendingRow key={r.categoryId} row={r} />)}
+        </>
+      )}
+
+      {spontaneous.length > 0 && (
+        <>
+          <GroupHeader label="계획 외 보너스" count={spontaneous.length} color="#A78BFA" />
+          {spontaneous.map((r) => <SpontaneousRow key={r.categoryId} row={r} />)}
+        </>
+      )}
+
+      {done.length > 0 && (
+        <>
+          <GroupHeader label="완료된 일" count={done.length} color="#29C7B9" />
+          {done.map((r) => <DoneRow key={r.categoryId} row={r} />)}
+        </>
+      )}
+    </div>
+  );
+}
+
+function InProgressRow({ row: r }) {
+  const pct = Math.min(100, (r.actual / r.planned) * 100);
+  return (
+    <div className="flex items-center gap-3">
+      <span className="rounded-full shrink-0" style={{ width: 10, height: 10, background: r.color }} />
+      <span className="text-sm truncate" style={{ color: '#2B2620', minWidth: '6rem' }}>{r.name}</span>
+      <div className="flex-1 h-2.5 rounded-full overflow-hidden" style={{ background: '#F3EDE1' }}>
+        <div
+          className="h-full transition-all"
+          style={{ width: `${pct}%`, background: r.color }}
+        />
+      </div>
+      <span className="display italic tabular-nums text-xs" style={{ color: '#57534E', minWidth: '4.5rem', textAlign: 'right' }}>
+        {r.actual.toFixed(1)}<span style={{ color: '#A89D8E' }}> / {r.planned.toFixed(1)}h</span>
+      </span>
+      <span
+        className="text-[10px] px-1.5 py-0.5 rounded-full"
+        style={{ background: r.color + '22', color: r.color }}
+      >
+        {Math.round(pct)}%
+      </span>
+    </div>
+  );
+}
+
+function PendingRow({ row: r }) {
+  return (
+    <div className="flex items-center gap-3 opacity-75">
+      <span
+        className="rounded-full shrink-0"
+        style={{ width: 10, height: 10, border: `1.5px dashed ${r.color}`, background: 'transparent' }}
+      />
+      <span className="text-sm truncate" style={{ color: '#57534E', minWidth: '6rem' }}>{r.name}</span>
+      <span className="flex-1 text-[11px]" style={{ color: '#A89D8E' }}>
+        — 아직 시작 전
+      </span>
+      <span className="display italic tabular-nums text-xs" style={{ color: '#8A7F73', minWidth: '4.5rem', textAlign: 'right' }}>
+        {r.planned.toFixed(1)}h
+      </span>
+    </div>
+  );
+}
+
+function SpontaneousRow({ row: r }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="relative shrink-0" style={{ width: 10, height: 10 }}>
+        <span
+          className="absolute inset-0 rounded-full"
+          style={{ background: r.color, opacity: 0.9 }}
+        />
+        <span
+          className="absolute"
+          style={{
+            top: -3, right: -3, width: 6, height: 6,
+            background: '#A78BFA', borderRadius: '50%',
+          }}
+        />
+      </span>
+      <span className="text-sm truncate" style={{ color: '#2B2620', minWidth: '6rem' }}>{r.name}</span>
+      <span className="flex-1 text-[11px] italic" style={{ color: '#8A7F73' }}>
+        ✦ 계획에 없던 기록
+      </span>
+      <span className="display italic tabular-nums text-xs" style={{ color: '#A78BFA', minWidth: '4.5rem', textAlign: 'right' }}>
+        +{r.actual.toFixed(1)}h
+      </span>
+    </div>
+  );
+}
+
+function DoneRow({ row: r }) {
+  const over = r.actual > r.planned ? r.actual - r.planned : 0;
+  return (
+    <div
+      className="flex items-center gap-3 rounded-full px-2 py-0.5"
+      style={{ background: 'linear-gradient(90deg, #E8F9EE, transparent 70%)' }}
+    >
+      <span
+        className="rounded-full shrink-0 flex items-center justify-center"
+        style={{ width: 14, height: 14, background: r.color }}
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10">
+          <path d="M 2 5 L 4 7 L 8 3" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </span>
+      <span
+        className="text-sm truncate"
+        style={{ color: '#57534E', minWidth: '6rem', textDecoration: 'line-through', textDecorationColor: '#C6BDB0' }}
+      >
+        {r.name}
+      </span>
+      <span className="flex-1 text-[11px]" style={{ color: '#8A7F73' }}>
+        계획 {r.planned.toFixed(1)}h 완료
+        {over > 0 && (
+          <span className="ml-1 display italic" style={{ color: '#29C7B9' }}>
+            (+{over.toFixed(1)}h 더)
+          </span>
+        )}
+      </span>
+      <span
+        className="display italic tabular-nums text-xs px-2 py-0.5 rounded-full"
+        style={{ background: '#D1F5E4', color: '#1F7A5A' }}
+      >
+        ✓ {r.actual.toFixed(1)}h
+      </span>
+    </div>
   );
 }
 
@@ -310,27 +557,54 @@ export default function ProgressHero({
       >
         {allDone && <ConfettiDots />}
 
-        <div className="relative flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            {allDone ? (
-              <PartyPopper size={16} style={{ color: '#FF8FAB' }} />
-            ) : (
-              <Sparkles size={14} style={{ color: '#FFB547' }} />
-            )}
-            <h2 className="display italic text-xl" style={{ color: '#2B2620' }}>
-              오늘의 진행
-            </h2>
+        <div className="relative flex items-start justify-between mb-5 gap-3">
+          <div className="flex items-center gap-3">
+            <GrowingMascot rate={rate} size={52} />
+            <div>
+              <div className="flex items-center gap-2">
+                {allDone ? (
+                  <PartyPopper size={14} style={{ color: '#FF8FAB' }} />
+                ) : (
+                  <Sparkles size={12} style={{ color: '#FFB547' }} />
+                )}
+                <h2 className="display italic text-xl" style={{ color: '#2B2620' }}>
+                  오늘의 진행
+                </h2>
+              </div>
+              <p className="text-[11px] mt-0.5" style={{ color: '#8A7F73' }}>
+                {rate >= 1 && totalPlans > 0 && '꽃이 활짝 피었어요'}
+                {rate >= 0.7 && rate < 1 && '봉오리가 올라왔어요'}
+                {rate >= 0.4 && rate < 0.7 && '잎이 자라고 있어요'}
+                {rate >= 0.15 && rate < 0.4 && '새싹이 돋았어요'}
+                {rate < 0.15 && '오늘의 씨앗을 심어볼까요'}
+              </p>
+            </div>
           </div>
-          <div className="text-xs" style={{ color: '#8A7F73' }}>
+          <div className="flex flex-wrap gap-1.5 justify-end">
             {totalPlans > 0 && (
-              <span className="mr-2">
-                <span className="display italic" style={{ color: '#2B2620' }}>
-                  {completedCount}/{totalPlans}
-                </span>
-                {' '}할 일
+              <span
+                className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded-full"
+                style={{ background: '#D1F5E4', color: '#1F7A5A' }}
+              >
+                <span className="display italic">{completedCount}</span>
+                <span style={{ opacity: 0.7 }}>/ {totalPlans}</span>
+                완료
               </span>
             )}
-            <span>{logTotal.toFixed(1)}h 기록 · {planTotal.toFixed(1)}h 계획</span>
+            <span
+              className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded-full"
+              style={{ background: '#FFF3E6', color: '#B8860B' }}
+            >
+              <span className="display italic">{logTotal.toFixed(1)}</span>h 기록
+            </span>
+            {planTotal > 0 && (
+              <span
+                className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded-full"
+                style={{ background: '#FFFDF6', color: '#8A7F73', border: '1px solid #EFE7D4' }}
+              >
+                <span className="display italic">{planTotal.toFixed(1)}</span>h 계획
+              </span>
+            )}
           </div>
         </div>
 
@@ -424,58 +698,8 @@ export default function ProgressHero({
                 </button>
               </div>
             ) : (
-              // 카테고리별 미니 요약 (기본)
-              <ul className="space-y-2">
-                {rows.slice(0, 5).map((r) => {
-                  const base = Math.max(r.planned, r.actual, 0.01);
-                  const actualPct = Math.min(100, (r.actual / base) * 100);
-                  const plannedPct = Math.min(100, (r.planned / base) * 100);
-                  const met = r.planned > 0 && r.actual >= r.planned;
-                  return (
-                    <li key={r.categoryId} className="flex items-center gap-3">
-                      <span
-                        className="rounded-full shrink-0"
-                        style={{ width: 10, height: 10, background: r.color }}
-                      />
-                      <span className="text-sm truncate" style={{ color: '#2B2620', minWidth: '6rem' }}>
-                        {r.name}
-                      </span>
-                      <div className="flex-1 relative h-2.5 rounded-full" style={{ background: '#F3EDE1' }}>
-                        <div
-                          className="absolute left-0 top-0 bottom-0 rounded-full"
-                          style={{ width: `${plannedPct}%`, background: r.color + '33' }}
-                        />
-                        <div
-                          className="absolute left-0 top-0 bottom-0 rounded-full transition-all"
-                          style={{ width: `${actualPct}%`, background: r.color }}
-                        />
-                      </div>
-                      <span
-                        className="display italic tabular-nums text-xs"
-                        style={{ color: '#57534E', minWidth: '4.5rem', textAlign: 'right' }}
-                      >
-                        {r.actual.toFixed(1)}
-                        {r.planned > 0 && (
-                          <span style={{ color: '#A89D8E' }}> / {r.planned.toFixed(1)}h</span>
-                        )}
-                      </span>
-                      {met && (
-                        <span
-                          className="text-[10px] px-1.5 py-0.5 rounded-full"
-                          style={{ background: '#D1F5E4', color: '#1F7A5A' }}
-                        >
-                          완료
-                        </span>
-                      )}
-                    </li>
-                  );
-                })}
-                {rows.length > 5 && (
-                  <li className="text-xs text-center" style={{ color: '#A89D8E' }}>
-                    +{rows.length - 5}개 카테고리 더 있음
-                  </li>
-                )}
-              </ul>
+              // 4 그룹으로 나눠서 보여주기
+              <GroupedCategoryList rows={rows} />
             )}
 
           </div>
