@@ -88,4 +88,5 @@ export const KEYS = {
   blindspots: 'blindspots',
   blindspotCategories: 'blindspot_categories',
   settings: 'settings',
+  timer: 'timer',
 };

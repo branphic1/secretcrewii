@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Play, Timer } from 'lucide-react';
 import Section from '../common/Section.jsx';
 import CategoryPicker from '../common/CategoryPicker.jsx';
 import BlindSpotHint from '../common/BlindSpotHint.jsx';
 
-export default function PlanSection({ plan, categories, onChange, incidentsByCat = {} }) {
+export default function PlanSection({
+  plan, categories, onChange, incidentsByCat = {},
+  onStartTimer, onStartBlankTimer, activeTimer, date,
+}) {
   const [catId, setCatId] = useState(categories[0]?.id ?? '');
   const [hours, setHours] = useState('');
   const [note, setNote] = useState('');
@@ -72,6 +75,7 @@ export default function PlanSection({ plan, categories, onChange, incidentsByCat
           <ul className="mt-4 space-y-1.5">
             {plan.map((p, i) => {
               const cat = byId(p.categoryId);
+              const running = !!(activeTimer && activeTimer.planRef && activeTimer.planRef.date === date && activeTimer.planRef.index === i);
               return (
                 <li
                   key={i}
@@ -85,6 +89,18 @@ export default function PlanSection({ plan, categories, onChange, incidentsByCat
                     {p.hours.toFixed(1)}h
                   </span>
                   {p.note && <span className="text-sm flex-1 truncate" style={{ color: '#57534E' }}>— {p.note}</span>}
+                  {!p.note && <span className="flex-1" />}
+                  {onStartTimer && p.hours > 0 && (
+                    <button
+                      onClick={() => onStartTimer(i)}
+                      className="p-1 rounded transition hover:bg-stone-200"
+                      style={{ color: running ? '#5C8A6E' : '#57534E' }}
+                      aria-label={running ? '진행 중' : '타이머 시작'}
+                      title={running ? '이 항목으로 타이머 진행 중' : `${p.hours.toFixed(1)}h 타이머 시작`}
+                    >
+                      {running ? <Timer size={14} /> : <Play size={14} />}
+                    </button>
+                  )}
                   <button
                     onClick={() => remove(i)}
                     className="on-hover p-1 rounded transition hover:bg-stone-200"
@@ -97,6 +113,18 @@ export default function PlanSection({ plan, categories, onChange, incidentsByCat
               );
             })}
           </ul>
+        )}
+
+        {onStartBlankTimer && (
+          <div className="mt-3 text-right">
+            <button
+              onClick={onStartBlankTimer}
+              className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md transition hover:bg-stone-100"
+              style={{ color: '#57534E', border: '1px solid #E7E5E0' }}
+            >
+              <Timer size={12} /> 계획 없이 타이머
+            </button>
+          </div>
         )}
       </div>
     </Section>

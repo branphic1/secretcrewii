@@ -1,7 +1,7 @@
-import { Search } from 'lucide-react';
+import { Search, Timer } from 'lucide-react';
 import { longKoreanDate, todayStr } from '@/lib/time-ledger/dates.js';
 
-export default function Header({ onOpenSearch }) {
+export default function Header({ onOpenSearch, onOpenTimer }) {
   return (
     <header
       className="w-full border-b"
@@ -14,7 +14,19 @@ export default function Header({ onOpenSearch }) {
           </div>
           <div className="text-xs mt-0.5" style={{ color: '#78716C' }}>시간의 궤적</div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {onOpenTimer && (
+            <button
+              onClick={onOpenTimer}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs transition hover:bg-stone-100"
+              style={{ color: '#57534E', border: '1px solid #E7E5E0', background: '#FFFDF8' }}
+              aria-label="타이머 시작"
+              title="타이머 시작"
+            >
+              <Timer size={12} />
+              <span className="hidden sm:inline">타이머</span>
+            </button>
+          )}
           <button
             onClick={onOpenSearch}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs transition hover:bg-stone-100"

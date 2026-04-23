@@ -6,7 +6,10 @@ import PlanSection from './PlanSection.jsx';
 import LogSection from './LogSection.jsx';
 import PlanVsActual from './PlanVsActual.jsx';
 
-export default function TodayView({ date, setDate, entries, setEntries, categories, incidentsByCat = {} }) {
+export default function TodayView({
+  date, setDate, entries, setEntries, categories, incidentsByCat = {},
+  onStartTimerFromPlan, onOpenTimerDialog, activeTimer,
+}) {
   const entry = entries[date] || { plan: [], logs: [] };
 
   const planTotal = useMemo(
@@ -93,6 +96,10 @@ export default function TodayView({ date, setDate, entries, setEntries, categori
         categories={categories}
         incidentsByCat={incidentsByCat}
         onChange={(plan) => update({ ...entry, plan })}
+        onStartTimer={(index) => onStartTimerFromPlan?.(date, index)}
+        onStartBlankTimer={() => onOpenTimerDialog?.('')}
+        activeTimer={activeTimer}
+        date={date}
       />
 
       <LogSection
