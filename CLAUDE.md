@@ -43,7 +43,7 @@
 - `SUPABASE_SERVICE_ROLE_KEY`를 클라이언트 컴포넌트/브라우저 노출 코드에서 사용 금지
 - `.env.local` 커밋 금지 (.gitignore에 들어있음)
 - `git push --force`, `git reset --hard origin/main` 같은 파괴적 명령은 유저 확인 후에만
-- main 브랜치 직접 푸시는 정책상 에이전트가 실행 불가. 커밋까지만 만들고 유저가 직접 푸시
+- 일반 `git push origin main` 은 에이전트가 직접 실행 가능 (force-push/reset 은 여전히 금지)
 
 # 자주 쓰는 명령
 
@@ -55,6 +55,20 @@ vercel env pull .vercel/.env.production.local --environment=production
 vercel inspect <url> --logs   # 배포 로그 조회
 supabase db push         # 로컬 마이그레이션 원격 반영
 ```
+
+# 크루 승인 방법 (/cafe-writer 접근 허용)
+
+`/signup` 으로 가입한 유저는 기본 `approved=false` 상태라 막혀있음. 승인하려면:
+
+```bash
+node scripts/approve_user.mjs 유저이메일@example.com
+```
+
+- `SUPABASE_SERVICE_ROLE_KEY` (.env.local) 사용
+- 이메일 미인증이어도 자동으로 확인 처리됨
+- 실행 후 즉시 `/cafe-writer` 접근 가능
+
+관리자(첫 유저): `psw1860@naver.com`
 
 # 알려진 이슈
 
