@@ -35,7 +35,7 @@ export async function updateSession(request: NextRequest) {
   const url = request.nextUrl
   const path = url.pathname
 
-  const isProtected = path.startsWith('/cafe-writer')
+  const isProtected = path.startsWith('/cafe-writer') || path.startsWith('/admin')
   const isAuthPage = path === '/login' || path === '/signup'
   const isPendingPage = path === '/pending'
 

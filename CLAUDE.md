@@ -58,17 +58,30 @@ supabase db push         # 로컬 마이그레이션 원격 반영
 
 # 크루 승인 방법 (/cafe-writer 접근 허용)
 
-`/signup` 으로 가입한 유저는 기본 `approved=false` 상태라 막혀있음. 승인하려면:
+`/signup` 으로 가입한 유저는 기본 `approved=false` 상태라 막혀있음. 승인 방법 3가지:
 
+### 방법 1: 웹 관리자 페이지 (권장)
+관리자(`role=admin`) 계정으로 로그인 후 `/admin` 접속:
+- 대기/승인된 유저 목록 표시
+- ✅승인 / ↩취소 / 🗑삭제 / admin 지정 버튼
+- 본인 계정은 실수 방지를 위해 삭제/해제 불가
+
+### 방법 2: 스크립트 (터미널)
 ```bash
 node scripts/approve_user.mjs 유저이메일@example.com
 ```
 
-- `SUPABASE_SERVICE_ROLE_KEY` (.env.local) 사용
-- 이메일 미인증이어도 자동으로 확인 처리됨
-- 실행 후 즉시 `/cafe-writer` 접근 가능
+### 방법 3: Supabase 대시보드
+Table Editor → `profiles` → `approved` 를 `true` 로 토글. (이메일 미인증이면 Authentication → Users 에서 별도 확인 필요)
 
-관리자(첫 유저): `psw1860@naver.com`
+### 관리자 지정 스크립트
+```bash
+node scripts/set_admin.mjs 유저이메일@example.com
+```
+role=admin 으로 설정. `/admin` 페이지에서도 동일 작업 가능.
+
+### 기본 관리자
+- `psw1860@naver.com` (role=admin, approved=true)
 
 # 알려진 이슈
 

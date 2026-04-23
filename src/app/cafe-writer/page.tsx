@@ -16,11 +16,12 @@ export default async function CafeWriterPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("approved, email")
+    .select("approved, email, role")
     .eq("id", user.id)
     .maybeSingle()
 
   if (!profile?.approved) redirect("/pending")
+  const isAdmin = profile.role === "admin"
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-pink-50">
@@ -31,6 +32,11 @@ export default async function CafeWriterPage() {
             <h1 className="text-lg font-bold text-slate-800 leading-tight">카페 바이럴 원고 생성기</h1>
           </div>
           <div className="flex items-center gap-3 text-xs">
+            {isAdmin && (
+              <Link href="/admin" className="rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1.5 font-medium">
+                🛡 관리자
+              </Link>
+            )}
             <span className="text-slate-500 hidden sm:inline">{profile.email || user.email}</span>
             <SignOutButton />
           </div>
