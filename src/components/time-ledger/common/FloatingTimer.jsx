@@ -45,7 +45,7 @@ export default function FloatingTimer({ timer, categories, onPause, onResume, on
   }, [timer, remaining, overtime]);
 
   const cat = categories.find((c) => c.id === timer.categoryId);
-  const accent = cat?.color ?? '#1C1917';
+  const accent = cat?.color ?? '#2B2620';
 
   const handleStop = () => {
     const h = elapsedHoursRounded(timer, now);
@@ -71,8 +71,8 @@ export default function FloatingTimer({ timer, categories, onPause, onResume, on
       style={{
         right: 20,
         bottom: 20,
-        background: '#FAF8F3',
-        border: `1px solid ${overtime ? '#C85450' : '#E7E5E0'}`,
+        background: '#FFFBF3',
+        border: `1px solid ${overtime ? '#C85450' : '#EFE7D4'}`,
         borderLeft: `4px solid ${accent}`,
         borderRadius: 12,
         padding: '12px 14px',
@@ -89,7 +89,7 @@ export default function FloatingTimer({ timer, categories, onPause, onResume, on
         <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
           <circle
             cx={size / 2} cy={size / 2} r={radius}
-            fill="none" stroke="#F0EEE8" strokeWidth={stroke}
+            fill="none" stroke="#F3EDE1" strokeWidth={stroke}
           />
           <circle
             cx={size / 2} cy={size / 2} r={radius}
@@ -113,14 +113,14 @@ export default function FloatingTimer({ timer, categories, onPause, onResume, on
       </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="text-xs truncate" style={{ color: '#78716C' }}>
+        <div className="text-xs truncate" style={{ color: '#8A7F73' }}>
           {cat?.name ?? '카테고리 없음'}
           {paused && <span className="ml-2" style={{ color: '#A8A29E' }}>일시정지</span>}
         </div>
         <div
           className="display italic tabular-nums"
           style={{
-            color: overtime ? '#C85450' : '#1C1917',
+            color: overtime ? '#C85450' : '#2B2620',
             fontSize: 22,
             lineHeight: 1.1,
           }}

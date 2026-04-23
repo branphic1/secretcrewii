@@ -22,7 +22,7 @@ export default function TrendChart({ year, entries, categories }) {
   };
 
   return (
-    <div className="rounded-lg p-5" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+    <div className="rounded-lg p-5" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
       <div className="flex flex-wrap gap-1 mb-3">
         {categories.map((c) => {
           const on = selected.includes(c.id);
@@ -33,8 +33,8 @@ export default function TrendChart({ year, entries, categories }) {
               className="px-2 py-1 text-xs rounded-full transition"
               style={{
                 background: on ? c.color : 'transparent',
-                color: on ? '#FAF8F3' : '#57534E',
-                border: `1px solid ${on ? c.color : '#E7E5E0'}`,
+                color: on ? '#FFFBF3' : '#57534E',
+                border: `1px solid ${on ? c.color : '#EFE7D4'}`,
               }}
             >
               {c.name}
@@ -46,11 +46,11 @@ export default function TrendChart({ year, entries, categories }) {
       <div style={{ width: '100%', height: 260 }}>
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 10, right: 20, bottom: 0, left: -10 }}>
-            <CartesianGrid stroke="#F0EEE8" vertical={false} />
-            <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#78716C' }} axisLine={{ stroke: '#E7E5E0' }} tickLine={false} />
-            <YAxis tick={{ fontSize: 11, fill: '#78716C' }} axisLine={{ stroke: '#E7E5E0' }} tickLine={false} width={32} />
+            <CartesianGrid stroke="#F3EDE1" vertical={false} />
+            <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#8A7F73' }} axisLine={{ stroke: '#EFE7D4' }} tickLine={false} />
+            <YAxis tick={{ fontSize: 11, fill: '#8A7F73' }} axisLine={{ stroke: '#EFE7D4' }} tickLine={false} width={32} />
             <Tooltip
-              contentStyle={{ background: '#FFFDF8', border: '1px solid #E7E5E0', borderRadius: 8, fontSize: 12 }}
+              contentStyle={{ background: '#FFFDF6', border: '1px solid #EFE7D4', borderRadius: 8, fontSize: 12 }}
               formatter={(value, name) => {
                 const cat = categories.find((c) => `c_${c.id}` === name);
                 return [Number(value).toFixed(1) + 'h', cat?.name ?? name];

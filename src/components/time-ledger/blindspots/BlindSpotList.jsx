@@ -26,7 +26,7 @@ export default function BlindSpotList({
       {items.length === 0 ? (
         <div
           className="text-center text-sm py-8 rounded-lg"
-          style={{ color: '#A8A29E', background: '#FFFDF8', border: '1px dashed #E7E5E0' }}
+          style={{ color: '#A8A29E', background: '#FFFDF6', border: '1px dashed #EFE7D4' }}
         >
           {emptyLabel}
         </div>
@@ -41,8 +41,8 @@ export default function BlindSpotList({
                 key={item.id}
                 className="row-hover rounded-lg p-3 pl-4 flex items-start gap-3"
                 style={{
-                  background: '#FFFDF8',
-                  border: '1px solid #E7E5E0',
+                  background: '#FFFDF6',
+                  border: '1px solid #EFE7D4',
                   borderLeft: `3px solid ${catColor(item.category)}`,
                 }}
               >
@@ -55,24 +55,24 @@ export default function BlindSpotList({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-medium" style={{ color: missed ? '#C85450' : '#1C1917' }}>
+                    <span className="text-sm font-medium" style={{ color: missed ? '#C85450' : '#2B2620' }}>
                       {item.title}
                     </span>
                     <span
                       className="text-[10px] px-1.5 py-0.5 rounded-full"
-                      style={{ background: '#F0EEE8', color: '#57534E' }}
+                      style={{ background: '#F3EDE1', color: '#57534E' }}
                     >
                       {TYPE_LABEL[item.type]}
                     </span>
-                    <span className="text-xs" style={{ color: '#78716C' }}>· {item.category}</span>
+                    <span className="text-xs" style={{ color: '#8A7F73' }}>· {item.category}</span>
                     {item.type === 'recurring' && item.recurrence && (
-                      <span className="text-xs" style={{ color: '#78716C' }}>
+                      <span className="text-xs" style={{ color: '#8A7F73' }}>
                         · {{ weekly: '주간', monthly: '월간', quarterly: '분기', yearly: '연간' }[item.recurrence.frequency]}
                       </span>
                     )}
                   </div>
                   {(item.dueDate || item.occurredDate) && (
-                    <div className="mt-1 text-xs" style={{ color: missed ? '#C85450' : urgent ? '#D4883F' : '#78716C' }}>
+                    <div className="mt-1 text-xs" style={{ color: missed ? '#C85450' : urgent ? '#D4883F' : '#8A7F73' }}>
                       {item.dueDate && (
                         <>
                           <span className="display italic">{item.dueDate}</span>
@@ -97,7 +97,7 @@ export default function BlindSpotList({
                   {item.lessonLearned && (
                     <div
                       className="mt-1.5 text-xs rounded p-2"
-                      style={{ background: '#FAF8F3', color: '#57534E', border: '1px solid #F0EEE8' }}
+                      style={{ background: '#FFFBF3', color: '#57534E', border: '1px solid #F3EDE1' }}
                     >
                       💡 {item.lessonLearned}
                     </div>
@@ -107,7 +107,7 @@ export default function BlindSpotList({
                   <button
                     onClick={() => onEdit(item)}
                     className="p-1 rounded hover:bg-stone-100 transition"
-                    style={{ color: '#78716C' }}
+                    style={{ color: '#8A7F73' }}
                     aria-label="편집"
                   >
                     <Pencil size={14} />

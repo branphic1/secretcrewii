@@ -24,28 +24,28 @@ export default function CategoryEditor({ items, onChange, idPrefix }) {
   };
 
   return (
-    <div className="rounded-lg p-4" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+    <div className="rounded-lg p-4" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
       <ul className="space-y-1.5 mb-4">
         {items.map((c) => (
           <li
             key={c.id}
             className="row-hover flex items-center gap-3 px-3 py-2 rounded-md"
-            style={{ background: '#FAF8F3' }}
+            style={{ background: '#FFFBF3' }}
           >
             <input
               type="color"
               value={c.color}
               onChange={(e) => update(c.id, { color: e.target.value })}
               className="w-7 h-7 rounded cursor-pointer"
-              style={{ border: '1px solid #E7E5E0', background: 'transparent' }}
+              style={{ border: '1px solid #EFE7D4', background: 'transparent' }}
             />
             <input
               type="text"
               value={c.name}
               onChange={(e) => update(c.id, { name: e.target.value })}
               className="flex-1 rounded-md px-2 py-1 text-sm outline-none"
-              style={{ border: '1px solid transparent', background: 'transparent', color: '#1C1917' }}
-              onFocus={(e) => (e.target.style.border = '1px solid #E7E5E0')}
+              style={{ border: '1px solid transparent', background: 'transparent', color: '#2B2620' }}
+              onFocus={(e) => (e.target.style.border = '1px solid #EFE7D4')}
               onBlur={(e) => (e.target.style.border = '1px solid transparent')}
             />
             <button
@@ -65,7 +65,7 @@ export default function CategoryEditor({ items, onChange, idPrefix }) {
           value={color}
           onChange={(e) => setColor(e.target.value)}
           className="w-7 h-7 rounded cursor-pointer"
-          style={{ border: '1px solid #E7E5E0' }}
+          style={{ border: '1px solid #EFE7D4' }}
         />
         <input
           type="text"
@@ -74,12 +74,12 @@ export default function CategoryEditor({ items, onChange, idPrefix }) {
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && add()}
           className="flex-1 rounded-md px-3 py-2 text-sm outline-none"
-          style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+          style={{ border: '1px solid #EFE7D4', background: '#fff' }}
         />
         <button
           onClick={add}
           className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm transition"
-          style={{ background: '#1C1917', color: '#FAF8F3' }}
+          style={{ background: '#2B2620', color: '#FFFBF3' }}
         >
           <Plus size={14} /> 추가
         </button>

@@ -43,19 +43,19 @@ export default function YearlyView({ year, setYear, entries, categories, onPickM
         <button
           onClick={() => setYear(year - 1)}
           className="p-2 rounded-md hover:bg-stone-100 transition"
-          style={{ color: '#78716C' }}
+          style={{ color: '#8A7F73' }}
           aria-label="이전 연도"
         >
           <ChevronLeft size={18} />
         </button>
         <div className="text-center">
-          <div className="text-xs" style={{ color: '#78716C' }}>Yearly</div>
-          <div className="display italic text-3xl mt-0.5" style={{ color: '#1C1917' }}>{year}</div>
+          <div className="text-xs" style={{ color: '#8A7F73' }}>Yearly</div>
+          <div className="display italic text-3xl mt-0.5" style={{ color: '#2B2620' }}>{year}</div>
         </div>
         <button
           onClick={() => setYear(year + 1)}
           className="p-2 rounded-md hover:bg-stone-100 transition"
-          style={{ color: '#78716C' }}
+          style={{ color: '#8A7F73' }}
           aria-label="다음 연도"
         >
           <ChevronRight size={18} />

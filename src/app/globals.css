@@ -29,14 +29,15 @@ body {
   }
 }
 
-/* -------- Time Ledger scoped styles -------- */
+/* -------- Time Ledger scoped styles — pastel nursery tone -------- */
 
 .time-ledger-root {
-  color: #1C1917;
+  color: #2B2620;
   font-family: 'Pretendard Variable', Pretendard, system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'ss01', 'ss02';
+  background: #FFFBF3;
 }
 
 .time-ledger-root .display {
@@ -53,15 +54,28 @@ body {
 }
 
 .time-ledger-root *::-webkit-scrollbar { width: 10px; height: 10px; }
-.time-ledger-root *::-webkit-scrollbar-thumb { background: #E7E5E0; border-radius: 999px; }
-.time-ledger-root *::-webkit-scrollbar-thumb:hover { background: #D6D3D1; }
+.time-ledger-root *::-webkit-scrollbar-thumb { background: #EFE7D4; border-radius: 999px; }
+.time-ledger-root *::-webkit-scrollbar-thumb:hover { background: #E0D4B8; }
 .time-ledger-root *::-webkit-scrollbar-track { background: transparent; }
 
 .time-ledger-root .row-hover .on-hover { opacity: 0; transition: opacity 0.12s ease; }
 .time-ledger-root .row-hover:hover .on-hover { opacity: 1; }
 
-.time-ledger-root .fade-in { animation: tl-fade-in 0.24s ease; }
+.time-ledger-root .fade-in { animation: tl-fade-in 0.28s ease; }
 @keyframes tl-fade-in {
-  from { opacity: 0; transform: translateY(2px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: none; }
 }
+
+/* 기본 input/select 포커스 톤도 부드럽게 */
+.time-ledger-root input:focus,
+.time-ledger-root textarea:focus,
+.time-ledger-root select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(243, 179, 106, 0.25);
+  border-color: #F3B36A !important;
+}
+
+/* 체크박스·색상 선택기 톤 */
+.time-ledger-root input[type="checkbox"] { accent-color: #F3B36A; }
+.time-ledger-root input[type="range"] { accent-color: #F3B36A; }

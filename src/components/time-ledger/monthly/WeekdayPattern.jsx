@@ -13,7 +13,7 @@ export default function WeekdayPattern({ entries, year, monthIndex0, categories 
 
   return (
     <Section title="요일별 루틴 패턴" subtitle="어느 요일에 어떤 업무가 몰렸나">
-      <div className="rounded-lg p-5" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+      <div className="rounded-lg p-5" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
         <div className="grid grid-cols-7 gap-2">
           {pattern.map((p) => {
             const pct = (p.total / maxTotal) * 100;
@@ -28,7 +28,7 @@ export default function WeekdayPattern({ entries, year, monthIndex0, categories 
                 <div
                   className="rounded flex items-end justify-center mb-2"
                   style={{
-                    background: '#F0EEE8',
+                    background: '#F3EDE1',
                     height: 70,
                     padding: 2,
                   }}
@@ -49,11 +49,11 @@ export default function WeekdayPattern({ entries, year, monthIndex0, categories 
                     })}
                   </div>
                 </div>
-                <div className="display italic text-xs text-center" style={{ color: '#1C1917' }}>
+                <div className="display italic text-xs text-center" style={{ color: '#2B2620' }}>
                   {p.total.toFixed(1)}h
                 </div>
                 {p.top[0] && (
-                  <div className="mt-1 text-[10px] text-center truncate" style={{ color: '#78716C' }}>
+                  <div className="mt-1 text-[10px] text-center truncate" style={{ color: '#8A7F73' }}>
                     {p.top[0].name}
                   </div>
                 )}

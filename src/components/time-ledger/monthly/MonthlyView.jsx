@@ -53,20 +53,20 @@ export default function MonthlyView({ year, monthIndex0, setMonth, entries, cate
   };
 
   const filterCat = categories.find((c) => c.id === filter);
-  const accent = filterCat?.color ?? '#1C1917';
+  const accent = filterCat?.color ?? '#2B2620';
 
   return (
     <div className="space-y-8">
       {/* 월 네비 */}
       <div className="flex items-center justify-between">
-        <button onClick={prev} className="p-2 rounded-md hover:bg-stone-100 transition" style={{ color: '#78716C' }} aria-label="이전 월">
+        <button onClick={prev} className="p-2 rounded-md hover:bg-stone-100 transition" style={{ color: '#8A7F73' }} aria-label="이전 월">
           <ChevronLeft size={18} />
         </button>
         <div className="text-center">
-          <div className="text-xs" style={{ color: '#78716C' }}>Monthly</div>
-          <div className="display italic text-2xl mt-0.5" style={{ color: '#1C1917' }}>{monthName}</div>
+          <div className="text-xs" style={{ color: '#8A7F73' }}>Monthly</div>
+          <div className="display italic text-2xl mt-0.5" style={{ color: '#2B2620' }}>{monthName}</div>
         </div>
-        <button onClick={next} className="p-2 rounded-md hover:bg-stone-100 transition" style={{ color: '#78716C' }} aria-label="다음 월">
+        <button onClick={next} className="p-2 rounded-md hover:bg-stone-100 transition" style={{ color: '#8A7F73' }} aria-label="다음 월">
           <ChevronRight size={18} />
         </button>
       </div>
@@ -85,7 +85,7 @@ export default function MonthlyView({ year, monthIndex0, setMonth, entries, cate
       {stats.total === 0 ? (
         <div
           className="text-center text-sm py-14 rounded-lg"
-          style={{ color: '#A8A29E', background: '#FFFDF8', border: '1px dashed #E7E5E0' }}
+          style={{ color: '#A8A29E', background: '#FFFDF6', border: '1px dashed #EFE7D4' }}
         >
           이 달에는 아직 기록이 없습니다.
         </div>

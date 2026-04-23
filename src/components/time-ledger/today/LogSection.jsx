@@ -44,7 +44,7 @@ export default function LogSection({ logs, categories, onChange, incidentsByCat 
 
   return (
     <Section title="오늘의 궤적" subtitle="실제로 무엇을 했는지">
-      <div className="rounded-lg p-4" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+      <div className="rounded-lg p-4" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
         <div className="flex flex-wrap items-center gap-2">
           <CategoryPicker categories={categories} value={catId} onChange={setCatId} />
           <input
@@ -54,7 +54,7 @@ export default function LogSection({ logs, categories, onChange, incidentsByCat 
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={onKey}
             className="flex-1 rounded-md px-3 py-2 text-sm outline-none"
-            style={{ border: '1px solid #E7E5E0', background: '#fff', minWidth: '14rem' }}
+            style={{ border: '1px solid #EFE7D4', background: '#fff', minWidth: '14rem' }}
           />
           <input
             type="number"
@@ -65,12 +65,12 @@ export default function LogSection({ logs, categories, onChange, incidentsByCat 
             onChange={(e) => setHours(e.target.value)}
             onKeyDown={onKey}
             className="rounded-md px-3 py-2 text-sm outline-none"
-            style={{ border: '1px solid #E7E5E0', width: '5.5rem', background: '#fff' }}
+            style={{ border: '1px solid #EFE7D4', width: '5.5rem', background: '#fff' }}
           />
           <button
             onClick={add}
             className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm transition"
-            style={{ background: '#1C1917', color: '#FAF8F3' }}
+            style={{ background: '#2B2620', color: '#FFFBF3' }}
           >
             <Plus size={14} /> 기록
           </button>
@@ -92,19 +92,19 @@ export default function LogSection({ logs, categories, onChange, incidentsByCat 
                 <li
                   key={l.id}
                   className="row-hover flex items-center gap-3 px-3 py-2 rounded-md"
-                  style={{ background: '#FAF8F3' }}
+                  style={{ background: '#FFFBF3' }}
                 >
                   <span
                     className="shrink-0 rounded-full"
-                    style={{ background: cat?.color ?? '#D6D3D1', width: 8, height: 8 }}
+                    style={{ background: cat?.color ?? '#E0D4B8', width: 8, height: 8 }}
                   />
                   <span className="display italic text-xs" style={{ color: '#A8A29E', minWidth: '3.2rem' }}>
                     {hh}:{mm}
                   </span>
-                  <span className="text-xs" style={{ color: '#78716C', minWidth: '6rem' }}>
+                  <span className="text-xs" style={{ color: '#8A7F73', minWidth: '6rem' }}>
                     {cat?.name ?? '?'}
                   </span>
-                  <span className="flex-1 text-sm truncate" style={{ color: '#1C1917' }}>
+                  <span className="flex-1 text-sm truncate" style={{ color: '#2B2620' }}>
                     {l.content}
                   </span>
                   <span className="display italic text-sm" style={{ color: '#57534E' }}>

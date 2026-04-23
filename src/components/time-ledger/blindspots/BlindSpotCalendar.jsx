@@ -40,15 +40,15 @@ export default function BlindSpotCalendar({ items, onPick }) {
   }
 
   return (
-    <div className="rounded-lg p-5" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+    <div className="rounded-lg p-5" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
       <div className="flex items-center justify-between mb-3">
-        <button onClick={prev} className="p-1.5 rounded hover:bg-stone-100" style={{ color: '#78716C' }}>
+        <button onClick={prev} className="p-1.5 rounded hover:bg-stone-100" style={{ color: '#8A7F73' }}>
           <ChevronLeft size={16} />
         </button>
-        <div className="display italic text-base" style={{ color: '#1C1917' }}>
+        <div className="display italic text-base" style={{ color: '#2B2620' }}>
           {monthLabel(year, mi)}
         </div>
-        <button onClick={next} className="p-1.5 rounded hover:bg-stone-100" style={{ color: '#78716C' }}>
+        <button onClick={next} className="p-1.5 rounded hover:bg-stone-100" style={{ color: '#8A7F73' }}>
           <ChevronRight size={16} />
         </button>
       </div>
@@ -67,12 +67,12 @@ export default function BlindSpotCalendar({ items, onPick }) {
               key={c.key}
               className="rounded-md p-1.5 text-left"
               style={{
-                background: c.ds === today ? '#FAF8F3' : 'transparent',
-                border: c.ds === today ? '1px solid #1C1917' : '1px solid #F0EEE8',
+                background: c.ds === today ? '#FFFBF3' : 'transparent',
+                border: c.ds === today ? '1px solid #2B2620' : '1px solid #F3EDE1',
                 minHeight: 68,
               }}
             >
-              <div className="text-[10px]" style={{ color: '#78716C' }}>{c.day}</div>
+              <div className="text-[10px]" style={{ color: '#8A7F73' }}>{c.day}</div>
               <div className="mt-1 space-y-0.5">
                 {c.occ.slice(0, 3).map((it) => (
                   <button
@@ -80,8 +80,8 @@ export default function BlindSpotCalendar({ items, onPick }) {
                     onClick={() => onPick?.(it)}
                     className="w-full text-left truncate text-[10px] rounded px-1 py-0.5"
                     style={{
-                      background: it.type === 'recurring' ? '#F0EEE8' : '#FFDDD6',
-                      color: '#1C1917',
+                      background: it.type === 'recurring' ? '#F3EDE1' : '#FFDDD6',
+                      color: '#2B2620',
                     }}
                     title={it.title}
                   >

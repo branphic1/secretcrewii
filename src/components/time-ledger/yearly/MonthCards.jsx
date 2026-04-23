@@ -35,13 +35,13 @@ export default function MonthCards({ year, entries, categories, monthNotes, onNo
           <div
             key={mi}
             className="rounded-lg p-4"
-            style={{ background: '#FFFDF8', border: '1px solid #E7E5E0', opacity: empty ? 0.7 : 1 }}
+            style={{ background: '#FFFDF6', border: '1px solid #EFE7D4', opacity: empty ? 0.7 : 1 }}
           >
             <div className="flex items-baseline justify-between">
               <button
                 onClick={() => onPickMonth?.(year, mi)}
                 className="display italic text-xl hover:underline"
-                style={{ color: '#1C1917' }}
+                style={{ color: '#2B2620' }}
               >
                 {shortMonth(mi)}
               </button>
@@ -49,7 +49,7 @@ export default function MonthCards({ year, entries, categories, monthNotes, onNo
                 {m.total.toFixed(1)}h
               </span>
             </div>
-            <div className="text-xs mt-0.5" style={{ color: '#78716C' }}>
+            <div className="text-xs mt-0.5" style={{ color: '#8A7F73' }}>
               활성 {m.activeDays}일
             </div>
 
@@ -59,16 +59,16 @@ export default function MonthCards({ year, entries, categories, monthNotes, onNo
               value={monthNotes[mi + 1] || ''}
               onChange={(e) => onNotesChange({ ...monthNotes, [mi + 1]: e.target.value })}
               className="mt-3 w-full rounded-md px-2 py-1.5 text-sm outline-none"
-              style={{ border: '1px solid #F0EEE8', background: '#FAF8F3', color: '#1C1917' }}
+              style={{ border: '1px solid #F3EDE1', background: '#FFFBF3', color: '#2B2620' }}
             />
 
             {top.length > 0 && (
               <ul className="mt-3 space-y-1">
                 {top.map(({ id, h, cat }) => (
                   <li key={id} className="flex items-center gap-2 text-xs">
-                    <span className="rounded-full shrink-0" style={{ width: 8, height: 8, background: cat?.color ?? '#D6D3D1' }} />
+                    <span className="rounded-full shrink-0" style={{ width: 8, height: 8, background: cat?.color ?? '#E0D4B8' }} />
                     <span className="flex-1 truncate" style={{ color: '#57534E' }}>{cat?.name ?? '삭제된 카테고리'}</span>
-                    <span className="display italic tabular-nums" style={{ color: '#78716C' }}>{h.toFixed(1)}h</span>
+                    <span className="display italic tabular-nums" style={{ color: '#8A7F73' }}>{h.toFixed(1)}h</span>
                   </li>
                 ))}
               </ul>

@@ -22,7 +22,7 @@ function shade(hex, step) {
   return `rgba(${r},${g},${b},${alphas[step]})`;
 }
 
-export default function Heatmap({ year, monthIndex0, days, accent = '#1C1917', onPick }) {
+export default function Heatmap({ year, monthIndex0, days, accent = '#2B2620', onPick }) {
   const [hover, setHover] = useState(null);
   const total = daysInMonth(year, monthIndex0);
   const firstW = firstWeekdayOfMonth(year, monthIndex0);
@@ -46,7 +46,7 @@ export default function Heatmap({ year, monthIndex0, days, accent = '#1C1917', o
 
   return (
     <Section title="월간 히트맵" subtitle="색이 진할수록 기록이 많은 날입니다">
-      <div className="rounded-lg p-5" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+      <div className="rounded-lg p-5" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
         <div className="grid grid-cols-7 gap-1 mb-2 text-xs" style={{ color: '#A8A29E' }}>
           {WEEKDAY_LABELS.map((w, i) => (
             <div
@@ -71,8 +71,8 @@ export default function Heatmap({ year, monthIndex0, days, accent = '#1C1917', o
                 className="relative rounded-sm transition"
                 style={{
                   aspectRatio: '1 / 1',
-                  background: c.step === 0 ? '#F0EEE8' : shade(accent, c.step),
-                  outline: c.dateStr === today ? '1.5px solid #1C1917' : 'none',
+                  background: c.step === 0 ? '#F3EDE1' : shade(accent, c.step),
+                  outline: c.dateStr === today ? '1.5px solid #2B2620' : 'none',
                   outlineOffset: '-1.5px',
                   cursor: c.value > 0 ? 'pointer' : 'default',
                 }}
@@ -80,7 +80,7 @@ export default function Heatmap({ year, monthIndex0, days, accent = '#1C1917', o
               >
                 <span
                   className="absolute top-0.5 left-1 text-[9px]"
-                  style={{ color: c.step >= 3 ? '#FAF8F3' : (c.weekday === 0 || c.weekday === 6 ? '#C85450' : '#78716C') }}
+                  style={{ color: c.step >= 3 ? '#FFFBF3' : (c.weekday === 0 || c.weekday === 6 ? '#C85450' : '#8A7F73') }}
                 >
                   {c.day}
                 </span>
@@ -96,7 +96,7 @@ export default function Heatmap({ year, monthIndex0, days, accent = '#1C1917', o
             <span
               key={s}
               className="w-3 h-3 rounded-sm"
-              style={{ background: s === 0 ? '#F0EEE8' : shade(accent, s) }}
+              style={{ background: s === 0 ? '#F3EDE1' : shade(accent, s) }}
             />
           ))}
           <span className="ml-1">More</span>

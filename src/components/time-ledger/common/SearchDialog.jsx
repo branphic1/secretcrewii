@@ -42,10 +42,10 @@ export default function SearchDialog({
       <div
         onClick={(e) => e.stopPropagation()}
         className="rounded-lg w-full max-w-2xl mt-16 fade-in"
-        style={{ background: '#FAF8F3', border: '1px solid #E7E5E0' }}
+        style={{ background: '#FFFBF3', border: '1px solid #EFE7D4' }}
       >
-        <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: '1px solid #E7E5E0' }}>
-          <Search size={16} style={{ color: '#78716C' }} />
+        <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: '1px solid #EFE7D4' }}>
+          <Search size={16} style={{ color: '#8A7F73' }} />
           <input
             autoFocus
             type="text"
@@ -53,9 +53,9 @@ export default function SearchDialog({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             className="flex-1 bg-transparent text-base outline-none"
-            style={{ color: '#1C1917' }}
+            style={{ color: '#2B2620' }}
           />
-          <button onClick={onClose} className="p-1 rounded hover:bg-stone-100" style={{ color: '#78716C' }}>
+          <button onClick={onClose} className="p-1 rounded hover:bg-stone-100" style={{ color: '#8A7F73' }}>
             <X size={16} />
           </button>
         </div>
@@ -73,7 +73,7 @@ export default function SearchDialog({
             <>
               {result.logs.length > 0 && (
                 <section className="p-3">
-                  <div className="text-xs px-2 pb-2" style={{ color: '#78716C' }}>
+                  <div className="text-xs px-2 pb-2" style={{ color: '#8A7F73' }}>
                     기록 · <span className="display italic">{result.logs.length}</span>건
                   </div>
                   <ul className="space-y-1">
@@ -86,17 +86,17 @@ export default function SearchDialog({
                             className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition hover:bg-stone-100"
                           >
                             <Calendar size={14} style={{ color: '#A8A29E' }} />
-                            <span className="display italic text-xs" style={{ color: '#78716C', minWidth: '5.5rem' }}>
+                            <span className="display italic text-xs" style={{ color: '#8A7F73', minWidth: '5.5rem' }}>
                               {formatKoreanDate(l.dateStr)}
                             </span>
                             <span
                               className="rounded-full shrink-0"
-                              style={{ background: cat?.color ?? '#D6D3D1', width: 8, height: 8 }}
+                              style={{ background: cat?.color ?? '#E0D4B8', width: 8, height: 8 }}
                             />
-                            <span className="text-xs" style={{ color: '#78716C', minWidth: '5rem' }}>
+                            <span className="text-xs" style={{ color: '#8A7F73', minWidth: '5rem' }}>
                               {l.categoryName}
                             </span>
-                            <span className="flex-1 text-sm truncate" style={{ color: '#1C1917' }}>
+                            <span className="flex-1 text-sm truncate" style={{ color: '#2B2620' }}>
                               {l.content}
                               {l.isPlan && <span className="ml-2 text-[10px]" style={{ color: '#D4883F' }}>(계획)</span>}
                             </span>
@@ -112,8 +112,8 @@ export default function SearchDialog({
               )}
 
               {result.blindspots.length > 0 && (
-                <section className="p-3" style={{ borderTop: '1px solid #F0EEE8' }}>
-                  <div className="text-xs px-2 pb-2" style={{ color: '#78716C' }}>
+                <section className="p-3" style={{ borderTop: '1px solid #F3EDE1' }}>
+                  <div className="text-xs px-2 pb-2" style={{ color: '#8A7F73' }}>
                     블라인드 스팟 · <span className="display italic">{result.blindspots.length}</span>건
                   </div>
                   <ul className="space-y-1">
@@ -124,13 +124,13 @@ export default function SearchDialog({
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition hover:bg-stone-100"
                         >
                           <AlertTriangle size={14} style={{ color: '#D4883F' }} />
-                          <span className="text-xs" style={{ color: '#78716C', minWidth: '6rem' }}>
+                          <span className="text-xs" style={{ color: '#8A7F73', minWidth: '6rem' }}>
                             {b.category}
                           </span>
-                          <span className="flex-1 text-sm truncate" style={{ color: '#1C1917' }}>
+                          <span className="flex-1 text-sm truncate" style={{ color: '#2B2620' }}>
                             {b.title}
                           </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: '#F0EEE8', color: '#57534E' }}>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: '#F3EDE1', color: '#57534E' }}>
                             {b.type}
                           </span>
                         </button>

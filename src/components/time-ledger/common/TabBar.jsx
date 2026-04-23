@@ -8,7 +8,7 @@ const TABS = [
 
 export default function TabBar({ active, onChange, blindspotAlert = 0 }) {
   return (
-    <nav className="w-full" style={{ borderBottom: '1px solid #E7E5E0', background: '#FAF8F3' }}>
+    <nav className="w-full" style={{ borderBottom: '1px solid #EFE7D4', background: '#FFFBF3' }}>
       <div className="mx-auto px-6" style={{ maxWidth: '64rem' }}>
         <ul className="flex gap-6 overflow-x-auto">
           {TABS.map((t) => {
@@ -19,9 +19,9 @@ export default function TabBar({ active, onChange, blindspotAlert = 0 }) {
                   onClick={() => onChange(t.id)}
                   className="relative py-3 text-sm transition-colors whitespace-nowrap"
                   style={{
-                    color: isActive ? '#1C1917' : '#78716C',
+                    color: isActive ? '#2B2620' : '#8A7F73',
                     fontWeight: isActive ? 600 : 400,
-                    borderBottom: isActive ? '1.5px solid #1C1917' : '1.5px solid transparent',
+                    borderBottom: isActive ? '1.5px solid #2B2620' : '1.5px solid transparent',
                   }}
                 >
                   <span>{t.label}</span>

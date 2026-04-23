@@ -147,7 +147,7 @@ export default function TimeLedgerApp() {
   };
 
   return (
-    <div className="min-h-screen time-ledger-root" style={{ background: '#FAF8F3' }}>
+    <div className="min-h-screen time-ledger-root" style={{ background: '#FFFBF3' }}>
       <Header
         onOpenSearch={() => setSearchOpen(true)}
         onOpenTimer={() => openTimerDialog('')}

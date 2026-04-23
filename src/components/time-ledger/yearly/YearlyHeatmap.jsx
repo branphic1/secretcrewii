@@ -41,15 +41,15 @@ export default function YearlyHeatmap({ year, entries, onPickMonth }) {
   const totalYear = monthTotals.reduce((s, x) => s + x, 0);
 
   return (
-    <div className="rounded-lg p-5" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+    <div className="rounded-lg p-5" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
       <div className="flex items-center justify-between mb-3">
-        <div className="text-xs" style={{ color: '#78716C' }}>
+        <div className="text-xs" style={{ color: '#8A7F73' }}>
           총 <span className="display italic">{totalYear.toFixed(1)}h</span>
         </div>
         <div className="flex items-center gap-1 text-xs" style={{ color: '#A8A29E' }}>
           <span className="mr-1">Less</span>
           {[0, 1, 2, 3, 4].map((s) => (
-            <span key={s} className="w-3 h-3 rounded-sm" style={{ background: s === 0 ? '#F0EEE8' : shade(s) }} />
+            <span key={s} className="w-3 h-3 rounded-sm" style={{ background: s === 0 ? '#F3EDE1' : shade(s) }} />
           ))}
           <span className="ml-1">More</span>
         </div>
@@ -74,7 +74,7 @@ export default function YearlyHeatmap({ year, entries, onPickMonth }) {
                   <button
                     onClick={() => onPickMonth?.(year, mi)}
                     className="display italic text-xs hover:underline"
-                    style={{ color: '#1C1917' }}
+                    style={{ color: '#2B2620' }}
                   >
                     {shortMonth(mi)}
                   </button>
@@ -92,7 +92,7 @@ export default function YearlyHeatmap({ year, entries, onPickMonth }) {
                           width: 14,
                           height: 14,
                           borderRadius: 3,
-                          background: step === 0 ? '#F0EEE8' : shade(step),
+                          background: step === 0 ? '#F3EDE1' : shade(step),
                         }}
                       />
                     </td>

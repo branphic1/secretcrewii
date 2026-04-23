@@ -36,11 +36,11 @@ export default function QuarterThemes({ quarters, onChange }) {
           <div
             key={qr.q}
             className="rounded-lg p-4"
-            style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}
+            style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}
           >
             <div className="flex items-center justify-between mb-2">
-              <div className="display italic text-lg" style={{ color: '#1C1917' }}>Q{qr.q}</div>
-              <span className="display italic text-xs" style={{ color: '#78716C' }}>{progress}%</span>
+              <div className="display italic text-lg" style={{ color: '#2B2620' }}>Q{qr.q}</div>
+              <span className="display italic text-xs" style={{ color: '#8A7F73' }}>{progress}%</span>
             </div>
             <input
               type="text"
@@ -48,14 +48,14 @@ export default function QuarterThemes({ quarters, onChange }) {
               value={qr.theme}
               onChange={(e) => update(qr.q, { theme: e.target.value })}
               className="w-full rounded-md px-3 py-2 text-sm outline-none"
-              style={{ border: '1px solid #F0EEE8', background: '#FAF8F3', color: '#1C1917' }}
+              style={{ border: '1px solid #F3EDE1', background: '#FFFBF3', color: '#2B2620' }}
             />
             <ul className="mt-3 space-y-1">
               {qr.projects.map((p) => (
                 <li
                   key={p.id}
                   className="row-hover flex items-center gap-2 px-2 py-1.5 rounded text-sm"
-                  style={{ background: '#FAF8F3' }}
+                  style={{ background: '#FFFBF3' }}
                 >
                   <input
                     type="checkbox"
@@ -66,7 +66,7 @@ export default function QuarterThemes({ quarters, onChange }) {
                   <span
                     className="flex-1 truncate"
                     style={{
-                      color: p.done ? '#A8A29E' : '#1C1917',
+                      color: p.done ? '#A8A29E' : '#2B2620',
                       textDecoration: p.done ? 'line-through' : 'none',
                     }}
                   >
@@ -86,7 +86,7 @@ export default function QuarterThemes({ quarters, onChange }) {
             <button
               onClick={() => addProject(qr.q)}
               className="mt-2 inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md transition hover:bg-stone-100"
-              style={{ color: '#57534E', border: '1px solid #E7E5E0' }}
+              style={{ color: '#57534E', border: '1px solid #EFE7D4' }}
             >
               <Plus size={12} /> 프로젝트 추가
             </button>

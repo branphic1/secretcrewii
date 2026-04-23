@@ -56,19 +56,19 @@ export default function DataIO({ onReset }) {
   };
 
   return (
-    <div className="rounded-lg p-5 space-y-3" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+    <div className="rounded-lg p-5 space-y-3" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
       <div className="flex flex-wrap gap-2">
         <button
           onClick={handleExport}
           className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition"
-          style={{ background: '#1C1917', color: '#FAF8F3' }}
+          style={{ background: '#2B2620', color: '#FFFBF3' }}
         >
           <Download size={14} /> JSON 내보내기
         </button>
         <button
           onClick={handleImportClick}
           className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition"
-          style={{ background: '#FFFDF8', color: '#1C1917', border: '1px solid #E7E5E0' }}
+          style={{ background: '#FFFDF6', color: '#2B2620', border: '1px solid #EFE7D4' }}
         >
           <Upload size={14} /> JSON 가져오기
         </button>
@@ -76,7 +76,7 @@ export default function DataIO({ onReset }) {
         <button
           onClick={handleReset}
           className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition"
-          style={{ background: '#FFFDF8', color: '#C85450', border: '1px solid #E7E5E0' }}
+          style={{ background: '#FFFDF6', color: '#C85450', border: '1px solid #EFE7D4' }}
         >
           <RefreshCcw size={14} /> 전체 초기화
         </button>

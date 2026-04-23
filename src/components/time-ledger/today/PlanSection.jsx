@@ -34,7 +34,7 @@ export default function PlanSection({
 
   return (
     <Section title="오늘의 설계" subtitle="무엇을 할 계획인가요">
-      <div className="rounded-lg p-4" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+      <div className="rounded-lg p-4" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
         <div className="flex flex-wrap items-center gap-2">
           <CategoryPicker categories={categories} value={catId} onChange={setCatId} />
           <input
@@ -46,7 +46,7 @@ export default function PlanSection({
             onChange={(e) => setHours(e.target.value)}
             onKeyDown={onKey}
             className="rounded-md px-3 py-2 text-sm outline-none"
-            style={{ border: '1px solid #E7E5E0', width: '5.5rem', background: '#fff' }}
+            style={{ border: '1px solid #EFE7D4', width: '5.5rem', background: '#fff' }}
           />
           <input
             type="text"
@@ -55,12 +55,12 @@ export default function PlanSection({
             onChange={(e) => setNote(e.target.value)}
             onKeyDown={onKey}
             className="flex-1 rounded-md px-3 py-2 text-sm outline-none"
-            style={{ border: '1px solid #E7E5E0', background: '#fff', minWidth: '12rem' }}
+            style={{ border: '1px solid #EFE7D4', background: '#fff', minWidth: '12rem' }}
           />
           <button
             onClick={add}
             className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm transition"
-            style={{ background: '#1C1917', color: '#FAF8F3' }}
+            style={{ background: '#2B2620', color: '#FFFBF3' }}
           >
             <Plus size={14} /> 추가
           </button>
@@ -80,9 +80,9 @@ export default function PlanSection({
                 <li
                   key={i}
                   className="row-hover flex items-center gap-3 pl-3 pr-2 py-2 rounded-md"
-                  style={{ borderLeft: `3px solid ${cat?.color ?? '#D6D3D1'}`, background: '#FAF8F3' }}
+                  style={{ borderLeft: `3px solid ${cat?.color ?? '#E0D4B8'}`, background: '#FFFBF3' }}
                 >
-                  <span className="text-sm font-medium" style={{ color: '#1C1917', minWidth: '8rem' }}>
+                  <span className="text-sm font-medium" style={{ color: '#2B2620', minWidth: '8rem' }}>
                     {cat?.name ?? '?'}
                   </span>
                   <span className="display italic text-sm" style={{ color: '#57534E' }}>
@@ -120,7 +120,7 @@ export default function PlanSection({
             <button
               onClick={onStartBlankTimer}
               className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md transition hover:bg-stone-100"
-              style={{ color: '#57534E', border: '1px solid #E7E5E0' }}
+              style={{ color: '#57534E', border: '1px solid #EFE7D4' }}
             >
               <Timer size={12} /> 계획 없이 타이머
             </button>

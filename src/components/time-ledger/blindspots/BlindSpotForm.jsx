@@ -79,53 +79,53 @@ export default function BlindSpotForm({ initial, blindspotCategories, timeCatego
         onClick={(e) => e.stopPropagation()}
         onSubmit={handleSubmit}
         className="rounded-lg w-full max-w-xl my-8 fade-in"
-        style={{ background: '#FAF8F3', border: '1px solid #E7E5E0' }}
+        style={{ background: '#FFFBF3', border: '1px solid #EFE7D4' }}
       >
         <div
           className="flex items-center justify-between px-5 py-3"
-          style={{ borderBottom: '1px solid #E7E5E0' }}
+          style={{ borderBottom: '1px solid #EFE7D4' }}
         >
-          <h3 className="display italic text-lg" style={{ color: '#1C1917' }}>
+          <h3 className="display italic text-lg" style={{ color: '#2B2620' }}>
             {form.id ? '항목 편집' : '새 블라인드 스팟'}
           </h3>
-          <button type="button" onClick={onCancel} className="p-1 rounded hover:bg-stone-100" style={{ color: '#78716C' }}>
+          <button type="button" onClick={onCancel} className="p-1 rounded hover:bg-stone-100" style={{ color: '#8A7F73' }}>
             <X size={16} />
           </button>
         </div>
 
         <div className="p-5 space-y-4">
           <div>
-            <label className="text-xs block mb-1" style={{ color: '#78716C' }}>제목</label>
+            <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>제목</label>
             <input
               type="text"
               value={form.title}
               onChange={(e) => set({ title: e.target.value })}
               autoFocus
               className="w-full rounded-md px-3 py-2 text-sm outline-none"
-              style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+              style={{ border: '1px solid #EFE7D4', background: '#fff' }}
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs block mb-1" style={{ color: '#78716C' }}>유형</label>
+              <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>유형</label>
               <select
                 value={form.type}
                 onChange={(e) => set({ type: e.target.value })}
                 className="w-full rounded-md px-3 py-2 text-sm outline-none"
-                style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+                style={{ border: '1px solid #EFE7D4', background: '#fff' }}
               >
                 {TYPE_OPTS.map((o) => <option key={o.v} value={o.v}>{o.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs block mb-1" style={{ color: '#78716C' }}>카테고리</label>
+              <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>카테고리</label>
               <select
                 value={form.category}
                 onChange={(e) => set({ category: e.target.value })}
                 className="w-full rounded-md px-3 py-2 text-sm outline-none"
-                style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+                style={{ border: '1px solid #EFE7D4', background: '#fff' }}
               >
                 {blindspotCategories.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
               </select>
@@ -134,13 +134,13 @@ export default function BlindSpotForm({ initial, blindspotCategories, timeCatego
 
           {form.type === 'deadline' && (
             <div>
-              <label className="text-xs block mb-1" style={{ color: '#78716C' }}>기한</label>
+              <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>기한</label>
               <input
                 type="date"
                 value={form.dueDate || ''}
                 onChange={(e) => set({ dueDate: e.target.value })}
                 className="rounded-md px-3 py-2 text-sm outline-none"
-                style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+                style={{ border: '1px solid #EFE7D4', background: '#fff' }}
               />
             </div>
           )}
@@ -148,18 +148,18 @@ export default function BlindSpotForm({ initial, blindspotCategories, timeCatego
           {form.type === 'recurring' && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs block mb-1" style={{ color: '#78716C' }}>주기</label>
+                <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>주기</label>
                 <select
                   value={form.recurrence.frequency}
                   onChange={(e) => set({ recurrence: { ...form.recurrence, frequency: e.target.value } })}
                   className="w-full rounded-md px-3 py-2 text-sm outline-none"
-                  style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+                  style={{ border: '1px solid #EFE7D4', background: '#fff' }}
                 >
                   {FREQ_OPTS.map((o) => <option key={o.v} value={o.v}>{o.label}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs block mb-1" style={{ color: '#78716C' }}>기준일</label>
+                <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>기준일</label>
                 <input
                   type="date"
                   value={form.recurrence.anchor || ''}
@@ -168,7 +168,7 @@ export default function BlindSpotForm({ initial, blindspotCategories, timeCatego
                     dueDate: e.target.value,
                   })}
                   className="w-full rounded-md px-3 py-2 text-sm outline-none"
-                  style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+                  style={{ border: '1px solid #EFE7D4', background: '#fff' }}
                 />
               </div>
             </div>
@@ -177,58 +177,58 @@ export default function BlindSpotForm({ initial, blindspotCategories, timeCatego
           {form.type === 'incident' && (
             <>
               <div>
-                <label className="text-xs block mb-1" style={{ color: '#78716C' }}>놓친 시점</label>
+                <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>놓친 시점</label>
                 <input
                   type="date"
                   value={form.occurredDate || ''}
                   onChange={(e) => set({ occurredDate: e.target.value })}
                   className="rounded-md px-3 py-2 text-sm outline-none"
-                  style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+                  style={{ border: '1px solid #EFE7D4', background: '#fff' }}
                 />
               </div>
               <div>
-                <label className="text-xs block mb-1" style={{ color: '#78716C' }}>재발 방지 메모 (lesson learned)</label>
+                <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>재발 방지 메모 (lesson learned)</label>
                 <textarea
                   rows={2}
                   value={form.lessonLearned}
                   onChange={(e) => set({ lessonLearned: e.target.value })}
                   className="w-full rounded-md px-3 py-2 text-sm outline-none resize-none"
-                  style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+                  style={{ border: '1px solid #EFE7D4', background: '#fff' }}
                 />
               </div>
             </>
           )}
 
           <div>
-            <label className="text-xs block mb-1" style={{ color: '#78716C' }}>상세 설명</label>
+            <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>상세 설명</label>
             <textarea
               rows={2}
               value={form.description}
               onChange={(e) => set({ description: e.target.value })}
               className="w-full rounded-md px-3 py-2 text-sm outline-none resize-none"
-              style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+              style={{ border: '1px solid #EFE7D4', background: '#fff' }}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs block mb-1" style={{ color: '#78716C' }}>심각도</label>
+              <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>심각도</label>
               <select
                 value={form.severity}
                 onChange={(e) => set({ severity: e.target.value })}
                 className="w-full rounded-md px-3 py-2 text-sm outline-none"
-                style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+                style={{ border: '1px solid #EFE7D4', background: '#fff' }}
               >
                 {SEV_OPTS.map((o) => <option key={o.v} value={o.v}>{o.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs block mb-1" style={{ color: '#78716C' }}>상태</label>
+              <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>상태</label>
               <select
                 value={form.status}
                 onChange={(e) => set({ status: e.target.value })}
                 className="w-full rounded-md px-3 py-2 text-sm outline-none"
-                style={{ border: '1px solid #E7E5E0', background: '#fff' }}
+                style={{ border: '1px solid #EFE7D4', background: '#fff' }}
               >
                 {STATUS_OPTS.map((o) => <option key={o.v} value={o.v}>{o.label}</option>)}
               </select>
@@ -236,7 +236,7 @@ export default function BlindSpotForm({ initial, blindspotCategories, timeCatego
           </div>
 
           <div>
-            <label className="text-xs block mb-1.5" style={{ color: '#78716C' }}>
+            <label className="text-xs block mb-1.5" style={{ color: '#8A7F73' }}>
               연결된 Time Ledger 카테고리 (선택)
             </label>
             <div className="flex flex-wrap gap-1">
@@ -250,8 +250,8 @@ export default function BlindSpotForm({ initial, blindspotCategories, timeCatego
                     className="px-2 py-1 text-xs rounded-full transition"
                     style={{
                       background: on ? c.color : 'transparent',
-                      color: on ? '#FAF8F3' : '#57534E',
-                      border: `1px solid ${on ? c.color : '#E7E5E0'}`,
+                      color: on ? '#FFFBF3' : '#57534E',
+                      border: `1px solid ${on ? c.color : '#EFE7D4'}`,
                     }}
                   >
                     {c.name}
@@ -264,7 +264,7 @@ export default function BlindSpotForm({ initial, blindspotCategories, timeCatego
 
         <div
           className="flex items-center justify-between px-5 py-3"
-          style={{ borderTop: '1px solid #E7E5E0' }}
+          style={{ borderTop: '1px solid #EFE7D4' }}
         >
           <div>
             {onDelete && (
@@ -272,7 +272,7 @@ export default function BlindSpotForm({ initial, blindspotCategories, timeCatego
                 type="button"
                 onClick={onDelete}
                 className="text-sm px-3 py-1.5 rounded-md transition"
-                style={{ color: '#C85450', border: '1px solid #E7E5E0' }}
+                style={{ color: '#C85450', border: '1px solid #EFE7D4' }}
               >
                 삭제
               </button>
@@ -283,14 +283,14 @@ export default function BlindSpotForm({ initial, blindspotCategories, timeCatego
               type="button"
               onClick={onCancel}
               className="text-sm px-3 py-1.5 rounded-md transition"
-              style={{ color: '#57534E', border: '1px solid #E7E5E0' }}
+              style={{ color: '#57534E', border: '1px solid #EFE7D4' }}
             >
               취소
             </button>
             <button
               type="submit"
               className="text-sm px-3 py-1.5 rounded-md transition"
-              style={{ background: '#1C1917', color: '#FAF8F3' }}
+              style={{ background: '#2B2620', color: '#FFFBF3' }}
             >
               저장
             </button>

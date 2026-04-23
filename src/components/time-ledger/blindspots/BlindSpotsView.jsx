@@ -146,9 +146,9 @@ export default function BlindSpotsView({
                 onClick={() => { setTab(s.id); setView('list'); }}
                 className="px-3 py-1.5 text-sm rounded-md transition"
                 style={{
-                  background: isActive ? '#1C1917' : 'transparent',
-                  color: isActive ? '#FAF8F3' : '#57534E',
-                  border: isActive ? '1px solid #1C1917' : '1px solid #E7E5E0',
+                  background: isActive ? '#2B2620' : 'transparent',
+                  color: isActive ? '#FFFBF3' : '#57534E',
+                  border: isActive ? '1px solid #2B2620' : '1px solid #EFE7D4',
                 }}
               >
                 {s.label}
@@ -160,9 +160,9 @@ export default function BlindSpotsView({
             onClick={() => setView(view === 'calendar' ? 'list' : 'calendar')}
             className="px-3 py-1.5 text-sm rounded-md transition inline-flex items-center gap-1"
             style={{
-              background: view === 'calendar' ? '#1C1917' : 'transparent',
-              color: view === 'calendar' ? '#FAF8F3' : '#57534E',
-              border: view === 'calendar' ? '1px solid #1C1917' : '1px solid #E7E5E0',
+              background: view === 'calendar' ? '#2B2620' : 'transparent',
+              color: view === 'calendar' ? '#FFFBF3' : '#57534E',
+              border: view === 'calendar' ? '1px solid #2B2620' : '1px solid #EFE7D4',
             }}
           >
             {view === 'calendar' ? <LayoutList size={14} /> : <CalendarRange size={14} />}
@@ -173,14 +173,14 @@ export default function BlindSpotsView({
           <button
             onClick={() => setShowTemplate(true)}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded-md transition"
-            style={{ background: '#FFFDF8', color: '#1C1917', border: '1px solid #E7E5E0' }}
+            style={{ background: '#FFFDF6', color: '#2B2620', border: '1px solid #EFE7D4' }}
           >
             <Sparkles size={14} /> 템플릿
           </button>
           <button
             onClick={() => setEditing({})}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded-md transition"
-            style={{ background: '#1C1917', color: '#FAF8F3' }}
+            style={{ background: '#2B2620', color: '#FFFBF3' }}
           >
             <Plus size={14} /> 새 항목
           </button>
@@ -228,13 +228,13 @@ export default function BlindSpotsView({
               />
               {Object.keys(incidentFreq).length > 0 && (
                 <Section title="카테고리별 빈도">
-                  <div className="rounded-lg p-4" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+                  <div className="rounded-lg p-4" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
                     <ul className="space-y-1 text-sm">
                       {Object.entries(incidentFreq)
                         .sort((a, b) => b[1] - a[1])
                         .map(([cat, n]) => (
                           <li key={cat} className="flex items-center justify-between">
-                            <span style={{ color: '#1C1917' }}>{cat}</span>
+                            <span style={{ color: '#2B2620' }}>{cat}</span>
                             <span className="display italic" style={{ color: '#57534E' }}>{n}건</span>
                           </li>
                         ))}

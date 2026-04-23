@@ -10,7 +10,7 @@ export default function ThemeAlignment({ entries, yearlyPlan, categories }) {
   const hasAnyGoals = (yearlyPlan.goals || []).some((g) => (g.relatedCategoryIds || []).length > 0);
 
   return (
-    <div className="rounded-lg p-5 space-y-4" style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}>
+    <div className="rounded-lg p-5 space-y-4" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
       {!hasAnyGoals && (
         <p className="text-xs" style={{ color: '#A8A29E' }}>
           연간 목표에 <span className="display italic">관련 카테고리</span>를 연결하면 분기별 정렬도가 계산됩니다.
@@ -23,18 +23,18 @@ export default function ThemeAlignment({ entries, yearlyPlan, categories }) {
             <div
               key={qr.q}
               className="rounded-md p-3"
-              style={{ background: '#FAF8F3', border: '1px solid #F0EEE8' }}
+              style={{ background: '#FFFBF3', border: '1px solid #F3EDE1' }}
             >
               <div className="flex items-baseline justify-between mb-1">
-                <div className="display italic text-base" style={{ color: '#1C1917' }}>Q{qr.q}</div>
+                <div className="display italic text-base" style={{ color: '#2B2620' }}>Q{qr.q}</div>
                 <div className="display italic text-sm" style={{ color: '#57534E' }}>
                   {qr.totalHours.toFixed(1)}h
                 </div>
               </div>
-              <div className="text-xs mb-2" style={{ color: '#78716C' }}>
+              <div className="text-xs mb-2" style={{ color: '#8A7F73' }}>
                 {qr.theme || <span style={{ color: '#A8A29E' }}>테마 미설정</span>}
               </div>
-              <div className="h-2 rounded-full" style={{ background: '#F0EEE8' }}>
+              <div className="h-2 rounded-full" style={{ background: '#F3EDE1' }}>
                 <div
                   className="h-2 rounded-full transition-all"
                   style={{
@@ -61,14 +61,14 @@ export default function ThemeAlignment({ entries, yearlyPlan, categories }) {
                           width: 6,
                           height: 6,
                           background: r.color,
-                          outline: r.isTarget ? '1.5px solid #1C1917' : 'none',
+                          outline: r.isTarget ? '1.5px solid #2B2620' : 'none',
                           outlineOffset: '1px',
                         }}
                       />
-                      <span className="flex-1 truncate" style={{ color: r.isTarget ? '#1C1917' : '#57534E' }}>
+                      <span className="flex-1 truncate" style={{ color: r.isTarget ? '#2B2620' : '#57534E' }}>
                         {r.name}
                       </span>
-                      <span className="display italic tabular-nums" style={{ color: '#78716C' }}>
+                      <span className="display italic tabular-nums" style={{ color: '#8A7F73' }}>
                         {Math.round(r.share * 100)}%
                       </span>
                     </li>

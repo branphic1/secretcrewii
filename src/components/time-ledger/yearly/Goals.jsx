@@ -58,7 +58,7 @@ export default function Goals({ goals, categories, onChange }) {
       {goals.length === 0 && (
         <div
           className="text-center text-sm py-8 rounded-lg"
-          style={{ color: '#A8A29E', background: '#FFFDF8', border: '1px dashed #E7E5E0' }}
+          style={{ color: '#A8A29E', background: '#FFFDF6', border: '1px dashed #EFE7D4' }}
         >
           아직 등록된 목표가 없습니다. 올해의 북극성 3~5개를 설정해보세요.
         </div>
@@ -68,7 +68,7 @@ export default function Goals({ goals, categories, onChange }) {
         <div
           key={g.id}
           className="rounded-lg p-4"
-          style={{ background: '#FFFDF8', border: '1px solid #E7E5E0' }}
+          style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}
         >
           <div className="flex items-start gap-2">
             <span
@@ -80,13 +80,13 @@ export default function Goals({ goals, categories, onChange }) {
               value={g.title}
               onChange={(e) => update(g.id, { title: e.target.value })}
               className="flex-1 bg-transparent text-base font-medium outline-none"
-              style={{ color: '#1C1917' }}
+              style={{ color: '#2B2620' }}
             />
             <select
               value={g.status}
               onChange={(e) => update(g.id, { status: e.target.value })}
               className="text-xs rounded-md px-2 py-1 outline-none"
-              style={{ border: '1px solid #E7E5E0', background: '#fff', color: '#57534E' }}
+              style={{ border: '1px solid #EFE7D4', background: '#fff', color: '#57534E' }}
             >
               {STATUS.map((s) => (
                 <option key={s.v} value={s.v}>{s.label}</option>
@@ -108,11 +108,11 @@ export default function Goals({ goals, categories, onChange }) {
             onChange={(e) => update(g.id, { description: e.target.value })}
             rows={2}
             className="mt-3 w-full rounded-md px-3 py-2 text-sm outline-none resize-none"
-            style={{ border: '1px solid #F0EEE8', background: '#FAF8F3', color: '#1C1917' }}
+            style={{ border: '1px solid #F3EDE1', background: '#FFFBF3', color: '#2B2620' }}
           />
 
           <div className="mt-3">
-            <div className="text-xs mb-1.5" style={{ color: '#78716C' }}>관련 카테고리</div>
+            <div className="text-xs mb-1.5" style={{ color: '#8A7F73' }}>관련 카테고리</div>
             <div className="flex flex-wrap gap-1">
               {categories.map((c) => {
                 const on = g.relatedCategoryIds.includes(c.id);
@@ -123,8 +123,8 @@ export default function Goals({ goals, categories, onChange }) {
                     className="px-2 py-1 text-xs rounded-full transition"
                     style={{
                       background: on ? c.color : 'transparent',
-                      color: on ? '#FAF8F3' : '#57534E',
-                      border: `1px solid ${on ? c.color : '#E7E5E0'}`,
+                      color: on ? '#FFFBF3' : '#57534E',
+                      border: `1px solid ${on ? c.color : '#EFE7D4'}`,
                     }}
                   >
                     {c.name}
@@ -135,7 +135,7 @@ export default function Goals({ goals, categories, onChange }) {
           </div>
 
           <div className="mt-4 flex items-center gap-3">
-            <span className="text-xs" style={{ color: '#78716C' }}>진행률</span>
+            <span className="text-xs" style={{ color: '#8A7F73' }}>진행률</span>
             <input
               type="range"
               min="0"
@@ -146,7 +146,7 @@ export default function Goals({ goals, categories, onChange }) {
               className="flex-1"
               style={{ accentColor: STATUS_COLOR[g.status] }}
             />
-            <span className="display italic text-sm tabular-nums" style={{ color: '#1C1917', minWidth: '3rem', textAlign: 'right' }}>
+            <span className="display italic text-sm tabular-nums" style={{ color: '#2B2620', minWidth: '3rem', textAlign: 'right' }}>
               {g.progress}%
             </span>
           </div>
@@ -161,12 +161,12 @@ export default function Goals({ goals, categories, onChange }) {
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && add()}
           className="flex-1 rounded-md px-3 py-2 text-sm outline-none"
-          style={{ border: '1px solid #E7E5E0', background: '#FFFDF8' }}
+          style={{ border: '1px solid #EFE7D4', background: '#FFFDF6' }}
         />
         <button
           onClick={add}
           className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm transition"
-          style={{ background: '#1C1917', color: '#FAF8F3' }}
+          style={{ background: '#2B2620', color: '#FFFBF3' }}
         >
           <Plus size={14} /> 목표 추가
         </button>
