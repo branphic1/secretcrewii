@@ -1,11 +1,22 @@
 import { useState } from 'react';
-import { Plus, Trash2, Play, Timer } from 'lucide-react';
+import { Plus, Trash2, Play, Check, Timer } from 'lucide-react';
 import Section from '../common/Section.jsx';
 import CategoryPicker from '../common/CategoryPicker.jsx';
 import BlindSpotHint from '../common/BlindSpotHint.jsx';
+import { plansWithProgress } from '@/lib/time-ledger/analysis.js';
+
+function formatDuration(h) {
+  if (h <= 0) return '0분';
+  const mins = Math.round(h * 60);
+  if (mins < 60) return `${mins}분`;
+  const hr = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (m === 0) return `${hr}시간`;
+  return `${hr}시간 ${m}분`;
+}
 
 export default function PlanSection({
-  plan, categories, onChange, incidentsByCat = {},
+  plan, logs = [], categories, onChange, incidentsByCat = {},
   onStartTimer, onStartBlankTimer, activeTimer, date,
 }) {
   const [catId, setCatId] = useState(categories[0]?.id ?? '');
@@ -32,83 +43,197 @@ export default function PlanSection({
 
   const byId = (id) => categories.find((c) => c.id === id);
 
-  return (
-    <Section title="오늘의 설계" subtitle="무엇을 할 계획인가요">
-      <div className="rounded-lg p-4" style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}>
-        <div className="flex flex-wrap items-center gap-2">
-          <CategoryPicker categories={categories} value={catId} onChange={setCatId} />
-          <input
-            type="number"
-            step="0.5"
-            min="0"
-            placeholder="시간"
-            value={hours}
-            onChange={(e) => setHours(e.target.value)}
-            onKeyDown={onKey}
-            className="rounded-md px-3 py-2 text-sm outline-none"
-            style={{ border: '1px solid #EFE7D4', width: '5.5rem', background: '#fff' }}
-          />
-          <input
-            type="text"
-            placeholder="메모 (선택)"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            onKeyDown={onKey}
-            className="flex-1 rounded-md px-3 py-2 text-sm outline-none"
-            style={{ border: '1px solid #EFE7D4', background: '#fff', minWidth: '12rem' }}
-          />
-          <button
-            onClick={add}
-            className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm transition"
-            style={{ background: '#2B2620', color: '#FFFBF3' }}
-          >
-            <Plus size={14} /> 추가
-          </button>
-        </div>
-        {catId && incidentsByCat[catId] > 0 && (
-          <div className="mt-2">
-            <BlindSpotHint categoryId={catId} incidentsByCat={incidentsByCat} />
-          </div>
-        )}
+  const rows = plansWithProgress({ plan, logs });
 
-        {plan.length > 0 && (
-          <ul className="mt-4 space-y-1.5">
-            {plan.map((p, i) => {
+  return (
+    <Section title="오늘의 할 일" subtitle="계획을 추가하고 준비되면 ▶ 시작하세요">
+      <div className="space-y-3">
+        {/* 빠른 추가 */}
+        <div
+          className="rounded-2xl p-3"
+          style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <CategoryPicker categories={categories} value={catId} onChange={setCatId} />
+            <input
+              type="number"
+              step="0.5"
+              min="0"
+              placeholder="시간"
+              value={hours}
+              onChange={(e) => setHours(e.target.value)}
+              onKeyDown={onKey}
+              className="rounded-xl px-3 py-2 text-sm outline-none"
+              style={{ border: '1px solid #EFE7D4', width: '5.5rem', background: '#fff' }}
+            />
+            <input
+              type="text"
+              placeholder="무엇을 할 건가요? (메모)"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              onKeyDown={onKey}
+              className="flex-1 rounded-xl px-3 py-2 text-sm outline-none"
+              style={{ border: '1px solid #EFE7D4', background: '#fff', minWidth: '12rem' }}
+            />
+            <button
+              onClick={add}
+              className="inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm transition"
+              style={{ background: '#2B2620', color: '#FFFBF3' }}
+            >
+              <Plus size={14} /> 추가
+            </button>
+          </div>
+          {catId && incidentsByCat[catId] > 0 && (
+            <div className="mt-2">
+              <BlindSpotHint categoryId={catId} incidentsByCat={incidentsByCat} />
+            </div>
+          )}
+        </div>
+
+        {rows.length === 0 ? (
+          <div
+            className="text-center py-8 rounded-2xl text-sm"
+            style={{ background: '#FFFDF6', color: '#A89D8E', border: '1px dashed #EFE7D4' }}
+          >
+            아직 계획이 없어요. 위에 오늘 할 일을 추가해보세요.
+          </div>
+        ) : (
+          <ul className="space-y-2">
+            {rows.map((p) => {
               const cat = byId(p.categoryId);
-              const running = !!(activeTimer && activeTimer.planRef && activeTimer.planRef.date === date && activeTimer.planRef.index === i);
+              const color = cat?.color ?? '#9DB0B8';
+              const running = !!(activeTimer && activeTimer.planRef && activeTimer.planRef.date === date && activeTimer.planRef.index === p.index);
               return (
                 <li
-                  key={i}
-                  className="row-hover flex items-center gap-3 pl-3 pr-2 py-2 rounded-md"
-                  style={{ borderLeft: `3px solid ${cat?.color ?? '#E0D4B8'}`, background: '#FFFBF3' }}
+                  key={p.index}
+                  className="row-hover rounded-2xl p-4 transition"
+                  style={{
+                    background: running
+                      ? `linear-gradient(135deg, ${color}15, ${color}08)`
+                      : '#FFFDF6',
+                    border: running
+                      ? `2px solid ${color}`
+                      : p.done
+                        ? `1.5px solid #5AD2B3`
+                        : '1px solid #EFE7D4',
+                    boxShadow: running ? `0 4px 16px ${color}33` : 'none',
+                  }}
                 >
-                  <span className="text-sm font-medium" style={{ color: '#2B2620', minWidth: '8rem' }}>
-                    {cat?.name ?? '?'}
-                  </span>
-                  <span className="display italic text-sm" style={{ color: '#57534E' }}>
-                    {p.hours.toFixed(1)}h
-                  </span>
-                  {p.note && <span className="text-sm flex-1 truncate" style={{ color: '#57534E' }}>— {p.note}</span>}
-                  {!p.note && <span className="flex-1" />}
-                  {onStartTimer && p.hours > 0 && (
-                    <button
-                      onClick={() => onStartTimer(i)}
-                      className="p-1 rounded transition hover:bg-stone-200"
-                      style={{ color: running ? '#5C8A6E' : '#57534E' }}
-                      aria-label={running ? '진행 중' : '타이머 시작'}
-                      title={running ? '이 항목으로 타이머 진행 중' : `${p.hours.toFixed(1)}h 타이머 시작`}
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="shrink-0 rounded-full flex items-center justify-center"
+                      style={{
+                        background: p.done ? '#5AD2B3' : color,
+                        width: 28,
+                        height: 28,
+                      }}
                     >
-                      {running ? <Timer size={14} /> : <Play size={14} />}
+                      {p.done ? (
+                        <Check size={14} color="#fff" strokeWidth={3} />
+                      ) : (
+                        <span className="display italic text-xs" style={{ color: '#fff' }}>
+                          {p.index + 1}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span className="text-sm font-medium" style={{ color: '#2B2620' }}>
+                          {cat?.name ?? '?'}
+                        </span>
+                        <span
+                          className="display italic text-xs px-2 py-0.5 rounded-full"
+                          style={{ background: color + '22', color: color }}
+                        >
+                          {formatDuration(p.hours)}
+                        </span>
+                        {running && (
+                          <span
+                            className="text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+                            style={{ background: color, color: '#fff' }}
+                          >
+                            <Timer size={10} /> 진행 중
+                          </span>
+                        )}
+                        {p.done && !running && (
+                          <span
+                            className="text-[10px] px-2 py-0.5 rounded-full"
+                            style={{ background: '#D1F5E4', color: '#1F7A5A' }}
+                          >
+                            완료
+                          </span>
+                        )}
+                      </div>
+                      {p.note && (
+                        <div className="text-sm mt-0.5 truncate" style={{ color: '#57534E' }}>
+                          {p.note}
+                        </div>
+                      )}
+                    </div>
+                    {onStartTimer && p.hours > 0 && !p.done && (
+                      <button
+                        onClick={() => onStartTimer(p.index)}
+                        className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition"
+                        style={{
+                          background: running ? '#fff' : color,
+                          color: running ? color : '#fff',
+                          border: running ? `2px solid ${color}` : 'none',
+                          boxShadow: running ? 'none' : `0 2px 8px ${color}66`,
+                        }}
+                        aria-label={running ? '진행 중' : '타이머 시작'}
+                        title={running ? '이 항목으로 타이머 진행 중' : `${formatDuration(p.hours)} 타이머 시작`}
+                      >
+                        <Play size={14} fill="currentColor" />
+                        {running ? '진행 중' : '시작'}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => remove(p.index)}
+                      className="on-hover p-1.5 rounded-full transition hover:bg-stone-100"
+                      aria-label="삭제"
+                      style={{ color: '#C85450' }}
+                    >
+                      <Trash2 size={14} />
                     </button>
+                  </div>
+
+                  {/* 진행 바 */}
+                  {p.hours > 0 && (
+                    <div className="mt-3">
+                      <div
+                        className="h-2 rounded-full overflow-hidden"
+                        style={{ background: '#F3EDE1' }}
+                      >
+                        <div
+                          className="h-full transition-all"
+                          style={{
+                            width: `${p.progress * 100}%`,
+                            background: p.done
+                              ? 'linear-gradient(90deg, #5AD2B3, #29C7B9)'
+                              : color,
+                          }}
+                        />
+                      </div>
+                      <div className="mt-1 flex items-center justify-between text-[11px]">
+                        <span style={{ color: '#8A7F73' }}>
+                          <span className="display italic" style={{ color: '#2B2620' }}>
+                            {formatDuration(p.actual)}
+                          </span>
+                          {' '}완료
+                          {p.remaining > 0 && (
+                            <>
+                              {' · '}
+                              <span className="display italic">{formatDuration(p.remaining)}</span>
+                              {' 남음'}
+                            </>
+                          )}
+                        </span>
+                        <span className="display italic tabular-nums" style={{ color: color }}>
+                          {Math.round(p.progress * 100)}%
+                        </span>
+                      </div>
+                    </div>
                   )}
-                  <button
-                    onClick={() => remove(i)}
-                    className="on-hover p-1 rounded transition hover:bg-stone-200"
-                    aria-label="삭제"
-                    style={{ color: '#C85450' }}
-                  >
-                    <Trash2 size={14} />
-                  </button>
                 </li>
               );
             })}
@@ -116,11 +241,11 @@ export default function PlanSection({
         )}
 
         {onStartBlankTimer && (
-          <div className="mt-3 text-right">
+          <div className="text-right">
             <button
               onClick={onStartBlankTimer}
-              className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md transition hover:bg-stone-100"
-              style={{ color: '#57534E', border: '1px solid #EFE7D4' }}
+              className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full transition hover:bg-stone-100"
+              style={{ color: '#57534E', border: '1px solid #EFE7D4', background: '#FFFDF6' }}
             >
               <Timer size={12} /> 계획 없이 타이머
             </button>

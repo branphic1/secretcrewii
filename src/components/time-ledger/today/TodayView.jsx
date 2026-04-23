@@ -67,7 +67,13 @@ export default function TodayView({
         </div>
       </div>
 
-      <ProgressHero entry={entry} categories={categories} timer={timerOnThisDate} />
+      <ProgressHero
+        entry={entry}
+        categories={categories}
+        timer={timerOnThisDate}
+        onStartNext={(idx) => onStartTimerFromPlan?.(date, idx)}
+        onOpenTimerDialog={onOpenTimerDialog}
+      />
 
       <WeekStrip
         date={date}
@@ -78,6 +84,7 @@ export default function TodayView({
 
       <PlanSection
         plan={entry.plan}
+        logs={entry.logs}
         categories={categories}
         incidentsByCat={incidentsByCat}
         onChange={(plan) => update({ ...entry, plan })}

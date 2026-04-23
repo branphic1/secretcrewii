@@ -1,6 +1,45 @@
-// 분석 공통 로직 — 갭 분석, 요일 패턴, 블라인드 스팟 역추적, 검색
+// 분석 공통 로직 — 갭 분석, 요일 패턴, 블라인드 스팟 역추적, 검색, 계획 진행
 
 import { pad2 } from './dates.js';
+
+// ---- 계획 항목별 진행률 ----
+// 같은 카테고리 내 로그 시간을 계획 항목에 순서대로 배분 (첫 항목부터 채우기)
+// 반환: 각 plan 항목에 { actual, remaining, progress(0~1), done } 덧붙임
+export function plansWithProgress(entry) {
+  const plan = entry?.plan || [];
+  const logs = entry?.logs || [];
+
+  // 카테고리별 로그 총합
+  const logByCat = {};
+  for (const l of logs) {
+    logByCat[l.categoryId] = (logByCat[l.categoryId] || 0) + (Number(l.hours) || 0);
+  }
+
+  // 카테고리별 잔여 로그 시간 (순차 소모)
+  const remainingLog = { ...logByCat };
+
+  return plan.map((p, index) => {
+    const planned = Number(p.hours) || 0;
+    const pool = remainingLog[p.categoryId] || 0;
+    const actual = Math.min(pool, planned);
+    remainingLog[p.categoryId] = pool - actual;
+    const progress = planned > 0 ? Math.min(1, actual / planned) : 0;
+    return {
+      ...p,
+      index,
+      actual,
+      remaining: Math.max(0, planned - actual),
+      progress,
+      done: planned > 0 && actual >= planned,
+    };
+  });
+}
+
+// 다음에 할 일 (첫 번째 미완료 계획)
+export function nextTodo(entry) {
+  const rows = plansWithProgress(entry);
+  return rows.find((r) => !r.done && r.hours > 0) || null;
+}
 
 // ---- 갭 분석 ----
 // 일간: 카테고리별 { planned, actual, gap } 리스트
