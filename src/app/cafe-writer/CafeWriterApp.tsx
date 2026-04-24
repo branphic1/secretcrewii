@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import TemplatePicker from "./TemplatePicker"
+import type { ProductTemplate } from "./template-actions"
 
 type KeywordItem = { text: string; count: number }
 type RowStatus = "idle" | "running" | "success" | "error"
@@ -58,6 +60,7 @@ export default function CafeWriterApp() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [showSettings, setShowSettings] = useState(false)
   const [loaded, setLoaded] = useState(false)
+  const [pickerRowId, setPickerRowId] = useState<string | null>(null)
 
   useEffect(() => {
     try {
@@ -137,6 +140,18 @@ export default function CafeWriterApp() {
       const n = new Set(prev)
       n.delete(id)
       return n
+    })
+  }
+
+  function openPickerFor(rowId: string) {
+    setPickerRowId(rowId)
+  }
+
+  function applyTemplate(tpl: ProductTemplate) {
+    if (!pickerRowId) return
+    updateRow(pickerRowId, {
+      guideline: tpl.guideline,
+      example: tpl.example || "",
     })
   }
 
@@ -330,6 +345,7 @@ export default function CafeWriterApp() {
             onGenerate={() => generateOne(row)}
             onDuplicate={() => duplicateRow(row.id)}
             onDelete={() => deleteRow(row.id)}
+            onOpenPicker={() => openPickerFor(row.id)}
             disabled={anyBusy && row.status !== "running"}
           />
         ))}
@@ -343,6 +359,15 @@ export default function CafeWriterApp() {
           + 행 추가하기
         </button>
       </div>
+
+      <TemplatePicker
+        isOpen={pickerRowId !== null}
+        onClose={() => setPickerRowId(null)}
+        onApply={(tpl) => {
+          applyTemplate(tpl)
+          setPickerRowId(null)
+        }}
+      />
     </div>
   )
 }
@@ -357,6 +382,7 @@ function RowCard({
   onGenerate,
   onDuplicate,
   onDelete,
+  onOpenPicker,
   disabled,
 }: {
   row: Row
@@ -368,6 +394,7 @@ function RowCard({
   onGenerate: () => void
   onDuplicate: () => void
   onDelete: () => void
+  onOpenPicker: () => void
   disabled: boolean
 }) {
   const resultLen = useMemo(() => row.result.replace(/\s/g, "").length, [row.result])
@@ -426,13 +453,21 @@ function RowCard({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-4">
+          <button
+            type="button"
+            onClick={onOpenPicker}
+            className="w-full rounded-xl bg-gradient-to-r from-sky-100 to-indigo-100 hover:from-sky-200 hover:to-indigo-200 text-indigo-700 text-sm font-semibold px-4 py-2 border border-indigo-200 transition"
+          >
+            📚 제품 템플릿 불러오기 (지침 + 예시 자동 채움)
+          </button>
+
           <label className="block">
             <div className="text-xs font-semibold text-slate-600 mb-1">지침 <span className="text-rose-500">*</span></div>
             <textarea
               value={row.guideline}
               onChange={(e) => onChange({ guideline: e.target.value })}
               rows={4}
-              placeholder="예: 홍대 브런치 카페 '○○' 을 소개하는 바이럴 후기. 20대 여성 타깃, 감성적이고 친근한 말투."
+              placeholder="위 템플릿 불러오기를 쓰거나 직접 입력. 예: 홍대 브런치 카페 '○○' 을 소개하는 바이럴 후기."
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm resize-y focus:border-indigo-400 outline-none"
             />
           </label>

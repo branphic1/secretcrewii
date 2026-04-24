@@ -81,6 +81,9 @@ export default async function AdminPage() {
             <h1 className="text-lg font-bold text-slate-800 leading-tight">관리자 페이지</h1>
           </div>
           <div className="flex items-center gap-3 text-xs">
+            <Link href="/admin/templates" className="rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1.5 font-medium">
+              📦 제품 템플릿
+            </Link>
             <Link href="/cafe-writer" className="rounded-lg bg-white border border-slate-300 text-slate-700 px-3 py-1.5 hover:bg-slate-50">
               ☕ 원고 생성기
             </Link>

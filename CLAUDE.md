@@ -83,6 +83,15 @@ role=admin 으로 설정. `/admin` 페이지에서도 동일 작업 가능.
 ### 기본 관리자
 - `psw1860@naver.com` (role=admin, approved=true)
 
+# 제품 템플릿 (/admin/templates, /cafe-writer)
+
+`product_templates` 테이블에 제품별 **지침 + 예시원고 세트** 를 저장해두고, 크루들이 `/cafe-writer` 에서 버튼 한 번으로 불러오는 기능.
+
+- **관리자**: `/admin/templates` 에서 CRUD (제품명 + 지침 + 예시 입력)
+- **크루(approved)**: 각 원고 행 상단 "📚 제품 템플릿 불러오기" 버튼 → 모달에서 제품 선택 → 지침+예시 자동 채움
+- 관리자가 마스터 수정하면 다음 불러오기부터 자동 반영
+- RLS: 승인된 유저 SELECT 가능, INSERT/UPDATE/DELETE 는 admin 만
+
 # 알려진 이슈
 
 - Windows에서 webpack 캐시 경로 대소문자 경고(`c:\` vs `C:\`) 뜨는데 빌드엔 영향 없음
