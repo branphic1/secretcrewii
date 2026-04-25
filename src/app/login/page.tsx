@@ -43,12 +43,13 @@ function LoginForm() {
           <div>
             <label className="block text-xs text-white/70 mb-1">이메일</label>
             <input
-              type="email"
+              type="text"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-xl bg-white/10 border border-white/20 px-3 py-2 text-sm outline-none focus:border-indigo-400"
               placeholder="you@example.com"
+              autoComplete="username"
             />
           </div>
           <div>
