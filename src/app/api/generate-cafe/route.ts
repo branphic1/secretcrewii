@@ -9,6 +9,7 @@ export const maxDuration = 300
 type Keyword = { text: string; count: number }
 
 type Body = {
+  contentGuide?: string
   guideline?: string
   example?: string
   charCount?: number
@@ -19,10 +20,17 @@ type Body = {
 }
 
 function buildPrompt(b: Required<Omit<Body, "model" | "maxTokens" | "temperature">>): string {
-  const { guideline, example, charCount, keywords } = b
+  const { contentGuide, guideline, example, charCount, keywords } = b
   const lines: string[] = []
   lines.push("너는 카페 바이럴 원고 작성 전문가야. 아래 조건에 맞춰 자연스러운 한국어 바이럴 원고 본문을 작성해.")
   lines.push("")
+
+  if (contentGuide && contentGuide.trim().length > 0) {
+    lines.push("[컨텐츠 가이드]")
+    lines.push(contentGuide.trim())
+    lines.push("")
+  }
+
   lines.push("[작성 지침]")
   lines.push(guideline)
   lines.push("")
@@ -110,10 +118,12 @@ async function callViaApi(prompt: string, model: string, maxTokens: number, temp
 
 async function callViaClaudeCodeCLI(prompt: string): Promise<string> {
   const bin = process.env.CLAUDE_CODE_BIN || "claude"
+  const isWin = process.platform === "win32"
   return new Promise<string>((resolve, reject) => {
+    // Windows 는 claude.cmd 등 확장자 처리 위해 shell:true 가 안전
     const child = spawn(bin, ["-p"], {
       stdio: ["pipe", "pipe", "pipe"],
-      shell: false,
+      shell: isWin,
     })
 
     let stdout = ""
@@ -191,6 +201,7 @@ export async function POST(req: Request) {
   const maxTokens = Math.min(Math.max(body.maxTokens ?? 2000, 256), 8192)
   const temperature = Math.min(Math.max(body.temperature ?? 0.8, 0), 1)
   const charCount = Math.min(Math.max(body.charCount ?? 500, 50), 5000)
+  const contentGuide = (body.contentGuide || "").toString()
   const example = (body.example || "").toString()
   const keywords: Keyword[] = Array.isArray(body.keywords)
     ? body.keywords.slice(0, 10).map((k) => ({
@@ -199,7 +210,7 @@ export async function POST(req: Request) {
       }))
     : []
 
-  const prompt = buildPrompt({ guideline, example, charCount, keywords })
+  const prompt = buildPrompt({ contentGuide, guideline, example, charCount, keywords })
   const mode = (process.env.BACKEND_MODE || "api").toLowerCase()
 
   try {

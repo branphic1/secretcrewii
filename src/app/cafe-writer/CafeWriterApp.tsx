@@ -2,17 +2,19 @@
 
 import { useEffect, useMemo, useState } from "react"
 import TemplatePicker from "./TemplatePicker"
-import type { ProductTemplate } from "./template-actions"
+import { listTemplates, type ProductTemplate } from "./template-actions"
 
 type KeywordItem = { text: string; count: number }
 type RowStatus = "idle" | "running" | "success" | "error"
 
 type Row = {
   id: string
+  contentGuide: string
   guideline: string
   example: string
   charCount: number
   keywords: KeywordItem[]
+  generateCount: number
   result: string
   status: RowStatus
   message?: string
@@ -41,10 +43,12 @@ function uid() {
 function emptyRow(): Row {
   return {
     id: uid(),
+    contentGuide: "",
     guideline: "",
     example: "",
     charCount: 500,
     keywords: Array.from({ length: 5 }, () => ({ text: "", count: 1 })),
+    generateCount: 1,
     result: "",
     status: "idle",
   }
@@ -54,13 +58,15 @@ function defaultSettings(): Settings {
   return { model: "claude-sonnet-4-6", maxTokens: 2000, temperature: 0.8 }
 }
 
-export default function CafeWriterApp() {
+export default function CafeWriterApp({ isAdmin = false }: { isAdmin?: boolean }) {
   const [rows, setRows] = useState<Row[]>([emptyRow()])
   const [settings, setSettings] = useState<Settings>(defaultSettings())
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [showSettings, setShowSettings] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [pickerRowId, setPickerRowId] = useState<string | null>(null)
+  const [templates, setTemplates] = useState<ProductTemplate[]>([])
+  const [templatesError, setTemplatesError] = useState<string | null>(null)
 
   useEffect(() => {
     try {
@@ -68,7 +74,15 @@ export default function CafeWriterApp() {
       if (rawRows) {
         const parsed = JSON.parse(rawRows) as Row[]
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setRows(parsed.map((r) => ({ ...r, status: "idle", message: undefined })))
+          setRows(
+            parsed.map((r) => ({
+              ...r,
+              status: "idle" as const,
+              message: undefined,
+              contentGuide: r.contentGuide || "",
+              generateCount: r.generateCount || 1,
+            }))
+          )
         }
       }
       const rawSet = localStorage.getItem(STORAGE_SETTINGS)
@@ -78,6 +92,21 @@ export default function CafeWriterApp() {
       }
     } catch {}
     setLoaded(true)
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const list = await listTemplates()
+        if (!cancelled) setTemplates(list)
+      } catch (e) {
+        if (!cancelled) setTemplatesError((e as Error).message)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {
@@ -150,9 +179,51 @@ export default function CafeWriterApp() {
   function applyTemplate(tpl: ProductTemplate) {
     if (!pickerRowId) return
     updateRow(pickerRowId, {
+      contentGuide: tpl.content_guide || "",
       guideline: tpl.guideline,
       example: tpl.example || "",
     })
+  }
+
+  function applyTemplateChip(tpl: ProductTemplate) {
+    setRows((prev) => {
+      const last = prev[prev.length - 1]
+      const lastIsEmpty =
+        prev.length === 1 &&
+        !last.contentGuide.trim() &&
+        !last.guideline.trim() &&
+        !last.example.trim() &&
+        last.result === ""
+      if (lastIsEmpty) {
+        return [
+          {
+            ...last,
+            contentGuide: tpl.content_guide || "",
+            guideline: tpl.guideline,
+            example: tpl.example || "",
+          },
+        ]
+      }
+      const newRow: Row = {
+        ...emptyRow(),
+        contentGuide: tpl.content_guide || "",
+        guideline: tpl.guideline,
+        example: tpl.example || "",
+      }
+      return [...prev, newRow]
+    })
+  }
+
+  function refreshTemplates() {
+    void (async () => {
+      try {
+        const list = await listTemplates()
+        setTemplates(list)
+        setTemplatesError(null)
+      } catch (e) {
+        setTemplatesError((e as Error).message)
+      }
+    })()
   }
 
   function toggleSelect(id: string) {
@@ -179,6 +250,7 @@ export default function CafeWriterApp() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
+          contentGuide: row.contentGuide,
           guideline: row.guideline,
           example: row.example,
           charCount: row.charCount,
@@ -207,18 +279,44 @@ export default function CafeWriterApp() {
     }
   }
 
+  async function generateRowWithCount(srcRow: Row) {
+    const count = Math.max(1, Math.min(500, srcRow.generateCount || 1))
+    if (!srcRow.guideline.trim()) {
+      updateRow(srcRow.id, { status: "error", message: "지침이 비어 있어요." })
+      return
+    }
+    // 첫 번째 = 원본 행
+    await generateOne(srcRow)
+    // 2번째부터 새 행 추가하면서 생성
+    for (let i = 1; i < count; i++) {
+      const newRow: Row = {
+        ...srcRow,
+        id: uid(),
+        result: "",
+        status: "idle",
+        message: undefined,
+        generatedAt: undefined,
+        generateCount: 1, // 복제본은 1로
+        keywords: srcRow.keywords.map((k) => ({ ...k })),
+      }
+      setRows((prev) => [...prev, newRow])
+      await generateOne(newRow)
+    }
+  }
+
   async function generateSelected() {
     const ids = Array.from(selected)
     const targets = rows.filter((r) => ids.includes(r.id))
     for (const r of targets) {
-      await generateOne(r)
+      await generateRowWithCount(r)
     }
   }
 
   async function generateAll() {
-    for (const r of rows) {
+    const snapshot = [...rows]
+    for (const r of snapshot) {
       if (r.guideline.trim()) {
-        await generateOne(r)
+        await generateRowWithCount(r)
       }
     }
   }
@@ -232,6 +330,52 @@ export default function CafeWriterApp() {
     if (!confirm("모든 행을 삭제할까요? (되돌릴 수 없어요)")) return
     setRows([emptyRow()])
     setSelected(new Set())
+  }
+
+  async function exportToExcel() {
+    const successRows = rows.filter((r) => r.status === "success" && r.result.trim())
+    if (successRows.length === 0) {
+      alert("내보낼 결과가 없어요. 먼저 원고를 생성해주세요.")
+      return
+    }
+
+    try {
+      const XLSX = await import("xlsx")
+      const data = successRows.map((r, i) => ({
+        번호: i + 1,
+        지침: r.guideline,
+        키워드: r.keywords
+          .filter((k) => k.text.trim())
+          .map((k) => `${k.text.trim()}(${k.count})`)
+          .join(", "),
+        글자수: r.charCount,
+        결과글자수: r.result.replace(/\s/g, "").length,
+        결과원고: r.result,
+        생성시각: r.generatedAt
+          ? new Date(r.generatedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
+          : "",
+      }))
+
+      const ws = XLSX.utils.json_to_sheet(data)
+      // 컬럼 폭 설정 (대략)
+      ws["!cols"] = [
+        { wch: 6 },   // 번호
+        { wch: 40 },  // 지침
+        { wch: 30 },  // 키워드
+        { wch: 8 },   // 글자수
+        { wch: 10 },  // 결과글자수
+        { wch: 80 },  // 결과원고
+        { wch: 22 },  // 생성시각
+      ]
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "원고")
+
+      const ts = new Date()
+      const stamp = `${ts.getFullYear()}${String(ts.getMonth() + 1).padStart(2, "0")}${String(ts.getDate()).padStart(2, "0")}_${String(ts.getHours()).padStart(2, "0")}${String(ts.getMinutes()).padStart(2, "0")}`
+      XLSX.writeFile(wb, `cafe-writer_${stamp}_${successRows.length}건.xlsx`)
+    } catch (e) {
+      alert("엑셀 다운로드 실패: " + (e as Error).message)
+    }
   }
 
   const selectedCount = selected.size
@@ -268,6 +412,13 @@ export default function CafeWriterApp() {
         </button>
         <div className="flex-1" />
         <button
+          onClick={exportToExcel}
+          className="rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 text-sm font-semibold px-3 py-2 transition"
+          title="성공한 결과 전체를 .xlsx 파일로 저장"
+        >
+          📊 엑셀 다운로드
+        </button>
+        <button
           onClick={clearResults}
           className="rounded-lg bg-white border border-slate-300 text-slate-600 text-xs px-3 py-2 hover:bg-slate-50 transition"
         >
@@ -285,6 +436,72 @@ export default function CafeWriterApp() {
         >
           ⚙ 설정
         </button>
+      </div>
+
+      {/* 제품 빠른 적용 (칩) */}
+      <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-indigo-50 border border-indigo-100 p-4 shadow-sm">
+        <div className="flex items-start sm:items-center gap-3 flex-wrap">
+          <div className="flex-shrink-0">
+            <div className="text-sm font-bold text-indigo-700 flex items-center gap-1">
+              🎯 제품 빠른 적용
+            </div>
+            <div className="text-[11px] text-indigo-500/80 mt-0.5">
+              칩을 클릭하면 그 제품의 지침+예시가 적용된 행이 추가돼요.
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5 flex-1">
+            {templatesError ? (
+              <div className="text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-2 py-1">
+                템플릿 불러오기 실패 — {templatesError}
+                <button onClick={refreshTemplates} className="ml-2 underline">재시도</button>
+              </div>
+            ) : templates.length === 0 ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-slate-500">등록된 템플릿이 없어요.</span>
+                {isAdmin ? (
+                  <a
+                    href="/admin/templates"
+                    className="inline-flex items-center gap-1 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 shadow-sm"
+                  >
+                    + 새 템플릿 만들러 가기
+                  </a>
+                ) : (
+                  <span className="text-xs text-slate-400">관리자에게 요청해주세요.</span>
+                )}
+              </div>
+            ) : (
+              <>
+                {templates.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    onClick={() => applyTemplateChip(tpl)}
+                    className="group inline-flex items-center gap-1 rounded-full bg-white hover:bg-indigo-500 hover:text-white text-indigo-700 text-xs font-semibold px-3 py-1.5 border border-indigo-200 hover:border-indigo-500 transition shadow-sm"
+                    title={tpl.guideline.slice(0, 80) + "..."}
+                  >
+                    <span>{tpl.name}</span>
+                    <span className="text-[10px] opacity-60 group-hover:opacity-100">+1행</span>
+                  </button>
+                ))}
+                {isAdmin && (
+                  <a
+                    href="/admin/templates"
+                    className="inline-flex items-center gap-1 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white text-[11px] font-semibold px-2.5 py-1.5 shadow-sm"
+                    title="새 제품 템플릿 추가/편집"
+                  >
+                    + 새 템플릿
+                  </a>
+                )}
+                <button
+                  onClick={refreshTemplates}
+                  className="text-[11px] text-indigo-500/70 hover:text-indigo-700 ml-1"
+                  title="템플릿 새로고침"
+                >
+                  ⟳
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Settings */}
@@ -342,7 +559,7 @@ export default function CafeWriterApp() {
             onToggleSelect={() => toggleSelect(row.id)}
             onChange={(patch) => updateRow(row.id, patch)}
             onChangeKeyword={(i, patch) => updateKeyword(row.id, i, patch)}
-            onGenerate={() => generateOne(row)}
+            onGenerate={() => generateRowWithCount(row)}
             onDuplicate={() => duplicateRow(row.id)}
             onDelete={() => deleteRow(row.id)}
             onOpenPicker={() => openPickerFor(row.id)}
@@ -458,8 +675,19 @@ function RowCard({
             onClick={onOpenPicker}
             className="w-full rounded-xl bg-gradient-to-r from-sky-100 to-indigo-100 hover:from-sky-200 hover:to-indigo-200 text-indigo-700 text-sm font-semibold px-4 py-2 border border-indigo-200 transition"
           >
-            📚 제품 템플릿 불러오기 (지침 + 예시 자동 채움)
+            📚 제품 템플릿 불러오기 (컨텐츠 가이드 + 지침 + 예시 자동 채움)
           </button>
+
+          <label className="block">
+            <div className="text-xs font-semibold text-slate-600 mb-1">컨텐츠 가이드 <span className="text-slate-400 font-normal">(선택)</span></div>
+            <textarea
+              value={row.contentGuide}
+              onChange={(e) => onChange({ contentGuide: e.target.value })}
+              rows={3}
+              placeholder="브랜드 톤, 포지셔닝, 핵심 메시지, 금기어 등. (선택)"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm resize-y focus:border-indigo-400 outline-none"
+            />
+          </label>
 
           <label className="block">
             <div className="text-xs font-semibold text-slate-600 mb-1">지침 <span className="text-rose-500">*</span></div>
@@ -552,13 +780,36 @@ function RowCard({
               {row.message}
             </div>
           )}
-          <button
-            onClick={onGenerate}
-            disabled={disabled || row.status === "running"}
-            className="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-semibold text-sm px-4 py-3 transition disabled:opacity-50"
-          >
-            {row.status === "running" ? "생성 중..." : "▶ 이 행 생성"}
-          </button>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1.5 text-xs text-slate-600 bg-white border border-slate-300 rounded-lg px-2.5 py-2">
+              <span className="font-semibold">×</span>
+              <input
+                type="number"
+                min={1}
+                max={500}
+                value={row.generateCount || 1}
+                onChange={(e) =>
+                  onChange({
+                    generateCount: Math.max(1, Math.min(500, Number(e.target.value) || 1)),
+                  })
+                }
+                className="w-14 text-sm text-center outline-none"
+                title="이 행을 몇 번 반복 생성할지 (최대 500)"
+              />
+              <span>개</span>
+            </label>
+            <button
+              onClick={onGenerate}
+              disabled={disabled || row.status === "running"}
+              className="flex-1 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-semibold text-sm px-4 py-3 transition disabled:opacity-50"
+            >
+              {row.status === "running"
+                ? "생성 중..."
+                : (row.generateCount || 1) > 1
+                  ? `▶ 이 설정으로 ${row.generateCount}개 생성`
+                  : "▶ 이 행 생성"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

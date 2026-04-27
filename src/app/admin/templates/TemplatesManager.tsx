@@ -145,16 +145,99 @@ function EditForm({
   onError: (msg: string) => void
 }) {
   const [name, setName] = useState(initial?.name || "")
+  const [contentGuide, setContentGuide] = useState(initial?.content_guide || "")
   const [guideline, setGuideline] = useState(initial?.guideline || "")
   const [example, setExample] = useState(initial?.example || "")
   const [busy, setBusy] = useState(false)
+  const [uploadingFor, setUploadingFor] = useState<null | "contentGuide" | "guideline" | "example">(null)
+  const [dragOver, setDragOver] = useState<null | "contentGuide" | "guideline" | "example">(null)
+
+  async function handleFiles(target: "contentGuide" | "guideline" | "example", filesIn: FileList | File[]) {
+    const files = Array.from(filesIn)
+    if (!files.length) return
+    setUploadingFor(target)
+    try {
+      const parts: string[] = []
+      for (const file of files) {
+        const fd = new FormData()
+        fd.append("file", file)
+        const resp = await fetch("/api/parse-document", { method: "POST", body: fd })
+        const data = await resp.json()
+        if (!resp.ok) {
+          throw new Error(`[${file.name}] ${data?.error || `HTTP ${resp.status}`}`)
+        }
+        const text = String(data.text || "").trim()
+        if (text) parts.push(text)
+      }
+
+      if (parts.length === 0) {
+        throw new Error("파일에서 추출한 텍스트가 모두 비어있어요.")
+      }
+
+      // 여러 파일이면 구분선으로 합침. 한 개면 그대로.
+      const combined = parts.length === 1 ? parts[0] : parts.join("\n\n---\n\n")
+
+      const current =
+        target === "contentGuide" ? contentGuide : target === "guideline" ? guideline : example
+      const targetLabel =
+        target === "contentGuide" ? "컨텐츠 가이드" : target === "guideline" ? "지침" : "예시 원고"
+      let final = combined
+
+      if (current.trim()) {
+        const append = confirm(
+          `현재 ${targetLabel} 에 내용이 있어요.\n\n` +
+            `[확인] = 끝에 추가 (기존 + 새 ${files.length}개 파일)\n` +
+            `[취소] = 새 파일로 덮어쓰기`
+        )
+        if (append) {
+          final = `${current}\n\n---\n\n${combined}`
+        }
+      }
+
+      if (target === "contentGuide") setContentGuide(final)
+      else if (target === "guideline") setGuideline(final)
+      else setExample(final)
+    } catch (e) {
+      onError((e as Error).message)
+    } finally {
+      setUploadingFor(null)
+    }
+  }
+
+  function handleDragOver(target: "contentGuide" | "guideline" | "example") {
+    return (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      // 파일을 끌고 있을 때만 활성화
+      if (e.dataTransfer.types.includes("Files")) {
+        setDragOver(target)
+        e.dataTransfer.dropEffect = "copy"
+      }
+    }
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(null)
+  }
+
+  function handleDrop(target: "contentGuide" | "guideline" | "example") {
+    return (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setDragOver(null)
+      const files = e.dataTransfer.files
+      if (files && files.length > 0) void handleFiles(target, files)
+    }
+  }
 
   async function handleSave() {
     setBusy(true)
     try {
       const saved = initial
-        ? await updateTemplate(initial.id, name, guideline, example)
-        : await createTemplate(name, guideline, example)
+        ? await updateTemplate(initial.id, name, guideline, example, contentGuide)
+        : await createTemplate(name, guideline, example, contentGuide)
       onSaved(saved, !initial)
     } catch (e) {
       onError((e as Error).message)
@@ -164,7 +247,19 @@ function EditForm({
   }
 
   return (
-    <div className="rounded-2xl bg-white border border-slate-200 p-5 space-y-4">
+    <div
+      className="rounded-2xl bg-white border border-slate-200 p-5 space-y-4"
+      onDragOver={(e) => {
+        // 폼 바깥(빈 공간) 에 떨어뜨려도 브라우저가 파일 열지 못하게
+        if (e.dataTransfer.types.includes("Files")) {
+          e.preventDefault()
+          e.dataTransfer.dropEffect = "none"
+        }
+      }}
+      onDrop={(e) => {
+        if (e.dataTransfer.types.includes("Files")) e.preventDefault()
+      }}
+    >
       <div className="flex items-center justify-between">
         <h3 className="text-base font-bold text-slate-800">
           {initial ? `편집: ${initial.name}` : "새 제품 템플릿"}
@@ -184,27 +279,119 @@ function EditForm({
         />
       </label>
 
-      <label className="block">
-        <div className="text-xs font-semibold text-slate-600 mb-1">지침 *</div>
-        <textarea
-          value={guideline}
-          onChange={(e) => setGuideline(e.target.value)}
-          rows={8}
-          placeholder="원고 작성 프롬프트. 타깃/톤/포함할 포인트 등."
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm resize-y outline-none focus:border-indigo-400"
-        />
-      </label>
+      <div
+        className="block"
+        onDragOver={handleDragOver("contentGuide")}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop("contentGuide")}
+      >
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-xs font-semibold text-slate-600">컨텐츠 가이드 (선택)</div>
+          <FileUploadButton
+            label="📎 파일 첨부"
+            uploading={uploadingFor === "contentGuide"}
+            onSelect={(files) => handleFiles("contentGuide", files)}
+          />
+        </div>
+        <div className="relative">
+          <textarea
+            value={contentGuide}
+            onChange={(e) => setContentGuide(e.target.value)}
+            rows={5}
+            placeholder="제품 컨텐츠 가이드 — 브랜드 톤, 포지셔닝, 핵심 메시지, 금기어 등. (선택, 비워둬도 됨)"
+            className={`w-full rounded-lg border px-3 py-2 text-sm resize-y outline-none transition ${
+              dragOver === "contentGuide"
+                ? "border-emerald-400 bg-emerald-50/50 ring-2 ring-emerald-200"
+                : "border-slate-300 focus:border-indigo-400"
+            }`}
+          />
+          {dragOver === "contentGuide" && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-emerald-100/70 border-2 border-dashed border-emerald-400 backdrop-blur-sm">
+              <div className="text-center">
+                <div className="text-3xl">📂</div>
+                <div className="text-sm font-bold text-emerald-700 mt-1">여기에 놓으세요</div>
+                <div className="text-[11px] text-emerald-600">.txt / .docx · 여러 개 OK</div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
-      <label className="block">
-        <div className="text-xs font-semibold text-slate-600 mb-1">예시 원고 (선택)</div>
-        <textarea
-          value={example}
-          onChange={(e) => setExample(e.target.value)}
-          rows={10}
-          placeholder="참고할 톤앤매너 샘플. 비워두면 예시 없이 지침만으로 생성됩니다."
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm resize-y outline-none focus:border-indigo-400"
-        />
-      </label>
+      <div
+        className="block"
+        onDragOver={handleDragOver("guideline")}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop("guideline")}
+      >
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-xs font-semibold text-slate-600">지침 *</div>
+          <FileUploadButton
+            label="📎 파일 첨부"
+            uploading={uploadingFor === "guideline"}
+            onSelect={(files) => handleFiles("guideline", files)}
+          />
+        </div>
+        <div className="relative">
+          <textarea
+            value={guideline}
+            onChange={(e) => setGuideline(e.target.value)}
+            rows={8}
+            placeholder="원고 작성 프롬프트. 타깃/톤/포함할 포인트 등. (파일 끌어다 놓기 가능 · .txt/.docx · 여러 개 동시)"
+            className={`w-full rounded-lg border px-3 py-2 text-sm resize-y outline-none transition ${
+              dragOver === "guideline"
+                ? "border-emerald-400 bg-emerald-50/50 ring-2 ring-emerald-200"
+                : "border-slate-300 focus:border-indigo-400"
+            }`}
+          />
+          {dragOver === "guideline" && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-emerald-100/70 border-2 border-dashed border-emerald-400 backdrop-blur-sm">
+              <div className="text-center">
+                <div className="text-3xl">📂</div>
+                <div className="text-sm font-bold text-emerald-700 mt-1">여기에 놓으세요</div>
+                <div className="text-[11px] text-emerald-600">.txt / .docx · 여러 개 OK</div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div
+        className="block"
+        onDragOver={handleDragOver("example")}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop("example")}
+      >
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-xs font-semibold text-slate-600">예시 원고 (선택)</div>
+          <FileUploadButton
+            label="📎 파일 첨부"
+            uploading={uploadingFor === "example"}
+            onSelect={(files) => handleFiles("example", files)}
+          />
+        </div>
+        <div className="relative">
+          <textarea
+            value={example}
+            onChange={(e) => setExample(e.target.value)}
+            rows={10}
+            placeholder="참고할 톤앤매너 샘플. (파일 끌어다 놓기 가능 · .txt/.docx · 여러 개 동시. 비워둬도 됨)"
+            className={`w-full rounded-lg border px-3 py-2 text-sm resize-y outline-none transition ${
+              dragOver === "example"
+                ? "border-emerald-400 bg-emerald-50/50 ring-2 ring-emerald-200"
+                : "border-slate-300 focus:border-indigo-400"
+            }`}
+          />
+          {dragOver === "example" && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-emerald-100/70 border-2 border-dashed border-emerald-400 backdrop-blur-sm">
+              <div className="text-center">
+                <div className="text-3xl">📂</div>
+                <div className="text-sm font-bold text-emerald-700 mt-1">여기에 놓으세요</div>
+                <div className="text-[11px] text-emerald-600">.txt / .docx · 여러 개 OK</div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="flex items-center justify-end gap-2 pt-2">
         <button
@@ -223,5 +410,33 @@ function EditForm({
         </button>
       </div>
     </div>
+  )
+}
+
+function FileUploadButton({
+  label,
+  uploading,
+  onSelect,
+}: {
+  label: string
+  uploading: boolean
+  onSelect: (files: FileList) => void
+}) {
+  return (
+    <label className={`inline-flex items-center gap-1 text-[11px] rounded-md border px-2 py-0.5 cursor-pointer transition ${uploading ? "bg-slate-100 text-slate-400 border-slate-200" : "bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-700"}`}>
+      <span>{uploading ? "처리 중..." : label}</span>
+      <input
+        type="file"
+        accept=".txt,.md,.docx"
+        multiple
+        className="hidden"
+        disabled={uploading}
+        onChange={(e) => {
+          const files = e.target.files
+          if (files && files.length > 0) onSelect(files)
+          e.target.value = "" // 같은 파일 재선택 가능하게
+        }}
+      />
+    </label>
   )
 }

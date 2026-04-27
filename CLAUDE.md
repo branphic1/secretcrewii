@@ -96,6 +96,28 @@ role=admin 으로 설정. `/admin` 페이지에서도 동일 작업 가능.
 - 관리자가 마스터 수정하면 다음 불러오기부터 자동 반영
 - RLS: 승인된 유저 SELECT 가능, INSERT/UPDATE/DELETE 는 admin 만
 
+# Electron 데스크톱 앱 빌드
+
+직원에게 .exe 형태로 배포할 수 있어요. Max OAuth 모드로 동작 (각자 자기 Max 사용).
+
+```bash
+# 빌드 (Windows .exe)
+npm run electron:dist:win
+# 결과: dist/Cafe Writer Setup 0.1.0.exe (~146MB)
+
+# Mac DMG (Mac 에서만 빌드 가능)
+npm run electron:dist
+```
+
+- 진입점: `electron/main.js` — Next.js standalone 서버를 spawn 하고 BrowserWindow 띄움
+- 정적 자산 복사: `scripts/copy_standalone_assets.mjs` (build:next 후 자동)
+- 환경변수: `.env.production` 에서 NEXT_PUBLIC_SUPABASE_* + BACKEND_MODE=local-cli 만 포함 (서비스롤은 절대 포함 금지)
+- 직원용 설치 가이드: `docs/employee-setup.md`
+
+빌드 전 주의:
+- `ELECTRON_RUN_AS_NODE` 환경변수가 설정돼있으면 안 됨 (Node 모드로 떨어짐)
+  → 해제: `[Environment]::SetEnvironmentVariable("ELECTRON_RUN_AS_NODE", $null, "User")`
+
 # 알려진 이슈
 
 - Windows에서 webpack 캐시 경로 대소문자 경고(`c:\` vs `C:\`) 뜨는데 빌드엔 영향 없음

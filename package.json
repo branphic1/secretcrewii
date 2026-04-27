@@ -2,29 +2,81 @@
   "name": "secretcrewii",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "electron:build-next": "cross-env NEXT_OUTPUT=standalone next build && node scripts/copy_standalone_assets.mjs",
+    "electron:dev": "npm run electron:build-next && electron .",
+    "electron:dist": "npm run electron:build-next && electron-builder",
+    "electron:dist:win": "npm run electron:build-next && electron-builder --win"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.104.0",
     "lucide-react": "^0.462.0",
+    "mammoth": "^1.12.0",
     "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",
-    "recharts": "^2.15.4"
+    "recharts": "^2.15.4",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "cross-env": "^7.0.3",
+    "electron": "^41.3.0",
+    "electron-builder": "^26.8.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "build": {
+    "appId": "com.secretcrewii.cafewriter",
+    "productName": "Cafe Writer",
+    "asar": true,
+    "files": [
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "electron-payload/standalone",
+        "to": "nextjs/standalone"
+      },
+      {
+        "from": ".env.production",
+        "to": "nextjs/.env.production"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Cafe Writer"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.productivity"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "afterPack": "scripts/electron-after-pack.js"
   }
 }

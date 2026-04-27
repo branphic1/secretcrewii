@@ -43,7 +43,7 @@ export default async function CafeWriterPage() {
         </div>
       </header>
 
-      <CafeWriterApp />
+      <CafeWriterApp isAdmin={isAdmin} />
     </main>
   )
 }

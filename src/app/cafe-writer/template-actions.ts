@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache"
 export type ProductTemplate = {
   id: string
   name: string
+  content_guide: string | null
   guideline: string
   example: string | null
   updated_at: string
@@ -34,7 +35,7 @@ export async function listTemplates(): Promise<ProductTemplate[]> {
   const { supabase } = await requireApproved()
   const { data, error } = await supabase
     .from("product_templates")
-    .select("id, name, guideline, example, updated_at")
+    .select("id, name, content_guide, guideline, example, updated_at")
     .order("name", { ascending: true })
   if (error) throw new Error(error.message)
   return (data || []) as ProductTemplate[]
@@ -44,11 +45,13 @@ export async function createTemplate(
   name: string,
   guideline: string,
   example: string,
+  contentGuide: string = "",
 ): Promise<ProductTemplate> {
   const { supabase, user } = await requireAdmin()
   const n = name.trim()
   const g = guideline.trim()
   const e = example.trim()
+  const cg = contentGuide.trim()
   if (!n) throw new Error("제품명을 입력해주세요.")
   if (!g) throw new Error("지침을 입력해주세요.")
 
@@ -56,11 +59,12 @@ export async function createTemplate(
     .from("product_templates")
     .insert({
       name: n,
+      content_guide: cg || null,
       guideline: g,
       example: e || null,
       created_by: user.id,
     })
-    .select("id, name, guideline, example, updated_at")
+    .select("id, name, content_guide, guideline, example, updated_at")
     .single()
 
   if (error) throw new Error(error.message)
@@ -74,19 +78,21 @@ export async function updateTemplate(
   name: string,
   guideline: string,
   example: string,
+  contentGuide: string = "",
 ): Promise<ProductTemplate> {
   const { supabase } = await requireAdmin()
   const n = name.trim()
   const g = guideline.trim()
   const e = example.trim()
+  const cg = contentGuide.trim()
   if (!n) throw new Error("제품명을 입력해주세요.")
   if (!g) throw new Error("지침을 입력해주세요.")
 
   const { data, error } = await supabase
     .from("product_templates")
-    .update({ name: n, guideline: g, example: e || null })
+    .update({ name: n, content_guide: cg || null, guideline: g, example: e || null })
     .eq("id", id)
-    .select("id, name, guideline, example, updated_at")
+    .select("id, name, content_guide, guideline, example, updated_at")
     .single()
 
   if (error) throw new Error(error.message)

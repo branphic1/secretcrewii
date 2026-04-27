@@ -120,6 +120,12 @@ export default function TemplatePicker({ isOpen, onClose, onApply }: Props) {
                         </button>
                         {expanded && (
                           <div className="mt-2 space-y-2 bg-slate-50 rounded-lg p-3 border border-slate-200">
+                            {tpl.content_guide && (
+                              <div>
+                                <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">컨텐츠 가이드</div>
+                                <div className="text-xs text-slate-700 whitespace-pre-wrap">{tpl.content_guide}</div>
+                              </div>
+                            )}
                             <div>
                               <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">지침</div>
                               <div className="text-xs text-slate-700 whitespace-pre-wrap">{tpl.guideline}</div>
