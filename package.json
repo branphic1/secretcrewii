@@ -10,8 +10,8 @@
     "lint": "next lint",
     "electron:build-next": "cross-env NEXT_OUTPUT=standalone next build && node scripts/copy_standalone_assets.mjs",
     "electron:dev": "npm run electron:build-next && electron .",
-    "electron:dist": "npm run electron:build-next && electron-builder",
-    "electron:dist:win": "npm run electron:build-next && electron-builder --win"
+    "electron:dist": "npm run electron:build-next && electron-builder && node scripts/copy_installer_to_desktop.mjs",
+    "electron:dist:win": "npm run electron:build-next && electron-builder --win && node scripts/copy_installer_to_desktop.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
