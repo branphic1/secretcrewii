@@ -89,10 +89,15 @@ role=admin 으로 설정. `/admin` 페이지에서도 동일 작업 가능.
 
 # 제품 템플릿 (/admin/templates, /cafe-writer)
 
-`product_templates` 테이블에 제품별 **지침 + 예시원고 세트** 를 저장해두고, 크루들이 `/cafe-writer` 에서 버튼 한 번으로 불러오는 기능.
+`product_templates` 테이블에 제품별 **컨텐츠 가이드 + 지침 + 예시원고 세트** 를 저장해두고, 크루들이 `/cafe-writer` 에서 버튼 한 번으로 불러오는 기능.
 
-- **관리자**: `/admin/templates` 에서 CRUD (제품명 + 지침 + 예시 입력)
-- **크루(approved)**: 각 원고 행 상단 "📚 제품 템플릿 불러오기" 버튼 → 모달에서 제품 선택 → 지침+예시 자동 채움
+- **컬럼**: `name`, `content_guide` (선택), `guideline`, `example` (선택), `created_by`, `created_at`, `updated_at`
+- **관리자**: `/admin/templates` 에서 CRUD. 입력칸은 `.txt`/`.docx` 파일 첨부 + 드래그&드롭 (여러 파일 동시 → `---` 구분자로 자동 병합).
+- **크루(approved)**: 
+  - 상단 "🎯 제품 빠른 적용" 칩바 (admin 한정 "+ 새 템플릿" 링크 표시)
+  - 각 원고 행 상단 "📚 제품 템플릿 불러오기" 버튼 → 모달에서 제품 선택 → 컨텐츠 가이드+지침+예시 자동 채움
+- **무한 생성**: 행마다 "× N개" 입력으로 1~500회 반복 생성 (자동으로 행 복제 후 순차 처리)
+- **엑셀 다운로드**: 툴바 `📊 엑셀 다운로드` → 성공 행 전체를 `.xlsx` 로 추출
 - 관리자가 마스터 수정하면 다음 불러오기부터 자동 반영
 - RLS: 승인된 유저 SELECT 가능, INSERT/UPDATE/DELETE 는 admin 만
 
