@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server"
+import { spawn } from "node:child_process"
 import { createClient } from "@/lib/supabase/server"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+export const maxDuration = 300
 
 type Keyword = { text: string; count: number }
 
@@ -51,6 +53,108 @@ function buildPrompt(b: Required<Omit<Body, "model" | "maxTokens" | "temperature
   return lines.join("\n")
 }
 
+async function callViaApi(prompt: string, model: string, maxTokens: number, temperature: number) {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY 가 설정되지 않았습니다.")
+
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 180_000)
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: maxTokens,
+        temperature,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: controller.signal,
+    })
+
+    const text = await resp.text()
+    if (!resp.ok) {
+      let msg = `API ${resp.status}`
+      try {
+        const j = JSON.parse(text) as { error?: { message?: string }; message?: string }
+        msg = j?.error?.message || j?.message || msg
+      } catch {
+        msg = text.slice(0, 300) || msg
+      }
+      throw new Error(msg)
+    }
+
+    let content = ""
+    try {
+      const j = JSON.parse(text) as { content?: Array<{ type?: string; text?: string }> }
+      if (Array.isArray(j?.content)) {
+        content = j.content
+          .filter((blk) => blk?.type === "text" && typeof blk.text === "string")
+          .map((blk) => blk.text as string)
+          .join("\n")
+          .trim()
+      }
+    } catch {}
+
+    if (!content) throw new Error("응답에서 원고 텍스트를 찾지 못했어요.")
+    return content
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+async function callViaClaudeCodeCLI(prompt: string): Promise<string> {
+  const bin = process.env.CLAUDE_CODE_BIN || "claude"
+  return new Promise<string>((resolve, reject) => {
+    const child = spawn(bin, ["-p"], {
+      stdio: ["pipe", "pipe", "pipe"],
+      shell: false,
+    })
+
+    let stdout = ""
+    let stderr = ""
+
+    const killTimer = setTimeout(() => {
+      child.kill("SIGTERM")
+      reject(new Error("Claude Code CLI 응답 시간 초과 (180초)"))
+    }, 180_000)
+
+    child.stdout.on("data", (d: Buffer) => {
+      stdout += d.toString("utf8")
+    })
+    child.stderr.on("data", (d: Buffer) => {
+      stderr += d.toString("utf8")
+    })
+
+    child.on("error", (err) => {
+      clearTimeout(killTimer)
+      reject(new Error(`Claude Code CLI 실행 실패: ${err.message}. 'claude' 명령이 PATH 에 있는지 확인하세요.`))
+    })
+
+    child.on("close", (code) => {
+      clearTimeout(killTimer)
+      if (code !== 0) {
+        reject(new Error(`Claude Code CLI 종료 코드 ${code}: ${stderr.slice(0, 500)}`))
+        return
+      }
+      const text = stdout.trim()
+      if (!text) {
+        reject(new Error(`Claude Code CLI 응답이 비어있어요. stderr: ${stderr.slice(0, 300)}`))
+        return
+      }
+      resolve(text)
+    })
+
+    child.stdin.write(prompt)
+    child.stdin.end()
+  })
+}
+
 export async function POST(req: Request) {
   const supabase = createClient()
   const {
@@ -83,14 +187,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "지침은 필수입니다." }, { status: 400 })
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: "서버에 ANTHROPIC_API_KEY 가 설정되지 않았습니다." },
-      { status: 500 }
-    )
-  }
-
   const model = body.model || "claude-sonnet-4-6"
   const maxTokens = Math.min(Math.max(body.maxTokens ?? 2000, 256), 8192)
   const temperature = Math.min(Math.max(body.temperature ?? 0.8, 0), 1)
@@ -104,64 +200,18 @@ export async function POST(req: Request) {
     : []
 
   const prompt = buildPrompt({ guideline, example, charCount, keywords })
-
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 180_000)
+  const mode = (process.env.BACKEND_MODE || "api").toLowerCase()
 
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: maxTokens,
-        temperature,
-        messages: [{ role: "user", content: prompt }],
-      }),
-      signal: controller.signal,
-    })
-
-    const text = await resp.text()
-    if (!resp.ok) {
-      let msg = `API ${resp.status}`
-      try {
-        const j = JSON.parse(text) as { error?: { message?: string }; message?: string }
-        msg = j?.error?.message || j?.message || msg
-      } catch {
-        msg = text.slice(0, 300) || msg
-      }
-      return NextResponse.json({ error: msg }, { status: 502 })
+    let content: string
+    if (mode === "local-cli") {
+      content = await callViaClaudeCodeCLI(prompt)
+    } else {
+      content = await callViaApi(prompt, model, maxTokens, temperature)
     }
-
-    let content = ""
-    try {
-      const j = JSON.parse(text) as { content?: Array<{ type?: string; text?: string }> }
-      if (Array.isArray(j?.content)) {
-        content = j.content
-          .filter((b) => b?.type === "text" && typeof b.text === "string")
-          .map((b) => b.text as string)
-          .join("\n")
-          .trim()
-      }
-    } catch {}
-
-    if (!content) {
-      return NextResponse.json({ error: "응답에서 원고 텍스트를 찾지 못했어요." }, { status: 502 })
-    }
-
-    return NextResponse.json({ content, model })
+    return NextResponse.json({ content, model, mode })
   } catch (e: unknown) {
-    const err = e as { name?: string; message?: string }
-    const isAbort = err?.name === "AbortError"
-    return NextResponse.json(
-      { error: isAbort ? "요청 시간 초과 (180초)" : err?.message || "알 수 없는 오류" },
-      { status: 504 }
-    )
-  } finally {
-    clearTimeout(timeout)
+    const err = e as { message?: string }
+    return NextResponse.json({ error: err?.message || "알 수 없는 오류", mode }, { status: 502 })
   }
 }

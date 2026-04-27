@@ -29,8 +29,12 @@
 - `NEXT_PUBLIC_SUPABASE_URL` — 클라/서버 공용
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — 클라/서버 공용
 - `SUPABASE_SERVICE_ROLE_KEY` — **서버 전용** (Server Action / Route Handler)
+- `ANTHROPIC_API_KEY` — `/api/generate-cafe` 가 API 모드로 호출할 때 사용
+- `BACKEND_MODE` — `api` (기본, Vercel 배포에서 사용) | `local-cli` (맥미니 로컬에서 Claude Code CLI 호출, Max 인증 사용)
+- `CLAUDE_CODE_BIN` — `claude` 가 PATH 에 없을 때만 지정 (예: `/usr/local/bin/claude`)
 
 로컬은 `.env.local`, 배포는 Vercel 대시보드에 동일하게 등록 (Production/Preview/Development 체크).
+맥미니에서 무한 생성 모드로 돌리는 셋업은 `docs/mac-mini-setup.md` 참고.
 
 # 배포 / CI
 
