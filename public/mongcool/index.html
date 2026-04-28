@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>MONGCOOL 수출입원가관리 v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#f5f4f0;--surface:#ffffff;--surface-2:#faf9f5;--border:#e8e6df;--border-strong:#d6d3ca;
+  --text:#1a1917;--text2:#6b6860;--text3:#a09e99;
+  --accent:#1a6b4a;--accent-bg:#e8f3ed;--accent-border:#b8dcc8;
+  --warn:#8a5e00;--warn-bg:#fdf6e3;--warn-border:#e8d8a0;
+  --danger:#8b2020;--danger-bg:#f9e8e8;--danger-border:#e0bbbb;
+  --info:#1a4a8b;--info-bg:#e8eef9;--info-border:#bbcae0;
+  --radius:8px;--radius-sm:6px;--shadow:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --sans:'Noto Sans KR',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:8px 10px;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+input[type="number"]{font-family:var(--mono);text-align:right}
+input[type="date"]{font-family:var(--mono)}
+table{width:100%;border-collapse:collapse}
+.mono{font-family:var(--mono)}
+.muted{color:var(--text2)}
+.muted2{color:var(--text3)}
+.right{text-align:right}.center{text-align:center}
+.flex{display:flex;gap:8px;align-items:center}.flex-1{flex:1}
+.col{display:flex;flex-direction:column;gap:8px}
+.gap-4{gap:16px}.gap-6{gap:24px}
+.mt-4{margin-top:16px}.mt-6{margin-top:24px}.mb-2{margin-bottom:8px}.mb-4{margin-bottom:16px}
+.hidden{display:none!important}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500;border:1px solid transparent}
+.pill-accent{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
+.pill-warn{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-border)}
+.pill-danger{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-border)}
+.pill-info{background:var(--info-bg);color:var(--info);border-color:var(--info-border)}
+.pill-muted{background:var(--surface-2);color:var(--text2);border-color:var(--border)}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);transition:all .15s ease;white-space:nowrap}
+.btn:hover{background:var(--surface-2);border-color:var(--accent)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#155539;border-color:#155539}
+.btn-danger{color:var(--danger);border-color:var(--danger-border)}
+.btn-danger:hover{background:var(--danger-bg)}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-icon{padding:6px 8px;font-size:12px}
+
+/* layout */
+.app{display:grid;grid-template-columns:240px 1fr;height:100vh;overflow:hidden}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px;gap:12px;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:8px;padding:6px 4px 12px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.brand-icon{width:30px;height:30px;border-radius:6px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.brand-name{font-weight:700;font-size:14px;letter-spacing:-.02em}
+.brand-sub{font-size:11px;color:var(--text2);font-family:var(--mono)}
+
+.filter-block{display:flex;flex-direction:column;gap:6px;padding:8px 0}
+.filter-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.filter-block select{padding:6px 8px;font-size:13px}
+
+.nav{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);font-size:13px;color:var(--text2);cursor:pointer;transition:all .12s ease}
+.nav-item:hover{background:var(--surface-2);color:var(--text)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent);font-weight:600}
+.nav-icon{width:18px;text-align:center;font-size:14px}
+
+.sidebar-footer{margin-top:auto;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)}
+
+.main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:60px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.topbar-title{font-size:18px;font-weight:600;letter-spacing:-.02em}
+.topbar-actions{display:flex;gap:8px}
+.view{flex:1;overflow-y:auto;padding:24px}
+
+/* card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card+.card{margin-top:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.card-title{font-size:15px;font-weight:600;letter-spacing:-.01em}
+
+.section-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+
+/* table */
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.tbl{font-size:13px}
+.tbl th{background:var(--surface-2);text-align:left;padding:10px 12px;font-size:12px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+.tbl th:hover{color:var(--text)}
+.tbl th.sort-asc::after{content:' ▲';font-size:9px;color:var(--accent)}
+.tbl th.sort-desc::after{content:' ▼';font-size:9px;color:var(--accent)}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.clickable{cursor:pointer;transition:background .12s}
+.tbl tr.clickable:hover{background:var(--surface-2)}
+.tbl input,.tbl select{padding:4px 6px;font-size:12px;border-color:transparent;background:transparent}
+.tbl input:hover,.tbl select:hover{border-color:var(--border-strong)}
+.tbl input:focus,.tbl select:focus{background:var(--surface)}
+
+/* search/toolbar */
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.search{position:relative;flex:1;min-width:200px;max-width:400px}
+.search input{padding-left:32px}
+.search::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.5}
+
+/* stats bar */
+.stats-bar{display:flex;gap:16px;padding:12px 16px;background:var(--surface-2);border-top:1px solid var(--border);font-size:12px;color:var(--text2)}
+.stats-bar strong{color:var(--text);font-weight:600}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(20,18,12,.5);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px;backdrop-filter:blur(2px)}
+.modal{background:var(--surface);border-radius:var(--radius);max-width:800px;width:100%;max-height:calc(100vh - 48px);display:flex;flex-direction:column;box-shadow:var(--shadow-md);overflow:hidden}
+.modal-lg{max-width:1100px}
+.modal-sm{max-width:480px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.modal-close{font-size:22px;color:var(--text2);line-height:1;padding:4px 8px;border-radius:var(--radius-sm)}
+.modal-close:hover{background:var(--surface-2);color:var(--text)}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--surface-2)}
+
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field-label{font-size:12px;font-weight:500;color:var(--text2)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.field-row-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+
+/* tabs (subtabs) */
+.subtabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.subtab{padding:10px 16px;font-size:13px;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+.subtab:hover{color:var(--text)}
+.subtab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+
+/* product card grid */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.prod-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow);position:relative;transition:all .15s}
+.prod-card:hover{border-color:var(--accent-border);box-shadow:var(--shadow-md)}
+.prod-pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.prod-name{font-size:14px;font-weight:600}
+.prod-opt{font-size:12px;color:var(--text2)}
+.prod-meta{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:4px}
+.prod-actions{display:flex;gap:4px;margin-top:8px}
+
+/* invoice card */
+.inv-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.inv-card+.inv-card{margin-top:16px}
+.inv-head{padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+.inv-bl{font-family:var(--mono);font-size:14px;font-weight:600}
+.inv-meta-row{display:flex;gap:12px;font-size:12px;color:var(--text2);margin-top:4px;flex-wrap:wrap}
+.inv-body{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.inv-cat{padding:10px 12px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.inv-cat-label{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.inv-cat-amt{font-size:16px;font-weight:600;font-family:var(--mono);margin-top:2px}
+.inv-fwd-list{margin-top:8px;font-size:11px;color:var(--text2);font-family:var(--mono);display:flex;flex-direction:column;gap:2px}
+.inv-total{padding:12px 20px;background:var(--accent-bg);border-top:1px solid var(--accent-border);display:flex;justify-content:space-between;align-items:center}
+.inv-total-label{font-size:12px;color:var(--accent);font-weight:600}
+.inv-total-amt{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--accent)}
+.inv-allocs{padding:14px 20px;border-top:1px solid var(--border)}
+.inv-attach{padding:12px 20px;border-top:1px solid var(--border);background:var(--surface-2);display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--text2)}
+.inv-attach a{color:var(--accent);text-decoration:none;padding:4px 8px;border:1px solid var(--accent-border);border-radius:var(--radius-sm);background:var(--surface)}
+.inv-attach a:hover{background:var(--accent-bg)}
+
+/* preview cost row */
+.preview-tbl{margin-top:12px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.preview-tbl th{background:var(--surface-2);font-size:11px;padding:8px;text-align:right}
+.preview-tbl th:first-child{text-align:left}
+.preview-tbl td{padding:8px;font-size:12px;text-align:right;font-family:var(--mono);border-top:1px solid var(--border)}
+.preview-tbl td:first-child{text-align:left;font-family:var(--sans)}
+.preview-tbl td.highlight{font-weight:700;color:var(--accent);background:var(--accent-bg)}
+
+/* dropzone */
+.drop{border:2px dashed var(--border-strong);border-radius:var(--radius);padding:24px;text-align:center;color:var(--text2);font-size:13px;cursor:pointer;transition:all .15s;background:var(--surface-2)}
+.drop:hover,.drop.drag-over{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+.attach-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.attach-item{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border);font-size:12px}
+.attach-item a{color:var(--accent);text-decoration:none}
+
+/* toast */
+.toast-host{position:fixed;top:80px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:200;pointer-events:none}
+.toast{background:var(--text);color:var(--surface);padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;box-shadow:var(--shadow-md);animation:toast-in .2s ease;pointer-events:auto;max-width:360px}
+.toast.success{background:var(--accent)}
+.toast.error{background:var(--danger)}
+@keyframes toast-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* misc */
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.kbd{display:inline-block;padding:1px 5px;font-family:var(--mono);font-size:11px;background:var(--surface-2);border:1px solid var(--border);border-radius:3px;color:var(--text2)}
+
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .field-row,.field-row-3,.field-row-4{grid-template-columns:1fr}
+  .inv-body{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">M</div>
+      <div>
+        <div class="brand-name">MONGCOOL</div>
+        <div class="brand-sub">원가관리 v3</div>
+      </div>
+    </div>
+
+    <div class="filter-block">
+      <div class="filter-label">브랜드</div>
+      <select id="filter-brand"><option value="">전체</option></select>
+    </div>
+    <div class="filter-block">
+      <div class="filter-label">법인</div>
+      <select id="filter-entity"><option value="">전체</option></select>
+    </div>
+
+    <div class="nav" id="nav">
+      <div class="nav-item" data-tab="orders"><span class="nav-icon">🚛</span>발주 추적</div>
+      <div class="nav-item" data-tab="invoices"><span class="nav-icon">🧾</span>청구서/원가</div>
+      <div class="nav-item" data-tab="products"><span class="nav-icon">📦</span>제품 DB</div>
+      <div class="nav-item" data-tab="parties"><span class="nav-icon">🏢</span>거래처</div>
+      <div class="nav-item" data-tab="settings"><span class="nav-icon">⚙</span>설정</div>
+    </div>
+
+    <div class="sidebar-footer">
+      마지막 업데이트<br/>
+      <span id="last-updated" class="mono"></span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">발주 추적</div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </header>
+    <div class="view" id="view"></div>
+  </main>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-root" class="toast-host"></div>
+
+<script>
+"use strict";
+
+/* =====================================================================
+ *  MONGCOOL 수출입원가관리 v3
+ *  Single-file vanilla JS app — see specification doc for details.
+ * ===================================================================== */
+
+/* ---------- utility ---------- */
+const $ = (s, p = document) => p.querySelector(s);
+const $$ = (s, p = document) => Array.from(p.querySelectorAll(s));
+const uid = (p = '') => p + Math.random().toString(36).slice(2, 9);
+const fmt = (n) => (Number(n) || 0).toLocaleString('ko-KR');
+const fmtKRW = (n) => '₩' + fmt(Math.round(Number(n) || 0));
+const fmtCNY = (n) => '¥' + fmt(Math.round(Number(n) || 0));
+const escHTML = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const nowISO = () => new Date().toISOString();
+const debounce = (fn, ms = 500) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+
+function toast(msg, type = '') {
+  const host = $('#toast-root');
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type || '');
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+/* ---------- seed data (real MONGCOOL) ---------- */
+const SEED = {
+  entities: [
+    { id: 'e1', name: '주식회사 블랙픽', bizNo: '', ceo: '몽드', address: '경기도 용인시 기흥구 강남서로 9', memo: '' },
+    { id: 'e2', name: '몽쿨 주식회사', bizNo: '', ceo: '몽드', address: '', memo: '' },
+    { id: 'e3', name: '개인사업자A', bizNo: '', ceo: '몽드', address: '', memo: '' },
+  ],
+  forwarders: [
+    {
+      id: 'fw1', name: '보명해이항공', tel: '070-8785-4598',
+      email: 'BOMYOUNG7731823@naver.com', contactPerson: '박상희',
+      bankAccounts: [
+        '국민은행 651001-01-226422 (KRW 원화)',
+        '하나은행 630-004820-313 (KRW 원화)',
+        '국민은행 651068-11-000987 (USD 외화)',
+      ],
+      memo: 'BOMYOUNG SHIPPING & AIRCARGO CO.,LTD. 인천 송도',
+    },
+  ],
+  customsBrokers: [
+    {
+      id: 'cb1', name: '코스모 관세사무소', tel: '032-773-5235',
+      fax: '032-765-5232', contactPerson: '주만배',
+      bankAccount: '국민은행 651001-01-312321 주만배(코스모관세사무소)', memo: '',
+    },
+  ],
+  suppliers: [
+    { id: 'sup1', name: 'Shenzhen Leleduo Technology Co., Ltd.', nameKor: '심천 러러둬', productGroup: '몽쿨 선풍기, 미스트선풍기 클립, 부품, 클립금형', contactPerson: 'wangchao', wechat: 'wangchao481125', email: 'wangchao@cnleleduo.com', tel: '+86 18665218008', address: '3rd Fl, Bldg 13, Area C, Fangxing Sci-Tech Park, No.33 Baonan Rd, Longgang, Shenzhen', bankAccount: '深圳南方农业银行龙平支行 Acc:6230 3558 9441 5618 수취:王超心', swift: '', paymentTerms: '법인결제 / 50% 선금-잔금', leadTime: '30일', memo: '' },
+    { id: 'sup2', name: 'Baoding Yimu Textile Co., Ltd.', nameKor: '바오딩 이무 텍스타일', productGroup: '등팩, 쿨시트, 보조리가방', contactPerson: 'Dawn', wechat: 'wxid_kikigar85s4722', email: '13933221009@163.com', tel: '+86 18931213810', address: 'Room 903-1, Bldg B, Shenzhen Bay (Baoding), No.3088 Lekai St, Baoding, Hebei', bankAccount: 'China Construction Bank Acc:13050166550800002300 수취:Baoding Yimu', swift: 'PCBCCNBJHBX', paymentTerms: 'FOB / 50% 선금-잔금', leadTime: '30일', memo: '' },
+    { id: 'sup3', name: 'Anhui Chuangnuo Medical Device Co., Ltd.', nameKor: '안휘 창눠 의료기기', productGroup: '아이스 등팩 젤 (Ice Pack)', contactPerson: 'Eva.fan', wechat: 'bmlian20l2', email: '', tel: '+86 18155603283', address: 'No.1 Dingxiang Rd, Shilipu Anqing City, Anhui', bankAccount: 'ICBC Acc:6222031309003155886 수취:Gao Linbing', swift: 'ICBKCNBJ', paymentTerms: '1차 100% 선결제, 2차 1차 출고시 결제', leadTime: '', memo: '' },
+    { id: 'sup4', name: 'Shenzhen Lianyi Industrial Co., Ltd.', nameKor: '심천 리엔이', productGroup: '물순환 시트', contactPerson: 'Vicky', wechat: 'leadfarlisa', email: '', tel: '+86 755-28827888', address: '11/F, Bldg 6, No.10 MaoTian Rd, PingShan, ShenZhen', bankAccount: 'ShenZhen Rural Commercial Bank Acc:0002 2595 2822', swift: 'SRCCCNBS', paymentTerms: '법인결제 / 50% 선금', leadTime: '35일', memo: '' },
+    { id: 'sup5', name: 'Zhongshan Gaodian / Xiaobudian Infant', nameKor: '중산 가오뎬', productGroup: '1구·2구 컵홀더', contactPerson: 'Zhu Anhua', wechat: 'wxid_mfmbr3zvbogm22', email: '', tel: '+86 13421445907', address: '3rd-4th Fl, No.99, Yulong 2nd Rd, Dongsheng Town, Zhongshan', bankAccount: 'Bank of China / ICBC Zhongshan Acc:6232602011000443483', swift: '', paymentTerms: '자체결제 / 30~50% 선금', leadTime: '30일', memo: '' },
+    { id: 'sup6', name: 'Tengzhou Beikeduo Children\'s Vehicle', nameKor: '텅저우 베이커러', productGroup: '2구 컵홀더 클립 금형', contactPerson: 'Guo Jingang', wechat: '_461103692', email: '', tel: '+86 18678274599', address: 'No.89 Longyang Town, Tengzhou City, Shandong', bankAccount: 'Agricultural Bank of China Acc:6228461316014929460 수취:Guo Jingang', swift: '', paymentTerms: '금형비 27,500CNY', leadTime: '', memo: '3월 중순 완성' },
+    { id: 'sup7', name: 'Yiwu Sanju Trading Co., Ltd.', nameKor: '이우 산쥐 무역', productGroup: '유모차 고리', contactPerson: 'Zuofei', wechat: 'zzyx88866', email: '', tel: '+86 14757957285', address: 'Unit 5, Bldg 17, Wancun, Beiyuan St, Yiwu City, Zhejiang', bankAccount: 'Agricultural Bank of China Acc:19647501040014272 수취:Zuo Fei', swift: 'ABOCCNBJ110', paymentTerms: '100% 선결제', leadTime: '', memo: '진행원함 처리' },
+    { id: 'sup8', name: 'Dongguan Jiacheng Brush Products Co., Ltd.', nameKor: '동관 쟈청 브러쉬', productGroup: '청소 브러쉬', contactPerson: '', wechat: 'aini1781325', email: '', tel: '', address: 'No.5, Lane 1, Shadun Market, Chashan Town, Dongguan', bankAccount: '', swift: '', paymentTerms: '', leadTime: '15~20일', memo: '' },
+    { id: 'sup9', name: '深圳市方林科技有限公司', nameKor: '심천 츠스이ら 과기', productGroup: '보조배터리', contactPerson: '', wechat: 'LY7788518', email: '', tel: '', address: 'Shenzhen', bankAccount: '', swift: '', paymentTerms: '', leadTime: '', memo: 'KC인증 / 10000mAh / KC인증서 수령완료' },
+  ],
+  products: [
+    { id: 'p1', brand: '몽쿨', category: '선풍기', name: '몽쿨 선풍기', option: '화이트', pcode: 'MGC-FAN', ocode: 'MGC-FAN-WH', cbm: 0.012, weightKg: 0.18, htsCode: '', customsRate: 0, supplierId: 'sup1', url: '', imageUrl: '', kcCert: '', memo: '' },
+    { id: 'p2', brand: '몽쿨', category: '선풍기', name: '몽쿨 선풍기', option: '핑크', pcode: 'MGC-FAN', ocode: 'MGC-FAN-PK', cbm: 0.012, weightKg: 0.18, htsCode: '', customsRate: 0, supplierId: 'sup1', url: '', imageUrl: '', kcCert: '', memo: '' },
+    { id: 'p3', brand: '몽쿨', category: '쿨시트', name: '쿨시트', option: '화이트 87×31cm', pcode: 'MGC-CS', ocode: 'MGC-CS-WH-87', cbm: 0.008, weightKg: 0.25, htsCode: '', customsRate: 0, supplierId: 'sup2', url: '', imageUrl: '', kcCert: '', memo: '' },
+    { id: 'p4', brand: '몽쿨', category: '등팩', name: '몽쿨 등팩', option: '화이트 15.5×20.5cm', pcode: 'MGC-BP', ocode: 'MGC-BP-WH', cbm: 0.005, weightKg: 0.15, htsCode: '', customsRate: 0, supplierId: 'sup2', url: '', imageUrl: '', kcCert: '', memo: '' },
+    { id: 'p5', brand: '아이노즈', category: '가방', name: '아이노즈 가방', option: '베이지', pcode: 'AIN-BAG', ocode: 'AIN-BAG-BG', cbm: 0.004, weightKg: 0.12, htsCode: '', customsRate: 0, supplierId: 'sup2', url: '', imageUrl: '', kcCert: '', memo: '' },
+    { id: 'p6', brand: '몽쿨', category: '저장가방', name: 'STORAGE BAG', option: '기본', pcode: 'MGC-SB', ocode: 'MGC-SB-01', cbm: 0.09, weightKg: 12, htsCode: '', customsRate: 0, supplierId: 'sup2', url: '', imageUrl: '', kcCert: '', memo: '실측 검증용 — 50개=4.5CBM' },
+  ],
+  invoiceGroups: [
+    {
+      id: 'inv1', invoiceNo: '11108-26-201908M', blNo: 'WHQM1094E010YBPS', mblNo: 'WHQM1094E003YBSTM',
+      forwarderId: 'fw1', customsBrokerId: 'cb1', importerId: 'e1',
+      pol: '웨이하이', pod: '평택', shipName: 'NEW GRAND PEACE', voyNo: '1094E',
+      cntrType: 'LCL', frtTerms: 'Collect (FOB)', arrivalDate: '2026-04-14', warehouseName: '대전 보세창고',
+      declareDate: '2026-04-14', declareCny: 61500, declareUsd: 9244, taxPriceKrw: 13826310,
+      declareRate: 218.12, totalCbm: 4.5, totalWeightKg: 600, totalPkgs: 50, itemDesc: 'STORAGE BAG',
+      customsDuty: 0, vat: 1382630,
+      logistics: { clearanceFee: 33000, extras: [] },
+      forwarding: {
+        items: [
+          { name: 'OCEAN FREIGHT', amount: 411930, vat: 0, memo: '해이비' },
+          { name: 'HANDLING CHARGE', amount: 20000, vat: 2000, memo: '' },
+          { name: 'CO CHARGE', amount: 33000, vat: 0, memo: '원산지' },
+          { name: 'OTHER CHARGE', amount: 270012, vat: 0, memo: '' },
+          { name: '내륙운송료-용달', amount: 95000, vat: 9500, memo: '용달' },
+        ],
+      },
+      extraCost: 0, attachments: [], saved: true, paidDate: '', memo: '',
+    },
+  ],
+  orders: [
+    {
+      id: 'o1', pid: 'p6', invoiceId: 'inv1', entityId: 'e1', poNumber: '',
+      qty: 50, rate: 218.12, price: 1230,
+      orderDate: '2026-03-19', factoryDate: '2026-04-04', factoryMemo: '',
+      whDate: '2026-04-08', shipDate: '2026-04-10', arriveDate: '2026-04-15',
+      costPerUnit: 0, costBreakdown: null, extraCosts: [], status: 'active', memo: '검증용 시드',
+    },
+    {
+      id: 'o2', pid: 'p1', invoiceId: null, entityId: 'e1', poNumber: '',
+      qty: 5000, rate: 218.51, price: 65,
+      orderDate: '2026-03-19', factoryDate: '', factoryMemo: '', whDate: '', shipDate: '', arriveDate: '',
+      costPerUnit: 0, costBreakdown: null, extraCosts: [], status: 'active', memo: '몽쿨 선풍기 1차',
+    },
+    {
+      id: 'o3', pid: 'p2', invoiceId: null, entityId: 'e1', poNumber: '',
+      qty: 3000, rate: 218.51, price: 65,
+      orderDate: '2026-03-19', factoryDate: '', factoryMemo: '', whDate: '', shipDate: '', arriveDate: '',
+      costPerUnit: 0, costBreakdown: null, extraCosts: [], status: 'active', memo: '',
+    },
+  ],
+};
+
+/* ---------- DB ---------- */
+const DB_KEY = 'mongcool_db';
+const DB_VERSION = '1.0';
+
+function freshDB() {
+  return {
+    version: DB_VERSION,
+    lastUpdated: nowISO(),
+    entities: structuredClone(SEED.entities),
+    forwarders: structuredClone(SEED.forwarders),
+    customsBrokers: structuredClone(SEED.customsBrokers),
+    suppliers: structuredClone(SEED.suppliers),
+    products: structuredClone(SEED.products),
+    invoiceGroups: structuredClone(SEED.invoiceGroups),
+    orders: structuredClone(SEED.orders),
+    filters: { brand: null, entity: null },
+  };
+}
+
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    if (!raw) return freshDB();
+    const db = JSON.parse(raw);
+    // ensure all keys exist (forward-compat)
+    const fresh = freshDB();
+    for (const k of Object.keys(fresh)) {
+      if (!(k in db)) db[k] = fresh[k];
+    }
+    return db;
+  } catch (e) {
+    console.error('loadDB failed', e);
+    return freshDB();
+  }
+}
+
+const persist = debounce(() => {
+  state.db.lastUpdated = nowISO();
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(state.db));
+    updateLastUpdated();
+  } catch (e) {
+    toast('저장 실패: ' + e.message, 'error');
+  }
+}, 300);
+
+function updateLastUpdated() {
+  const el = $('#last-updated');
+  if (el) el.textContent = (state.db.lastUpdated || '').replace('T', ' ').slice(0, 16);
+}
+
+/* ---------- state ---------- */
+const state = {
+  db: loadDB(),
+  tab: 'orders',
+  partiesSubtab: 'entities',
+  search: '',
+  sort: { col: null, dir: 'asc' },
+};
+
+/* lookup helpers */
+function findById(arr, id) { return arr.find((x) => x.id === id); }
+function entityName(id) { return findById(state.db.entities, id)?.name || '-'; }
+function forwarderName(id) { return findById(state.db.forwarders, id)?.name || '-'; }
+function brokerName(id) { return findById(state.db.customsBrokers, id)?.name || '-'; }
+function supplierName(id) { return findById(state.db.suppliers, id)?.name || '-'; }
+function productById(id) { return findById(state.db.products, id); }
+
+/* ---------- business logic (spec §5) ---------- */
+function calcInvoiceTotals(ig) {
+  const totalCustoms = Number(ig.customsDuty) || 0;
+  const totalVat = Number(ig.vat) || 0;
+  const totalLogistics = (Number(ig.logistics?.clearanceFee) || 0)
+    + (ig.logistics?.extras || []).reduce((s, x) => s + (Number(x.amount) || 0), 0);
+  const totalForwarding = (ig.forwarding?.items || []).reduce(
+    (s, x) => s + (Number(x.amount) || 0) + (Number(x.vat) || 0), 0);
+  const extraCost = Number(ig.extraCost) || 0;
+  const grandTotal = totalCustoms + totalVat + totalLogistics + totalForwarding + extraCost;
+  return { totalCustoms, totalVat, totalLogistics, totalForwarding, extraCost, grandTotal };
+}
+
+function calcAllocationBase(ig, orders, products) {
+  const groupOrders = orders.filter((o) => o.invoiceId === ig.id);
+  let totalCbm = 0, totalQty = 0, totalGoodsValue = 0;
+  for (const o of groupOrders) {
+    const p = findById(products, o.pid);
+    if (!p) continue;
+    totalCbm += (Number(p.cbm) || 0) * (Number(o.qty) || 0);
+    totalQty += Number(o.qty) || 0;
+    totalGoodsValue += (Number(o.qty) || 0) * (Number(o.rate) || 0) * (Number(o.price) || 0);
+  }
+  return { totalCbm, totalQty, totalGoodsValue };
+}
+
+function calcAllocationRates(ig, base) {
+  const t = calcInvoiceTotals(ig);
+  return {
+    forwardingPerCbm: base.totalCbm > 0 ? t.totalForwarding / base.totalCbm : 0,
+    logisticsPerUnit: base.totalQty > 0 ? t.totalLogistics / base.totalQty : 0,
+    customsRate: base.totalGoodsValue > 0 ? t.totalCustoms / base.totalGoodsValue : 0,
+    vatRate: base.totalGoodsValue > 0 ? t.totalVat / base.totalGoodsValue : 0,
+    extraPerUnit: base.totalQty > 0 ? t.extraCost / base.totalQty : 0,
+  };
+}
+
+function calcOrderCost(order, product, rates) {
+  const goodsValue = (Number(order.rate) || 0) * (Number(order.price) || 0);
+  const forwarding = rates.forwardingPerCbm * (Number(product.cbm) || 0);
+  const logistics = rates.logisticsPerUnit;
+  const customsDuty = rates.customsRate * goodsValue;
+  const vat = rates.vatRate * goodsValue;
+  const extra = rates.extraPerUnit;
+  const costPerUnit = goodsValue + forwarding + logistics + customsDuty + vat + extra;
+  return {
+    costPerUnit: Math.round(costPerUnit),
+    costBreakdown: {
+      goodsValue: Math.round(goodsValue),
+      forwarding: Math.round(forwarding),
+      logistics: Math.round(logistics),
+      customsDuty: Math.round(customsDuty),
+      vat: Math.round(vat),
+      extra: Math.round(extra),
+    },
+  };
+}
+
+function saveCostsForInvoiceGroup(ig) {
+  const base = calcAllocationBase(ig, state.db.orders, state.db.products);
+  const rates = calcAllocationRates(ig, base);
+  for (const o of state.db.orders.filter((o) => o.invoiceId === ig.id)) {
+    const p = productById(o.pid);
+    if (!p) continue;
+    const r = calcOrderCost(o, p, rates);
+    o.costPerUnit = r.costPerUnit;
+    o.costBreakdown = r.costBreakdown;
+  }
+  ig.saved = true;
+  persist();
+}
+
+function getOrderStatus(order) {
+  if (order.arriveDate && (order.extraCosts || []).length > 0) return 'delay';
+  if (order.arriveDate) return 'done';
+  return 'active';
+}
+
+function statusPill(o) {
+  if (o.arriveDate && (o.extraCosts || []).length > 0) return '<span class="pill pill-warn">🟡 지연/추가비</span>';
+  if (o.arriveDate) return '<span class="pill pill-accent">🟢 입고완료</span>';
+  if (o.shipDate && new Date(o.shipDate) > new Date()) return '<span class="pill pill-info">🔵 선적예정</span>';
+  if (o.shipDate) return '<span class="pill pill-info">🔵 선적완료</span>';
+  if (o.whDate) return '<span class="pill pill-info">🔵 위해입고</span>';
+  if (o.factoryDate && new Date(o.factoryDate) > new Date()) return '<span class="pill pill-muted">⚪ 출고예정</span>';
+  if (o.factoryDate) return '<span class="pill pill-muted">⚪ 공장출고</span>';
+  if (o.factoryMemo) return '<span class="pill pill-warn">🟠 출고 미확인</span>';
+  return '<span class="pill pill-muted">⚪ 발주중</span>';
+}
+
+/* ---------- router ---------- */
+function go(tab) {
+  state.tab = tab;
+  $$('#nav .nav-item').forEach((n) => n.classList.toggle('active', n.dataset.tab === tab));
+  render();
+}
+
+/* ---------- filters ---------- */
+function applyFilters(orders) {
+  const f = state.db.filters;
+  let arr = orders;
+  if (f.brand) arr = arr.filter((o) => productById(o.pid)?.brand === f.brand);
+  if (f.entity) arr = arr.filter((o) => o.entityId === f.entity);
+  if (state.search) {
+    const q = state.search.toLowerCase();
+    arr = arr.filter((o) => {
+      const p = productById(o.pid);
+      const sup = p ? findById(state.db.suppliers, p.supplierId) : null;
+      return [p?.name, p?.option, p?.pcode, p?.ocode, sup?.name, sup?.nameKor, o.poNumber, o.memo]
+        .some((s) => String(s || '').toLowerCase().includes(q));
+    });
+  }
+  return arr;
+}
+
+/* =====================================================================
+ *  RENDER — top-level dispatch
+ * ===================================================================== */
+function render() {
+  populateFilters();
+  updateLastUpdated();
+  const view = $('#view');
+  const title = $('#topbar-title');
+  const actions = $('#topbar-actions');
+  switch (state.tab) {
+    case 'orders':    title.textContent = '발주 추적';        actions.innerHTML = '<button class="btn btn-primary" onclick="openOrderModal()">+ 발주 등록</button>'; renderOrders(view); break;
+    case 'invoices':  title.textContent = '청구서 / 원가';    actions.innerHTML = '<button class="btn btn-primary" onclick="openInvoiceModal()">+ 청구서 등록</button>'; renderInvoices(view); break;
+    case 'products':  title.textContent = '제품 DB';           actions.innerHTML = '<button class="btn" onclick="downloadProductTemplate()">엑셀 템플릿</button> <button class="btn" onclick="$(\'#xlsx-import-products\').click()">엑셀 일괄 업로드</button> <button class="btn btn-primary" onclick="openProductModal()">+ 제품 등록</button>'; renderProducts(view); break;
+    case 'parties':   title.textContent = '거래처';            actions.innerHTML = ''; renderParties(view); break;
+    case 'settings':  title.textContent = '설정';              actions.innerHTML = ''; renderSettings(view); break;
+  }
+}
+
+/* ---------- sidebar filters ---------- */
+function populateFilters() {
+  const fb = $('#filter-brand');
+  const fe = $('#filter-entity');
+  const brands = [...new Set(state.db.products.map((p) => p.brand).filter(Boolean))].sort();
+  fb.innerHTML = '<option value="">전체</option>' + brands.map((b) => `<option value="${escHTML(b)}" ${state.db.filters.brand === b ? 'selected' : ''}>${escHTML(b)}</option>`).join('');
+  fe.innerHTML = '<option value="">전체</option>' + state.db.entities.map((e) => `<option value="${escHTML(e.id)}" ${state.db.filters.entity === e.id ? 'selected' : ''}>${escHTML(e.name)}</option>`).join('');
+}
+
+/* =====================================================================
+ *  TAB 1: ORDERS
+ * ===================================================================== */
+function renderOrders(view) {
+  const arr = applyFilters(state.db.orders).slice().sort((a, b) => (b.orderDate || '').localeCompare(a.orderDate || ''));
+  const stats = (() => {
+    const total = arr.length;
+    const done = arr.filter((o) => o.arriveDate).length;
+    const inProg = arr.filter((o) => !o.arriveDate).length;
+    const delay = arr.filter((o) => o.arriveDate && (o.extraCosts || []).length > 0).length;
+    const costed = arr.filter((o) => o.invoiceId && o.costBreakdown).length;
+    const uncosted = arr.filter((o) => !o.invoiceId).length;
+    return { total, done, inProg, delay, costed, uncosted };
+  })();
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="search"><input id="search-orders" placeholder="제품/옵션/공장/PO번호/메모 검색…" value="${escHTML(state.search)}" /></div>
+      <select id="filter-status" class="btn" style="padding:8px">
+        <option value="">전체 상태</option>
+        <option value="active">진행중</option>
+        <option value="done">완료</option>
+        <option value="delay">지연</option>
+      </select>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl" id="orders-tbl">
+        <thead><tr>
+          <th>브랜드</th><th>제품/옵션</th><th>법인</th>
+          <th class="right">수량</th><th>발주일</th>
+          <th>공장출고</th><th>위해입고</th><th>선적</th><th>국내입고</th>
+          <th>청구서</th><th>상태</th><th class="right">단가(KRW)</th>
+        </tr></thead>
+        <tbody>
+          ${arr.length === 0 ? `<tr><td colspan="12" class="empty">발주가 없어요. 우상단 [+ 발주 등록] 으로 추가하세요.</td></tr>` :
+            arr.map((o) => {
+              const p = productById(o.pid);
+              const inv = findById(state.db.invoiceGroups, o.invoiceId);
+              return `<tr class="clickable" onclick="openOrderModal('${o.id}')">
+                <td>${escHTML(p?.brand || '-')}</td>
+                <td><strong>${escHTML(p?.name || '-')}</strong> <span class="muted">${escHTML(p?.option || '')}</span></td>
+                <td>${escHTML(entityName(o.entityId))}</td>
+                <td class="right mono">${fmt(o.qty)}</td>
+                <td class="mono">${escHTML(o.orderDate || '')}</td>
+                <td class="mono">${escHTML(o.factoryDate || (o.factoryMemo ? '🟠' : '-'))}</td>
+                <td class="mono">${escHTML(o.whDate || '-')}</td>
+                <td class="mono">${escHTML(o.shipDate || '-')}</td>
+                <td class="mono">${escHTML(o.arriveDate || '-')}</td>
+                <td>${inv ? '<span class="pill pill-info mono" style="font-size:11px">' + escHTML(inv.blNo || inv.invoiceNo || inv.id) + '</span>' : '<span class="muted2">-</span>'}</td>
+                <td>${statusPill(o)}</td>
+                <td class="right mono">${o.costPerUnit ? fmtKRW(o.costPerUnit) : '<span class="muted2">미산</span>'}</td>
+              </tr>`;
+            }).join('')}
+        </tbody>
+      </table>
+      <div class="stats-bar">
+        <span>전체 <strong>${stats.total}</strong>건</span>
+        <span>진행중 <strong>${stats.inProg}</strong></span>
+        <span>완료 <strong>${stats.done}</strong></span>
+        <span>지연 <strong>${stats.delay}</strong></span>
+        <span>원가산출 <strong>${stats.costed}</strong></span>
+        <span>청구서 미배정 <strong>${stats.uncosted}</strong></span>
+      </div>
+    </div>
+  `;
+
+  $('#search-orders').oninput = (e) => { state.search = e.target.value; renderOrders(view); };
+  $('#filter-status').onchange = (e) => {
+    const v = e.target.value;
+    if (!v) { renderOrders(view); return; }
+    const filtered = state.db.orders.filter((o) => getOrderStatus(o) === v);
+    // re-render with the filtered set inline
+    const tbody = $('#orders-tbl tbody');
+    tbody.innerHTML = filtered.map((o) => {
+      const p = productById(o.pid);
+      const inv = findById(state.db.invoiceGroups, o.invoiceId);
+      return `<tr class="clickable" onclick="openOrderModal('${o.id}')">
+        <td>${escHTML(p?.brand || '-')}</td>
+        <td><strong>${escHTML(p?.name || '-')}</strong> <span class="muted">${escHTML(p?.option || '')}</span></td>
+        <td>${escHTML(entityName(o.entityId))}</td>
+        <td class="right mono">${fmt(o.qty)}</td>
+        <td class="mono">${escHTML(o.orderDate || '')}</td>
+        <td class="mono">${escHTML(o.factoryDate || '-')}</td>
+        <td class="mono">${escHTML(o.whDate || '-')}</td>
+        <td class="mono">${escHTML(o.shipDate || '-')}</td>
+        <td class="mono">${escHTML(o.arriveDate || '-')}</td>
+        <td>${inv ? '<span class="pill pill-info mono">' + escHTML(inv.blNo || inv.id) + '</span>' : '<span class="muted2">-</span>'}</td>
+        <td>${statusPill(o)}</td>
+        <td class="right mono">${o.costPerUnit ? fmtKRW(o.costPerUnit) : '<span class="muted2">미산</span>'}</td>
+      </tr>`;
+    }).join('');
+  };
+}
+
+/* =====================================================================
+ *  TAB 2: INVOICES
+ * ===================================================================== */
+function renderInvoices(view) {
+  const arr = state.db.invoiceGroups.slice().sort((a, b) => (b.arrivalDate || '').localeCompare(a.arrivalDate || ''));
+  view.innerHTML = `
+    <div class="toolbar">
+      <span class="muted">총 <strong>${arr.length}</strong>건</span>
+      <div class="flex-1"></div>
+      <label class="flex" style="font-size:13px;color:var(--text2)">
+        <input type="checkbox" id="filter-unsaved" style="width:auto;margin-right:6px" />
+        미저장만
+      </label>
+    </div>
+    <div id="inv-list">
+      ${arr.length === 0 ? '<div class="empty">청구서가 없어요. 우상단 [+ 청구서 등록] 으로 추가하세요.</div>' : arr.map(renderInvoiceCard).join('')}
+    </div>
+  `;
+  $('#filter-unsaved').onchange = (e) => {
+    const list = $('#inv-list');
+    const filtered = e.target.checked ? arr.filter((ig) => !ig.saved) : arr;
+    list.innerHTML = filtered.length === 0 ? '<div class="empty">결과 없음</div>' : filtered.map(renderInvoiceCard).join('');
+  };
+}
+
+function renderInvoiceCard(ig) {
+  const t = calcInvoiceTotals(ig);
+  const base = calcAllocationBase(ig, state.db.orders, state.db.products);
+  const rates = calcAllocationRates(ig, base);
+  const groupOrders = state.db.orders.filter((o) => o.invoiceId === ig.id);
+  const fwdItems = (ig.forwarding?.items || []).map((x) => `<span>· ${escHTML(x.name)} ${fmtKRW(x.amount)}${x.vat ? ' (+VAT ' + fmt(x.vat) + ')' : ''}</span>`).join('');
+  return `
+    <div class="inv-card">
+      <div class="inv-head">
+        <div class="flex" style="justify-content:space-between">
+          <div>
+            <div class="inv-bl">${escHTML(ig.blNo || ig.invoiceNo || '(no BL)')}</div>
+            <div class="inv-meta-row">
+              <span>${escHTML(brokerName(ig.customsBrokerId))}</span>
+              <span>·</span>
+              <span>${escHTML(forwarderName(ig.forwarderId))}</span>
+              <span>·</span>
+              <span>${escHTML(entityName(ig.importerId))}</span>
+              <span>·</span>
+              <span class="mono">${escHTML(ig.arrivalDate || '')}</span>
+              <span>·</span>
+              <span>${escHTML(ig.pol || '')} → ${escHTML(ig.pod || '')}</span>
+              <span>·</span>
+              <span>${escHTML(ig.cntrType || '')}</span>
+              <span>·</span>
+              <span>${escHTML(ig.itemDesc || '')}</span>
+              ${ig.saved ? '<span class="pill pill-accent">저장됨</span>' : '<span class="pill pill-warn">미저장</span>'}
+            </div>
+          </div>
+          <div class="flex">
+            <button class="btn btn-sm" onclick="openInvoiceModal('${ig.id}')">편집</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${ig.id}')">삭제</button>
+          </div>
+        </div>
+      </div>
+      <div class="inv-body">
+        <div class="inv-cat"><div class="inv-cat-label">① 관세</div><div class="inv-cat-amt">${fmtKRW(t.totalCustoms)}</div></div>
+        <div class="inv-cat"><div class="inv-cat-label">② 부가세</div><div class="inv-cat-amt">${fmtKRW(t.totalVat)}</div></div>
+        <div class="inv-cat"><div class="inv-cat-label">③ 물류비용 (관세사)</div><div class="inv-cat-amt">${fmtKRW(t.totalLogistics)}</div></div>
+        <div class="inv-cat"><div class="inv-cat-label">④ 포워딩비용 ${(ig.forwarding?.items || []).length}항목</div><div class="inv-cat-amt">${fmtKRW(t.totalForwarding)}</div><div class="inv-fwd-list">${fwdItems}</div></div>
+      </div>
+      <div class="inv-total">
+        <div class="inv-total-label">청구서 총액</div>
+        <div class="inv-total-amt">${fmtKRW(t.grandTotal)}</div>
+      </div>
+      ${groupOrders.length === 0 ? '<div class="inv-allocs"><div class="muted">이 청구서에 매칭된 발주가 없어요.</div></div>' : `
+      <div class="inv-allocs">
+        <div class="section-title">제품별 가당 도착시가 — ${groupOrders.length}건</div>
+        <table class="preview-tbl">
+          <thead><tr><th>제품/옵션</th><th>수량</th><th>물건가</th><th>포워딩</th><th>물류</th><th>관세</th><th>부가세</th><th>도착시가/개</th></tr></thead>
+          <tbody>
+            ${groupOrders.map((o) => {
+              const p = productById(o.pid);
+              if (!p) return '';
+              const r = calcOrderCost(o, p, rates);
+              return `<tr>
+                <td>${escHTML(p.name)} <span class="muted">${escHTML(p.option || '')}</span></td>
+                <td>${fmt(o.qty)}</td>
+                <td>${fmtKRW(r.costBreakdown.goodsValue)}</td>
+                <td>${fmtKRW(r.costBreakdown.forwarding)}</td>
+                <td>${fmtKRW(r.costBreakdown.logistics)}</td>
+                <td>${fmtKRW(r.costBreakdown.customsDuty)}</td>
+                <td>${fmtKRW(r.costBreakdown.vat)}</td>
+                <td class="highlight">${fmtKRW(r.costPerUnit)}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="muted mono" style="font-size:11px;margin-top:6px">
+          기준: 총CBM ${base.totalCbm.toFixed(3)}㎥ · 총수량 ${fmt(base.totalQty)} · 물건가합 ${fmtKRW(base.totalGoodsValue)}
+          | CBM당 포워딩 ${fmtKRW(rates.forwardingPerCbm)} · 개당물류 ${fmtKRW(rates.logisticsPerUnit)}
+          · 실효관세 ${(rates.customsRate * 100).toFixed(2)}% · 실효부가 ${(rates.vatRate * 100).toFixed(2)}%
+        </div>
+      </div>`}
+      ${(ig.attachments || []).length === 0 ? '' : `
+        <div class="inv-attach">
+          <span>📎 첨부:</span>
+          ${ig.attachments.map((a) => `<a href="${a.dataUrl}" download="${escHTML(a.name)}">${escHTML(a.name)}</a>`).join('')}
+        </div>`}
+    </div>
+  `;
+}
+
+function deleteInvoice(id) {
+  if (!confirm('이 청구서를 삭제하시겠습니까? (연결된 발주의 청구서 매핑이 해제됩니다)')) return;
+  state.db.invoiceGroups = state.db.invoiceGroups.filter((x) => x.id !== id);
+  for (const o of state.db.orders) {
+    if (o.invoiceId === id) { o.invoiceId = null; o.costPerUnit = 0; o.costBreakdown = null; }
+  }
+  persist();
+  toast('삭제됨');
+  render();
+}
+
+/* =====================================================================
+ *  TAB 3: PRODUCTS
+ * ===================================================================== */
+function renderProducts(view) {
+  const arr = state.db.products.filter((p) => {
+    if (!state.search) return true;
+    const q = state.search.toLowerCase();
+    return [p.name, p.option, p.pcode, p.ocode, p.brand, p.category].some((s) => String(s || '').toLowerCase().includes(q));
+  });
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="search"><input id="search-products" placeholder="브랜드/제품/옵션/코드 검색…" value="${escHTML(state.search)}" /></div>
+      <span class="muted">총 <strong>${arr.length}</strong>개 / ${state.db.products.length}개</span>
+    </div>
+    <input type="file" id="xlsx-import-products" accept=".xlsx,.xls" class="hidden" />
+    ${arr.length === 0 ? '<div class="empty">제품이 없어요. [+ 제품 등록] 또는 [엑셀 일괄 업로드] 를 시작점으로.</div>' : `
+      <div class="product-grid">
+        ${arr.map((p) => {
+          const sup = findById(state.db.suppliers, p.supplierId);
+          return `<div class="prod-card">
+            <div class="prod-pill-row">
+              <span class="pill pill-accent">${escHTML(p.brand || '?')}</span>
+              <span class="pill pill-muted">${escHTML(p.category || '?')}</span>
+              ${p.kcCert ? '<span class="pill pill-info">KC ✓</span>' : ''}
+            </div>
+            <div class="prod-name">${escHTML(p.name)}</div>
+            <div class="prod-opt">${escHTML(p.option || '-')}</div>
+            <div class="prod-meta">${escHTML(p.pcode)} / ${escHTML(p.ocode)} · CBM ${p.cbm}㎥ · ${p.weightKg}kg</div>
+            <div class="prod-meta muted2">공급처: ${escHTML(sup?.nameKor || sup?.name || '-')}</div>
+            <div class="prod-actions">
+              <button class="btn btn-sm" onclick="openProductModal('${p.id}')">편집</button>
+              <button class="btn btn-sm" onclick="duplicateProduct('${p.id}')">복제</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p.id}')">삭제</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    `}
+  `;
+  $('#search-products').oninput = (e) => { state.search = e.target.value; renderProducts(view); };
+  $('#xlsx-import-products').onchange = importProductsXlsx;
+}
+
+function duplicateProduct(id) {
+  const p = productById(id);
+  if (!p) return;
+  const copy = { ...structuredClone(p), id: uid('p'), name: p.name + ' (복사)', ocode: p.ocode + '-CP' };
+  state.db.products.unshift(copy);
+  persist(); toast('복제됨', 'success'); render();
+}
+
+function deleteProduct(id) {
+  if (!confirm('이 제품을 삭제하시겠습니까? (연결된 발주가 있으면 함께 끊깁니다)')) return;
+  state.db.products = state.db.products.filter((p) => p.id !== id);
+  for (const o of state.db.orders) if (o.pid === id) o.pid = '';
+  persist(); toast('삭제됨'); render();
+}
+
+function downloadProductTemplate() {
+  const headers = ['브랜드', '카테고리', '제품명', '옵션명', '제품코드', '옵션코드', 'CBM', '중량(kg)', 'HS코드', '관세율(%)', '공급처명', '발주URL', '이미지URL', 'KC인증', '메모'];
+  const example = ['몽쿨', '선풍기', '몽쿨 선풍기', '화이트', 'MGC-FAN', 'MGC-FAN-WH', 0.012, 0.18, '', 0, 'Shenzhen Leleduo Technology Co., Ltd.', '', '', '', ''];
+  const ws = XLSX.utils.aoa_to_sheet([headers, example]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '제품');
+  XLSX.writeFile(wb, 'mongcool_제품_템플릿.xlsx');
+}
+
+function importProductsXlsx(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      let added = 0, skipped = 0;
+      for (const r of rows) {
+        const ocode = String(r['옵션코드'] || '').trim();
+        if (!ocode) { skipped++; continue; }
+        if (state.db.products.some((p) => p.ocode === ocode)) { skipped++; continue; }
+        const supName = String(r['공급처명'] || '').trim();
+        let sup = state.db.suppliers.find((s) => s.name === supName || s.nameKor === supName);
+        if (!sup && supName) {
+          sup = { id: uid('sup'), name: supName, nameKor: supName, productGroup: '', contactPerson: '', wechat: '', email: '', tel: '', address: '', bankAccount: '', swift: '', paymentTerms: '', leadTime: '', memo: '엑셀 자동생성' };
+          state.db.suppliers.push(sup);
+        }
+        state.db.products.push({
+          id: uid('p'),
+          brand: String(r['브랜드'] || ''),
+          category: String(r['카테고리'] || ''),
+          name: String(r['제품명'] || ''),
+          option: String(r['옵션명'] || ''),
+          pcode: String(r['제품코드'] || ''),
+          ocode,
+          cbm: Number(r['CBM'] || 0),
+          weightKg: Number(r['중량(kg)'] || 0),
+          htsCode: String(r['HS코드'] || ''),
+          customsRate: Number(r['관세율(%)'] || 0),
+          supplierId: sup?.id || '',
+          url: String(r['발주URL'] || ''),
+          imageUrl: String(r['이미지URL'] || ''),
+          kcCert: String(r['KC인증'] || ''),
+          memo: String(r['메모'] || ''),
+        });
+        added++;
+      }
+      persist();
+      toast(`업로드 완료 — 추가 ${added}, 건너뜀 ${skipped}`, 'success');
+      render();
+    } catch (e) {
+      toast('엑셀 파싱 실패: ' + e.message, 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  ev.target.value = '';
+}
+
+/* =====================================================================
+ *  TAB 4: PARTIES
+ * ===================================================================== */
+function renderParties(view) {
+  view.innerHTML = `
+    <div class="subtabs" id="parties-subtabs">
+      <div class="subtab" data-st="entities">법인 (${state.db.entities.length})</div>
+      <div class="subtab" data-st="forwarders">포워딩사 (${state.db.forwarders.length})</div>
+      <div class="subtab" data-st="brokers">관세사 (${state.db.customsBrokers.length})</div>
+      <div class="subtab" data-st="suppliers">중국 공급처 (${state.db.suppliers.length})</div>
+    </div>
+    <div id="parties-body"></div>
+  `;
+  $$('#parties-subtabs .subtab').forEach((el) => {
+    el.classList.toggle('active', el.dataset.st === state.partiesSubtab);
+    el.onclick = () => { state.partiesSubtab = el.dataset.st; renderParties(view); };
+  });
+  const body = $('#parties-body');
+  switch (state.partiesSubtab) {
+    case 'entities':   renderEntities(body); break;
+    case 'forwarders': renderForwarders(body); break;
+    case 'brokers':    renderBrokers(body); break;
+    case 'suppliers':  renderSuppliers(body); break;
+  }
+}
+
+function renderEntities(body) {
+  body.innerHTML = `
+    <div class="toolbar"><button class="btn btn-primary" onclick="openEntityModal()">+ 법인 등록</button></div>
+    ${state.db.entities.map((e) => `
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">${escHTML(e.name)}</div>
+          <div class="flex">
+            <button class="btn btn-sm" onclick="openEntityModal('${e.id}')">편집</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteEntity('${e.id}')">삭제</button>
+          </div>
+        </div>
+        <div class="muted" style="font-size:13px">
+          ${e.bizNo ? `사업자번호: <span class="mono">${escHTML(e.bizNo)}</span> · ` : ''}
+          대표: ${escHTML(e.ceo || '-')} · ${escHTML(e.address || '-')}
+        </div>
+        ${e.memo ? `<div class="muted" style="margin-top:6px;font-size:12px">${escHTML(e.memo)}</div>` : ''}
+      </div>
+    `).join('')}
+  `;
+}
+function deleteEntity(id) { if (!confirm('이 법인을 삭제하시겠습니까?')) return; state.db.entities = state.db.entities.filter((e) => e.id !== id); persist(); render(); }
+
+function renderForwarders(body) {
+  body.innerHTML = `
+    <div class="toolbar"><button class="btn btn-primary" onclick="openForwarderModal()">+ 포워딩사 등록</button></div>
+    ${state.db.forwarders.map((f) => `
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">${escHTML(f.name)}</div>
+          <div class="flex">
+            <button class="btn btn-sm" onclick="openForwarderModal('${f.id}')">편집</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteForwarder('${f.id}')">삭제</button>
+          </div>
+        </div>
+        <div class="muted" style="font-size:13px">
+          Tel ${escHTML(f.tel)} · ${escHTML(f.email)} · 담당 ${escHTML(f.contactPerson)}
+        </div>
+        ${(f.bankAccounts || []).length ? `<div style="margin-top:8px;font-size:12px"><strong class="muted">계좌:</strong><br>${f.bankAccounts.map((a) => '<span class="mono">' + escHTML(a) + '</span>').join('<br>')}</div>` : ''}
+        ${f.memo ? `<div class="muted" style="margin-top:6px;font-size:12px">${escHTML(f.memo)}</div>` : ''}
+      </div>
+    `).join('')}
+  `;
+}
+function deleteForwarder(id) { if (!confirm('이 포워딩사를 삭제하시겠습니까?')) return; state.db.forwarders = state.db.forwarders.filter((x) => x.id !== id); persist(); render(); }
+
+function renderBrokers(body) {
+  body.innerHTML = `
+    <div class="toolbar"><button class="btn btn-primary" onclick="openBrokerModal()">+ 관세사 등록</button></div>
+    ${state.db.customsBrokers.map((b) => `
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">${escHTML(b.name)}</div>
+          <div class="flex">
+            <button class="btn btn-sm" onclick="openBrokerModal('${b.id}')">편집</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteBroker('${b.id}')">삭제</button>
+          </div>
+        </div>
+        <div class="muted" style="font-size:13px">
+          Tel ${escHTML(b.tel)} · Fax ${escHTML(b.fax)} · 담당 ${escHTML(b.contactPerson)}
+        </div>
+        ${b.bankAccount ? `<div class="mono" style="margin-top:6px;font-size:12px">${escHTML(b.bankAccount)}</div>` : ''}
+        ${b.memo ? `<div class="muted" style="margin-top:6px;font-size:12px">${escHTML(b.memo)}</div>` : ''}
+      </div>
+    `).join('')}
+  `;
+}
+function deleteBroker(id) { if (!confirm('이 관세사를 삭제하시겠습니까?')) return; state.db.customsBrokers = state.db.customsBrokers.filter((x) => x.id !== id); persist(); render(); }
+
+function renderSuppliers(body) {
+  body.innerHTML = `
+    <div class="toolbar">
+      <div class="search"><input id="sup-search" placeholder="이름/한글명/위챗/제품군 검색…" /></div>
+      <button class="btn btn-primary" onclick="openSupplierModal()">+ 공급처 등록</button>
+    </div>
+    <div id="sup-list">${renderSupplierList(state.db.suppliers)}</div>
+  `;
+  $('#sup-search').oninput = (e) => {
+    const q = e.target.value.toLowerCase();
+    const filt = state.db.suppliers.filter((s) => [s.name, s.nameKor, s.wechat, s.productGroup, s.contactPerson].some((v) => String(v || '').toLowerCase().includes(q)));
+    $('#sup-list').innerHTML = renderSupplierList(filt);
+  };
+}
+function renderSupplierList(list) {
+  if (list.length === 0) return '<div class="empty">결과 없음</div>';
+  return list.map((s) => `
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">${escHTML(s.name)} <span class="muted" style="font-weight:400">${escHTML(s.nameKor || '')}</span></div>
+          <div class="muted" style="font-size:12px;margin-top:4px">${escHTML(s.productGroup || '')}</div>
+        </div>
+        <div class="flex">
+          <button class="btn btn-sm" onclick="openSupplierModal('${s.id}')">편집</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteSupplier('${s.id}')">삭제</button>
+        </div>
+      </div>
+      <div class="field-row" style="font-size:13px">
+        <div>
+          <div><strong class="muted">담당자:</strong> ${escHTML(s.contactPerson || '-')}</div>
+          <div><strong class="muted">WeChat:</strong> <span class="mono">${escHTML(s.wechat || '-')}</span></div>
+          <div><strong class="muted">Tel:</strong> <span class="mono">${escHTML(s.tel || '-')}</span></div>
+          <div><strong class="muted">Email:</strong> ${escHTML(s.email || '-')}</div>
+        </div>
+        <div>
+          <div><strong class="muted">주소:</strong> ${escHTML(s.address || '-')}</div>
+          <div><strong class="muted">결제조건:</strong> ${escHTML(s.paymentTerms || '-')}</div>
+          <div><strong class="muted">리드타임:</strong> ${escHTML(s.leadTime || '-')}</div>
+        </div>
+      </div>
+      ${s.bankAccount ? `<div style="margin-top:6px;font-size:12px"><strong class="muted">계좌:</strong> <span class="mono">${escHTML(s.bankAccount)}</span> ${s.swift ? '<span class="muted">SWIFT ' + escHTML(s.swift) + '</span>' : ''}</div>` : ''}
+      ${s.memo ? `<div class="muted" style="margin-top:6px;font-size:12px">${escHTML(s.memo)}</div>` : ''}
+    </div>
+  `).join('');
+}
+function deleteSupplier(id) { if (!confirm('이 공급처를 삭제하시겠습니까?')) return; state.db.suppliers = state.db.suppliers.filter((s) => s.id !== id); persist(); render(); }
+
+/* =====================================================================
+ *  TAB 5: SETTINGS
+ * ===================================================================== */
+function renderSettings(view) {
+  const usage = (() => {
+    try { return new Blob([JSON.stringify(state.db)]).size; } catch { return 0; }
+  })();
+  view.innerHTML = `
+    <div class="card">
+      <div class="card-title">데이터 관리</div>
+      <div class="flex gap-4 mt-4" style="flex-wrap:wrap">
+        <button class="btn" onclick="exportJSON()">📥 JSON 백업 다운로드</button>
+        <button class="btn" onclick="$('#json-import').click()">📤 JSON 복원 업로드</button>
+        <button class="btn btn-danger" onclick="resetDB()">⚠ 전체 초기화</button>
+        <input type="file" id="json-import" accept=".json" class="hidden" />
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">정보</div>
+      <div class="muted" style="font-size:13px;line-height:2">
+        버전: <span class="mono">v${DB_VERSION}</span><br/>
+        저장 용량: <span class="mono">${(usage / 1024).toFixed(1)} KB</span> / 약 5MB<br/>
+        법인 ${state.db.entities.length} · 포워딩사 ${state.db.forwarders.length} · 관세사 ${state.db.customsBrokers.length} · 공급처 ${state.db.suppliers.length}<br/>
+        제품 ${state.db.products.length} · 청구서 ${state.db.invoiceGroups.length} · 발주 ${state.db.orders.length}<br/>
+        마지막 업데이트: <span class="mono">${state.db.lastUpdated}</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">단축키</div>
+      <div class="muted" style="font-size:13px;line-height:2">
+        <span class="kbd">/</span> 검색창 포커스 · <span class="kbd">Esc</span> 모달 닫기
+      </div>
+    </div>
+  `;
+  $('#json-import').onchange = importJSON;
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(state.db, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mongcool_backup_${todayISO()}.json`;
+  a.click();
+  toast('백업 다운로드 완료', 'success');
+}
+function importJSON(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const obj = JSON.parse(e.target.result);
+      if (!obj.version || !obj.entities) throw new Error('백업 파일 형식이 아님');
+      if (!confirm('현재 데이터를 모두 덮어쓰고 복원합니다. 계속할까요?')) return;
+      state.db = obj;
+      persist();
+      render();
+      toast('복원 완료', 'success');
+    } catch (err) {
+      toast('복원 실패: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+function resetDB() {
+  if (!confirm('정말 전체 초기화 하시겠습니까? 이 작업은 되돌릴 수 없어요.')) return;
+  if (!confirm('한 번 더 확인 — 모든 데이터가 시드 상태로 복원됩니다.')) return;
+  state.db = freshDB();
+  localStorage.removeItem(DB_KEY);
+  persist();
+  render();
+  toast('초기화 완료', 'success');
+}
+
+/* =====================================================================
+ *  MODALS
+ * ===================================================================== */
+function showModal(html, opts = {}) {
+  const root = $('#modal-root');
+  root.innerHTML = `<div class="modal-overlay" id="modal-overlay">
+    <div class="modal ${opts.lg ? 'modal-lg' : ''} ${opts.sm ? 'modal-sm' : ''}">${html}</div>
+  </div>`;
+  $('#modal-overlay').onclick = (e) => { if (e.target.id === 'modal-overlay') closeModal(); };
+  return root;
+}
+function closeModal() { $('#modal-root').innerHTML = ''; }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    const s = $('.search input');
+    if (s) s.focus();
+  }
+});
+
+/* ---------- Order modal ---------- */
+function openOrderModal(id) {
+  const isEdit = !!id;
+  const o = isEdit ? findById(state.db.orders, id) : null;
+  if (isEdit && !o) { toast('발주 없음', 'error'); return; }
+
+  const products = state.db.products;
+  const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))];
+  const initBrand = o ? productById(o.pid)?.brand || '' : (brands[0] || '');
+  const initName = o ? productById(o.pid)?.name || '' : '';
+
+  showModal(`
+    <div class="modal-header">
+      <div class="modal-title">${isEdit ? '발주 편집 #' + id : '발주 등록'}</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="section-title">제품 선택</div>
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">브랜드</label>
+          <select id="om-brand">${brands.map((b) => `<option ${b === initBrand ? 'selected' : ''}>${escHTML(b)}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label class="field-label">제품명</label>
+          <select id="om-name"></select>
+        </div>
+        <div class="field"><label class="field-label">옵션 (다중선택 가능)</label>
+          <select id="om-option" multiple size="3"></select>
+        </div>
+      </div>
+      <div class="section-title mt-4">옵션별 수량/단가</div>
+      <div id="om-rows"></div>
+      <div class="divider"></div>
+      <div class="field-row-4">
+        <div class="field"><label class="field-label">발주 법인</label>
+          <select id="om-entity">${state.db.entities.map((e) => `<option value="${e.id}" ${o?.entityId === e.id ? 'selected' : ''}>${escHTML(e.name)}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label class="field-label">발주일</label><input type="date" id="om-orderDate" value="${o?.orderDate || todayISO()}" /></div>
+        <div class="field"><label class="field-label">환율 (₩/¥)</label><input type="number" id="om-rate" step="0.01" value="${o?.rate || ''}" /></div>
+        <div class="field"><label class="field-label">P/O 번호</label><input id="om-po" value="${escHTML(o?.poNumber || '')}" /></div>
+      </div>
+      <div class="section-title mt-4">물류 일정 (선택)</div>
+      <div class="field-row-4">
+        <div class="field"><label class="field-label">공장출고일</label><input type="date" id="om-factoryDate" value="${o?.factoryDate || ''}" /></div>
+        <div class="field"><label class="field-label">위해입고일</label><input type="date" id="om-whDate" value="${o?.whDate || ''}" /></div>
+        <div class="field"><label class="field-label">선적일</label><input type="date" id="om-shipDate" value="${o?.shipDate || ''}" /></div>
+        <div class="field"><label class="field-label">국내입고일</label><input type="date" id="om-arriveDate" value="${o?.arriveDate || ''}" /></div>
+      </div>
+      <div class="field"><label class="field-label">청구서 매칭 (선택)</label>
+        <select id="om-invoice"><option value="">미배정</option>
+          ${state.db.invoiceGroups.map((g) => `<option value="${g.id}" ${o?.invoiceId === g.id ? 'selected' : ''}>${escHTML(g.blNo || g.invoiceNo || g.id)} (${escHTML(g.itemDesc || '')})</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label class="field-label">메모</label><textarea id="om-memo" rows="2">${escHTML(o?.memo || '')}</textarea></div>
+    </div>
+    <div class="modal-footer">
+      ${isEdit ? `<button class="btn btn-danger" onclick="deleteOrder('${id}')">삭제</button>` : ''}
+      <div class="flex-1"></div>
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitOrder('${id || ''}')">${isEdit ? '저장' : '등록'}</button>
+    </div>
+  `, { lg: true });
+
+  // dynamic product list cascading
+  function rebuildName() {
+    const b = $('#om-brand').value;
+    const names = [...new Set(products.filter((p) => p.brand === b).map((p) => p.name))];
+    $('#om-name').innerHTML = names.map((n) => `<option ${n === initName ? 'selected' : ''}>${escHTML(n)}</option>`).join('');
+    rebuildOptions();
+  }
+  function rebuildOptions() {
+    const b = $('#om-brand').value, n = $('#om-name').value;
+    const opts = products.filter((p) => p.brand === b && p.name === n);
+    $('#om-option').innerHTML = opts.map((p) => `<option value="${p.id}" ${o?.pid === p.id ? 'selected' : ''}>${escHTML(p.option || '(기본)')} — ${escHTML(p.ocode)}</option>`).join('');
+    rebuildRows();
+  }
+  function rebuildRows() {
+    const sel = $$('#om-option option:checked').map((opt) => opt.value);
+    const wrap = $('#om-rows');
+    wrap.innerHTML = sel.length === 0 ? '<div class="muted">옵션을 1개 이상 선택하세요.</div>' : sel.map((pid) => {
+      const p = productById(pid);
+      const eo = (isEdit && o.pid === pid) ? o : null;
+      return `<div class="field-row-3" data-pid="${pid}" style="margin-bottom:8px">
+        <div class="field"><label class="field-label">${escHTML(p.option || p.name)}</label><div class="muted" style="font-size:11px">${escHTML(p.ocode)}</div></div>
+        <div class="field"><label class="field-label">수량</label><input type="number" class="row-qty" value="${eo?.qty || ''}" /></div>
+        <div class="field"><label class="field-label">위안 단가 (¥)</label><input type="number" class="row-price" step="0.01" value="${eo?.price || ''}" /></div>
+      </div>`;
+    }).join('');
+  }
+  $('#om-brand').onchange = rebuildName;
+  $('#om-name').onchange = rebuildOptions;
+  $('#om-option').onchange = rebuildRows;
+  rebuildName();
+}
+
+function submitOrder(id) {
+  const rows = $$('#om-rows [data-pid]');
+  if (rows.length === 0) { toast('옵션 선택 필요', 'error'); return; }
+  const common = {
+    entityId: $('#om-entity').value,
+    orderDate: $('#om-orderDate').value,
+    rate: Number($('#om-rate').value) || 0,
+    poNumber: $('#om-po').value,
+    factoryDate: $('#om-factoryDate').value,
+    whDate: $('#om-whDate').value,
+    shipDate: $('#om-shipDate').value,
+    arriveDate: $('#om-arriveDate').value,
+    invoiceId: $('#om-invoice').value || null,
+    memo: $('#om-memo').value,
+  };
+
+  if (id) {
+    // edit single order
+    const o = findById(state.db.orders, id);
+    Object.assign(o, common);
+    const row = rows[0];
+    o.pid = row.dataset.pid;
+    o.qty = Number(row.querySelector('.row-qty').value) || 0;
+    o.price = Number(row.querySelector('.row-price').value) || 0;
+    toast('저장됨', 'success');
+  } else {
+    // create one order per option row
+    let n = 0;
+    for (const row of rows) {
+      const qty = Number(row.querySelector('.row-qty').value) || 0;
+      const price = Number(row.querySelector('.row-price').value) || 0;
+      if (!qty) continue;
+      state.db.orders.push({
+        id: uid('o'), pid: row.dataset.pid, ...common, qty, price,
+        factoryMemo: '', costPerUnit: 0, costBreakdown: null, extraCosts: [], status: 'active',
+      });
+      n++;
+    }
+    if (n === 0) { toast('수량 입력 필요', 'error'); return; }
+    toast(`${n}건 등록됨`, 'success');
+  }
+
+  // recalc if invoice attached
+  if (common.invoiceId) {
+    const ig = findById(state.db.invoiceGroups, common.invoiceId);
+    if (ig?.saved) saveCostsForInvoiceGroup(ig);
+  }
+
+  persist();
+  closeModal();
+  render();
+}
+function deleteOrder(id) {
+  if (!confirm('이 발주를 삭제하시겠습니까?')) return;
+  state.db.orders = state.db.orders.filter((o) => o.id !== id);
+  persist(); closeModal(); render(); toast('삭제됨');
+}
+
+/* ---------- Invoice modal ---------- */
+let _invDraft = null; // working copy
+
+function openInvoiceModal(id) {
+  const isEdit = !!id;
+  const ig = isEdit ? findById(state.db.invoiceGroups, id) : null;
+  if (isEdit && !ig) { toast('청구서 없음', 'error'); return; }
+
+  _invDraft = isEdit ? structuredClone(ig) : {
+    id: uid('inv'), invoiceNo: '', blNo: '', mblNo: '',
+    forwarderId: state.db.forwarders[0]?.id || '',
+    customsBrokerId: state.db.customsBrokers[0]?.id || '',
+    importerId: state.db.entities[0]?.id || '',
+    pol: '', pod: '', shipName: '', voyNo: '',
+    cntrType: 'LCL', frtTerms: 'Collect (FOB)', arrivalDate: todayISO(), warehouseName: '',
+    declareDate: '', declareCny: 0, declareUsd: 0, taxPriceKrw: 0, declareRate: 0,
+    totalCbm: 0, totalWeightKg: 0, totalPkgs: 0, itemDesc: '',
+    customsDuty: 0, vat: 0,
+    logistics: { clearanceFee: 0, extras: [] },
+    forwarding: { items: [] },
+    extraCost: 0, attachments: [], saved: false, paidDate: '', memo: '',
+  };
+
+  showModal(invoiceModalHTML(isEdit, id), { lg: true });
+  bindInvoiceModal();
+}
+
+function invoiceModalHTML(isEdit, id) {
+  const ig = _invDraft;
+  return `
+    <div class="modal-header">
+      <div class="modal-title">${isEdit ? '청구서 편집' : '청구서 / 원가 입력'}</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="section-title">청구서 메타</div>
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">신고번호</label><input data-k="invoiceNo" value="${escHTML(ig.invoiceNo)}" /></div>
+        <div class="field"><label class="field-label">H.B/L</label><input data-k="blNo" value="${escHTML(ig.blNo)}" /></div>
+        <div class="field"><label class="field-label">M.B/L</label><input data-k="mblNo" value="${escHTML(ig.mblNo)}" /></div>
+      </div>
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">포워딩사</label>
+          <select data-k="forwarderId">${state.db.forwarders.map((f) => `<option value="${f.id}" ${ig.forwarderId === f.id ? 'selected' : ''}>${escHTML(f.name)}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label class="field-label">관세사</label>
+          <select data-k="customsBrokerId">${state.db.customsBrokers.map((c) => `<option value="${c.id}" ${ig.customsBrokerId === c.id ? 'selected' : ''}>${escHTML(c.name)}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label class="field-label">법인</label>
+          <select data-k="importerId">${state.db.entities.map((e) => `<option value="${e.id}" ${ig.importerId === e.id ? 'selected' : ''}>${escHTML(e.name)}</option>`).join('')}</select>
+        </div>
+      </div>
+
+      <div class="section-title mt-4">선적 정보</div>
+      <div class="field-row-4">
+        <div class="field"><label class="field-label">출항지</label><input data-k="pol" value="${escHTML(ig.pol)}" /></div>
+        <div class="field"><label class="field-label">입항지</label><input data-k="pod" value="${escHTML(ig.pod)}" /></div>
+        <div class="field"><label class="field-label">선명</label><input data-k="shipName" value="${escHTML(ig.shipName)}" /></div>
+        <div class="field"><label class="field-label">항차</label><input data-k="voyNo" value="${escHTML(ig.voyNo)}" /></div>
+      </div>
+      <div class="field-row-4">
+        <div class="field"><label class="field-label">컨테이너</label>
+          <select data-k="cntrType"><option ${ig.cntrType === 'LCL' ? 'selected' : ''}>LCL</option><option ${ig.cntrType === 'FCL-20' ? 'selected' : ''}>FCL-20</option><option ${ig.cntrType === 'FCL-40' ? 'selected' : ''}>FCL-40</option></select>
+        </div>
+        <div class="field"><label class="field-label">운임조건</label><input data-k="frtTerms" value="${escHTML(ig.frtTerms)}" /></div>
+        <div class="field"><label class="field-label">입항일</label><input type="date" data-k="arrivalDate" value="${ig.arrivalDate}" /></div>
+        <div class="field"><label class="field-label">장치장</label><input data-k="warehouseName" value="${escHTML(ig.warehouseName)}" /></div>
+      </div>
+
+      <div class="section-title mt-4">신고 정보 (관세사 청구서 상단)</div>
+      <div class="field-row-4">
+        <div class="field"><label class="field-label">신고일자</label><input type="date" data-k="declareDate" value="${ig.declareDate}" /></div>
+        <div class="field"><label class="field-label">결제금액 CNY</label><input type="number" data-k="declareCny" value="${ig.declareCny}" /></div>
+        <div class="field"><label class="field-label">신고금액 USD</label><input type="number" data-k="declareUsd" value="${ig.declareUsd}" /></div>
+        <div class="field"><label class="field-label">환율</label><input type="number" data-k="declareRate" step="0.01" value="${ig.declareRate}" /></div>
+      </div>
+      <div class="field-row-4">
+        <div class="field"><label class="field-label">과세가격(원)</label><input type="number" data-k="taxPriceKrw" value="${ig.taxPriceKrw}" /></div>
+        <div class="field"><label class="field-label">총 CBM</label><input type="number" data-k="totalCbm" step="0.01" value="${ig.totalCbm}" /></div>
+        <div class="field"><label class="field-label">총 중량(kg)</label><input type="number" data-k="totalWeightKg" value="${ig.totalWeightKg}" /></div>
+        <div class="field"><label class="field-label">수량(GT)</label><input type="number" data-k="totalPkgs" value="${ig.totalPkgs}" /></div>
+      </div>
+      <div class="field"><label class="field-label">품명</label><input data-k="itemDesc" value="${escHTML(ig.itemDesc)}" /></div>
+
+      <div class="section-title mt-6" style="color:var(--accent)">① 관세 / ② 부가세 / ③ 물류비용</div>
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">① 관세 (원)</label><input type="number" data-k="customsDuty" value="${ig.customsDuty}" /></div>
+        <div class="field"><label class="field-label">② 부가세 (원)</label><input type="number" data-k="vat" value="${ig.vat}" /></div>
+        <div class="field"><label class="field-label">③ 통관수수료 (원)</label><input type="number" data-k="logistics.clearanceFee" value="${ig.logistics.clearanceFee}" /></div>
+      </div>
+      <div class="section-title mt-4">③ 물류 추가항목 (장치료, 검사비 등)</div>
+      <div id="inv-extras"></div>
+      <button class="btn btn-sm mt-4" onclick="addInvoiceExtra()">+ 물류 항목 추가</button>
+
+      <div class="section-title mt-6" style="color:var(--accent)">④ 포워딩비용 (보명 INVOICE 5~6항목)</div>
+      <table class="preview-tbl" id="inv-fwd-tbl">
+        <thead><tr><th>항목명</th><th>금액(₩)</th><th>VAT(₩)</th><th>메모</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <button class="btn btn-sm mt-4" onclick="addForwardingItem()">+ 포워딩 항목 추가</button>
+
+      <div class="section-title mt-6">기타</div>
+      <div class="field"><label class="field-label">사상한·전단지 등 (₩)</label><input type="number" data-k="extraCost" value="${ig.extraCost}" /></div>
+
+      <div class="section-title mt-6">📎 첨부 파일 (PDF)</div>
+      <div class="drop" id="inv-drop" onclick="$('#inv-file').click()">
+        PDF 드래그 또는 클릭해서 첨부 (5MB 이하 권장)
+      </div>
+      <input type="file" id="inv-file" accept="application/pdf" multiple class="hidden" />
+      <div class="attach-list" id="inv-attaches"></div>
+
+      <div class="section-title mt-6" style="color:var(--accent)">자동 계산 (실시간)</div>
+      <div id="inv-totals" class="card" style="background:var(--accent-bg);border-color:var(--accent-border)"></div>
+
+      <div id="inv-preview" class="mt-4"></div>
+
+      <div class="field mt-4"><label class="field-label">메모</label><textarea data-k="memo" rows="2">${escHTML(ig.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer">
+      ${isEdit ? `<button class="btn btn-danger" onclick="deleteInvoice('${id}')">삭제</button>` : ''}
+      <div class="flex-1"></div>
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn" onclick="submitInvoice(false)">임시저장</button>
+      <button class="btn btn-primary" onclick="submitInvoice(true)">원가 확정 저장</button>
+    </div>
+  `;
+}
+
+function bindInvoiceModal() {
+  // bind data-k inputs
+  $$('#modal-root [data-k]').forEach((el) => {
+    el.oninput = () => {
+      const path = el.dataset.k.split('.');
+      let obj = _invDraft;
+      for (let i = 0; i < path.length - 1; i++) obj = obj[path[i]];
+      const v = el.type === 'number' ? Number(el.value) : el.value;
+      obj[path[path.length - 1]] = v;
+      refreshInvoiceCalc();
+    };
+  });
+  refreshInvoiceExtras();
+  refreshForwardingItems();
+  refreshAttaches();
+  refreshInvoiceCalc();
+
+  // dropzone
+  const drop = $('#inv-drop');
+  drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('drag-over'); };
+  drop.ondragleave = () => drop.classList.remove('drag-over');
+  drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove('drag-over'); handleInvoiceFiles(e.dataTransfer.files); };
+  $('#inv-file').onchange = (e) => handleInvoiceFiles(e.target.files);
+}
+function refreshInvoiceExtras() {
+  const wrap = $('#inv-extras');
+  if (!wrap) return;
+  wrap.innerHTML = (_invDraft.logistics.extras || []).map((x, i) => `
+    <div class="field-row-3" style="margin-bottom:8px">
+      <div class="field"><input placeholder="항목명 (장치료, 검사비)" value="${escHTML(x.name)}" oninput="_invDraft.logistics.extras[${i}].name=this.value;refreshInvoiceCalc()" /></div>
+      <div class="field"><input type="number" placeholder="금액(₩)" value="${x.amount}" oninput="_invDraft.logistics.extras[${i}].amount=Number(this.value)||0;refreshInvoiceCalc()" /></div>
+      <div class="field flex"><input placeholder="메모" value="${escHTML(x.note || '')}" oninput="_invDraft.logistics.extras[${i}].note=this.value" /><button class="btn btn-sm btn-danger" onclick="_invDraft.logistics.extras.splice(${i},1);refreshInvoiceExtras();refreshInvoiceCalc()">×</button></div>
+    </div>
+  `).join('');
+}
+function addInvoiceExtra() {
+  _invDraft.logistics.extras.push({ name: '', amount: 0, note: '' });
+  refreshInvoiceExtras(); refreshInvoiceCalc();
+}
+function refreshForwardingItems() {
+  const tbody = $('#inv-fwd-tbl tbody');
+  if (!tbody) return;
+  tbody.innerHTML = (_invDraft.forwarding.items || []).map((x, i) => `
+    <tr>
+      <td><input value="${escHTML(x.name)}" placeholder="OCEAN FREIGHT" oninput="_invDraft.forwarding.items[${i}].name=this.value;refreshInvoiceCalc()" /></td>
+      <td><input type="number" value="${x.amount}" oninput="_invDraft.forwarding.items[${i}].amount=Number(this.value)||0;refreshInvoiceCalc()" /></td>
+      <td><input type="number" value="${x.vat || 0}" oninput="_invDraft.forwarding.items[${i}].vat=Number(this.value)||0;refreshInvoiceCalc()" /></td>
+      <td><input value="${escHTML(x.memo || '')}" oninput="_invDraft.forwarding.items[${i}].memo=this.value" /></td>
+      <td><button class="btn btn-sm btn-danger" onclick="_invDraft.forwarding.items.splice(${i},1);refreshForwardingItems();refreshInvoiceCalc()">×</button></td>
+    </tr>
+  `).join('');
+}
+function addForwardingItem() {
+  _invDraft.forwarding.items.push({ name: '', amount: 0, vat: 0, memo: '' });
+  refreshForwardingItems(); refreshInvoiceCalc();
+}
+function handleInvoiceFiles(files) {
+  for (const f of files) {
+    if (f.size > 5 * 1024 * 1024) { toast(`${f.name}: 5MB 초과 — 일부 브라우저에서 저장 실패할 수 있어요`, 'error'); }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      _invDraft.attachments.push({ name: f.name, dataUrl: e.target.result, sizeBytes: f.size, uploadedAt: nowISO() });
+      refreshAttaches();
+    };
+    reader.readAsDataURL(f);
+  }
+  $('#inv-file').value = '';
+}
+function refreshAttaches() {
+  const wrap = $('#inv-attaches');
+  if (!wrap) return;
+  wrap.innerHTML = (_invDraft.attachments || []).map((a, i) => `
+    <div class="attach-item">
+      <a href="${a.dataUrl}" download="${escHTML(a.name)}">${escHTML(a.name)}</a>
+      <span class="muted">${(a.sizeBytes / 1024).toFixed(1)} KB <button class="btn btn-sm btn-danger" onclick="_invDraft.attachments.splice(${i},1);refreshAttaches()">×</button></span>
+    </div>
+  `).join('');
+}
+function refreshInvoiceCalc() {
+  const ig = _invDraft;
+  const t = calcInvoiceTotals(ig);
+  // simulate orders bound to this invoice (existing + any preview)
+  const linkedOrders = state.db.orders.filter((o) => o.invoiceId === ig.id);
+  const base = calcAllocationBase(ig, linkedOrders, state.db.products);
+  const rates = calcAllocationRates(ig, base);
+
+  $('#inv-totals').innerHTML = `
+    <div class="field-row-4">
+      <div><div class="muted" style="font-size:11px">① 관세</div><div class="mono" style="font-weight:600">${fmtKRW(t.totalCustoms)}</div></div>
+      <div><div class="muted" style="font-size:11px">② 부가세</div><div class="mono" style="font-weight:600">${fmtKRW(t.totalVat)}</div></div>
+      <div><div class="muted" style="font-size:11px">③ 물류</div><div class="mono" style="font-weight:600">${fmtKRW(t.totalLogistics)}</div></div>
+      <div><div class="muted" style="font-size:11px">④ 포워딩</div><div class="mono" style="font-weight:600">${fmtKRW(t.totalForwarding)}</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="flex" style="justify-content:space-between">
+      <div><strong>청구서 총액</strong> <span class="muted">+ 기타 ${fmtKRW(t.extraCost)}</span></div>
+      <div class="mono" style="font-size:18px;font-weight:700;color:var(--accent)">${fmtKRW(t.grandTotal)}</div>
+    </div>
+    <div class="muted mono" style="font-size:11px;margin-top:6px">
+      CBM당 포워딩 ${fmtKRW(rates.forwardingPerCbm)} · 개당 물류 ${fmtKRW(rates.logisticsPerUnit)}
+      · 실효관세 ${(rates.customsRate * 100).toFixed(2)}% · 실효부가세 ${(rates.vatRate * 100).toFixed(2)}%
+    </div>
+  `;
+
+  // preview table per linked order
+  const prev = $('#inv-preview');
+  if (linkedOrders.length === 0) {
+    prev.innerHTML = '<div class="muted" style="font-size:12px">연결된 발주가 없어요. 발주 등록 화면에서 이 청구서를 선택하면 자동 매칭됩니다.</div>';
+    return;
+  }
+  prev.innerHTML = `
+    <div class="section-title">제품별 가당 도착시가 (실시간 미리보기)</div>
+    <table class="preview-tbl">
+      <thead><tr><th>제품/옵션</th><th>수량</th><th>물건가</th><th>포워딩</th><th>물류</th><th>관세</th><th>부가세</th><th>도착시가/개</th></tr></thead>
+      <tbody>
+        ${linkedOrders.map((o) => {
+          const p = productById(o.pid); if (!p) return '';
+          const r = calcOrderCost(o, p, rates);
+          return `<tr>
+            <td>${escHTML(p.name)} <span class="muted">${escHTML(p.option || '')}</span></td>
+            <td>${fmt(o.qty)}</td>
+            <td>${fmtKRW(r.costBreakdown.goodsValue)}</td>
+            <td>${fmtKRW(r.costBreakdown.forwarding)}</td>
+            <td>${fmtKRW(r.costBreakdown.logistics)}</td>
+            <td>${fmtKRW(r.costBreakdown.customsDuty)}</td>
+            <td>${fmtKRW(r.costBreakdown.vat)}</td>
+            <td class="highlight">${fmtKRW(r.costPerUnit)}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function submitInvoice(saved) {
+  if (!_invDraft) return;
+  const existing = findById(state.db.invoiceGroups, _invDraft.id);
+  _invDraft.saved = saved;
+  if (existing) Object.assign(existing, _invDraft);
+  else state.db.invoiceGroups.push(_invDraft);
+
+  if (saved) {
+    const ig = findById(state.db.invoiceGroups, _invDraft.id);
+    saveCostsForInvoiceGroup(ig);
+    toast('원가 확정 저장됨', 'success');
+  } else {
+    toast('임시저장됨');
+  }
+  persist();
+  closeModal();
+  render();
+}
+
+/* ---------- Entity / Forwarder / Broker / Supplier modals ---------- */
+function openEntityModal(id) {
+  const isEdit = !!id;
+  const e = isEdit ? findById(state.db.entities, id) : { id: uid('e'), name: '', bizNo: '', ceo: '', address: '', memo: '' };
+  showModal(`
+    <div class="modal-header"><div class="modal-title">${isEdit ? '법인 편집' : '법인 등록'}</div><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label class="field-label">상호*</label><input id="ent-name" value="${escHTML(e.name)}" /></div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">사업자번호</label><input id="ent-bizNo" value="${escHTML(e.bizNo)}" /></div>
+        <div class="field"><label class="field-label">대표자</label><input id="ent-ceo" value="${escHTML(e.ceo)}" /></div>
+      </div>
+      <div class="field"><label class="field-label">사업장 주소</label><input id="ent-addr" value="${escHTML(e.address)}" /></div>
+      <div class="field"><label class="field-label">메모</label><textarea id="ent-memo" rows="2">${escHTML(e.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer"><div class="flex-1"></div><button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveEntity('${isEdit ? id : ''}')">${isEdit ? '저장' : '등록'}</button>
+    </div>
+  `, { sm: true });
+}
+function saveEntity(id) {
+  const data = {
+    name: $('#ent-name').value.trim(),
+    bizNo: $('#ent-bizNo').value, ceo: $('#ent-ceo').value, address: $('#ent-addr').value, memo: $('#ent-memo').value,
+  };
+  if (!data.name) { toast('상호 필수', 'error'); return; }
+  if (id) Object.assign(findById(state.db.entities, id), data);
+  else state.db.entities.push({ id: uid('e'), ...data });
+  persist(); closeModal(); render(); toast('저장됨', 'success');
+}
+
+function openForwarderModal(id) {
+  const isEdit = !!id;
+  const f = isEdit ? findById(state.db.forwarders, id) : { id: uid('fw'), name: '', tel: '', email: '', contactPerson: '', bankAccounts: [], memo: '' };
+  showModal(`
+    <div class="modal-header"><div class="modal-title">${isEdit ? '포워딩사 편집' : '포워딩사 등록'}</div><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label class="field-label">상호*</label><input id="fw-name" value="${escHTML(f.name)}" /></div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Tel</label><input id="fw-tel" value="${escHTML(f.tel)}" /></div>
+        <div class="field"><label class="field-label">담당자</label><input id="fw-contact" value="${escHTML(f.contactPerson)}" /></div>
+      </div>
+      <div class="field"><label class="field-label">Email</label><input id="fw-email" value="${escHTML(f.email)}" /></div>
+      <div class="field"><label class="field-label">송금계좌 (1줄에 하나)</label>
+        <textarea id="fw-banks" rows="3">${escHTML((f.bankAccounts || []).join('\n'))}</textarea>
+      </div>
+      <div class="field"><label class="field-label">메모</label><textarea id="fw-memo" rows="2">${escHTML(f.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer"><div class="flex-1"></div><button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveForwarder('${isEdit ? id : ''}')">${isEdit ? '저장' : '등록'}</button>
+    </div>
+  `, { sm: true });
+}
+function saveForwarder(id) {
+  const data = {
+    name: $('#fw-name').value.trim(),
+    tel: $('#fw-tel').value, contactPerson: $('#fw-contact').value, email: $('#fw-email').value,
+    bankAccounts: $('#fw-banks').value.split('\n').map((s) => s.trim()).filter(Boolean),
+    memo: $('#fw-memo').value,
+  };
+  if (!data.name) { toast('상호 필수', 'error'); return; }
+  if (id) Object.assign(findById(state.db.forwarders, id), data);
+  else state.db.forwarders.push({ id: uid('fw'), ...data });
+  persist(); closeModal(); render(); toast('저장됨', 'success');
+}
+
+function openBrokerModal(id) {
+  const isEdit = !!id;
+  const b = isEdit ? findById(state.db.customsBrokers, id) : { id: uid('cb'), name: '', tel: '', fax: '', contactPerson: '', bankAccount: '', memo: '' };
+  showModal(`
+    <div class="modal-header"><div class="modal-title">${isEdit ? '관세사 편집' : '관세사 등록'}</div><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label class="field-label">상호*</label><input id="cb-name" value="${escHTML(b.name)}" /></div>
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">Tel</label><input id="cb-tel" value="${escHTML(b.tel)}" /></div>
+        <div class="field"><label class="field-label">Fax</label><input id="cb-fax" value="${escHTML(b.fax)}" /></div>
+        <div class="field"><label class="field-label">담당자</label><input id="cb-contact" value="${escHTML(b.contactPerson)}" /></div>
+      </div>
+      <div class="field"><label class="field-label">계좌</label><input id="cb-bank" value="${escHTML(b.bankAccount)}" /></div>
+      <div class="field"><label class="field-label">메모</label><textarea id="cb-memo" rows="2">${escHTML(b.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer"><div class="flex-1"></div><button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveBroker('${isEdit ? id : ''}')">${isEdit ? '저장' : '등록'}</button>
+    </div>
+  `, { sm: true });
+}
+function saveBroker(id) {
+  const data = {
+    name: $('#cb-name').value.trim(),
+    tel: $('#cb-tel').value, fax: $('#cb-fax').value, contactPerson: $('#cb-contact').value,
+    bankAccount: $('#cb-bank').value, memo: $('#cb-memo').value,
+  };
+  if (!data.name) { toast('상호 필수', 'error'); return; }
+  if (id) Object.assign(findById(state.db.customsBrokers, id), data);
+  else state.db.customsBrokers.push({ id: uid('cb'), ...data });
+  persist(); closeModal(); render(); toast('저장됨', 'success');
+}
+
+function openSupplierModal(id) {
+  const isEdit = !!id;
+  const s = isEdit ? findById(state.db.suppliers, id) : { id: uid('sup'), name: '', nameKor: '', productGroup: '', contactPerson: '', wechat: '', email: '', tel: '', address: '', bankAccount: '', swift: '', paymentTerms: '', leadTime: '', memo: '' };
+  showModal(`
+    <div class="modal-header"><div class="modal-title">${isEdit ? '공급처 편집' : '공급처 등록'}</div><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field"><label class="field-label">영문명*</label><input id="sup-name" value="${escHTML(s.name)}" /></div>
+        <div class="field"><label class="field-label">한글명</label><input id="sup-nameKor" value="${escHTML(s.nameKor)}" /></div>
+      </div>
+      <div class="field"><label class="field-label">취급 제품군</label><input id="sup-pg" value="${escHTML(s.productGroup)}" /></div>
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">담당자</label><input id="sup-contact" value="${escHTML(s.contactPerson)}" /></div>
+        <div class="field"><label class="field-label">WeChat</label><input id="sup-wechat" value="${escHTML(s.wechat)}" /></div>
+        <div class="field"><label class="field-label">Tel</label><input id="sup-tel" value="${escHTML(s.tel)}" /></div>
+      </div>
+      <div class="field"><label class="field-label">Email</label><input id="sup-email" value="${escHTML(s.email)}" /></div>
+      <div class="field"><label class="field-label">주소</label><input id="sup-addr" value="${escHTML(s.address)}" /></div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">계좌</label><input id="sup-bank" value="${escHTML(s.bankAccount)}" /></div>
+        <div class="field"><label class="field-label">SWIFT</label><input id="sup-swift" value="${escHTML(s.swift)}" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">결제조건</label><input id="sup-pay" value="${escHTML(s.paymentTerms)}" /></div>
+        <div class="field"><label class="field-label">리드타임</label><input id="sup-lead" value="${escHTML(s.leadTime)}" /></div>
+      </div>
+      <div class="field"><label class="field-label">메모</label><textarea id="sup-memo" rows="2">${escHTML(s.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer"><div class="flex-1"></div><button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveSupplier('${isEdit ? id : ''}')">${isEdit ? '저장' : '등록'}</button>
+    </div>
+  `, { lg: true });
+}
+function saveSupplier(id) {
+  const data = {
+    name: $('#sup-name').value.trim(), nameKor: $('#sup-nameKor').value, productGroup: $('#sup-pg').value,
+    contactPerson: $('#sup-contact').value, wechat: $('#sup-wechat').value, tel: $('#sup-tel').value,
+    email: $('#sup-email').value, address: $('#sup-addr').value,
+    bankAccount: $('#sup-bank').value, swift: $('#sup-swift').value,
+    paymentTerms: $('#sup-pay').value, leadTime: $('#sup-lead').value, memo: $('#sup-memo').value,
+  };
+  if (!data.name) { toast('영문명 필수', 'error'); return; }
+  if (id) Object.assign(findById(state.db.suppliers, id), data);
+  else state.db.suppliers.push({ id: uid('sup'), ...data });
+  persist(); closeModal(); render(); toast('저장됨', 'success');
+}
+
+/* ---------- Product modal ---------- */
+function openProductModal(id) {
+  const isEdit = !!id;
+  const p = isEdit ? findById(state.db.products, id) : { id: uid('p'), brand: '', category: '', name: '', option: '', pcode: '', ocode: '', cbm: 0, weightKg: 0, htsCode: '', customsRate: 0, supplierId: state.db.suppliers[0]?.id || '', url: '', imageUrl: '', kcCert: '', memo: '' };
+  showModal(`
+    <div class="modal-header"><div class="modal-title">${isEdit ? '제품 편집' : '제품 등록'}</div><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field"><label class="field-label">브랜드*</label><input id="p-brand" value="${escHTML(p.brand)}" list="brand-list" />
+          <datalist id="brand-list">${[...new Set(state.db.products.map((x) => x.brand).filter(Boolean))].map((b) => `<option value="${escHTML(b)}">`).join('')}</datalist>
+        </div>
+        <div class="field"><label class="field-label">카테고리</label><input id="p-cat" value="${escHTML(p.category)}" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">제품명*</label><input id="p-name" value="${escHTML(p.name)}" /></div>
+        <div class="field"><label class="field-label">옵션명</label><input id="p-opt" value="${escHTML(p.option)}" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">제품코드*</label><input id="p-pcode" value="${escHTML(p.pcode)}" /></div>
+        <div class="field"><label class="field-label">옵션코드*</label><input id="p-ocode" value="${escHTML(p.ocode)}" /></div>
+      </div>
+      <div class="field-row-4">
+        <div class="field"><label class="field-label">CBM (㎥)*</label><input type="number" step="0.0001" id="p-cbm" value="${p.cbm}" /></div>
+        <div class="field"><label class="field-label">중량 (kg)</label><input type="number" step="0.01" id="p-weight" value="${p.weightKg}" /></div>
+        <div class="field"><label class="field-label">HS코드</label><input id="p-hts" value="${escHTML(p.htsCode)}" /></div>
+        <div class="field"><label class="field-label">관세율(%)</label><input type="number" step="0.01" id="p-customs" value="${p.customsRate}" /></div>
+      </div>
+      <div class="field"><label class="field-label">공급처</label>
+        <select id="p-sup">${state.db.suppliers.map((s) => `<option value="${s.id}" ${p.supplierId === s.id ? 'selected' : ''}>${escHTML(s.nameKor || s.name)}</option>`).join('')}</select>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">발주 URL (1688)</label><input id="p-url" value="${escHTML(p.url)}" /></div>
+        <div class="field"><label class="field-label">이미지 URL</label><input id="p-img" value="${escHTML(p.imageUrl)}" /></div>
+      </div>
+      <div class="field"><label class="field-label">KC 인증</label><input id="p-kc" value="${escHTML(p.kcCert)}" placeholder="인증번호 또는 '면제'" /></div>
+      <div class="field"><label class="field-label">메모</label><textarea id="p-memo" rows="2">${escHTML(p.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer"><div class="flex-1"></div><button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveProduct('${isEdit ? id : ''}')">${isEdit ? '저장' : '등록'}</button>
+    </div>
+  `, { lg: true });
+}
+function saveProduct(id) {
+  const data = {
+    brand: $('#p-brand').value.trim(), category: $('#p-cat').value,
+    name: $('#p-name').value.trim(), option: $('#p-opt').value,
+    pcode: $('#p-pcode').value.trim(), ocode: $('#p-ocode').value.trim(),
+    cbm: Number($('#p-cbm').value) || 0, weightKg: Number($('#p-weight').value) || 0,
+    htsCode: $('#p-hts').value, customsRate: Number($('#p-customs').value) || 0,
+    supplierId: $('#p-sup').value, url: $('#p-url').value, imageUrl: $('#p-img').value,
+    kcCert: $('#p-kc').value, memo: $('#p-memo').value,
+  };
+  if (!data.name || !data.ocode) { toast('제품명/옵션코드 필수', 'error'); return; }
+  // duplicate ocode guard
+  if (!id && state.db.products.some((p) => p.ocode === data.ocode)) {
+    if (!confirm('동일한 옵션코드가 존재합니다. 그래도 추가할까요?')) return;
+  }
+  if (id) Object.assign(findById(state.db.products, id), data);
+  else state.db.products.unshift({ id: uid('p'), ...data });
+  persist(); closeModal(); render(); toast('저장됨', 'success');
+}
+
+/* ---------- expose globals (so onclick handlers work) ---------- */
+Object.assign(window, {
+  $, openOrderModal, closeModal, submitOrder, deleteOrder,
+  openInvoiceModal, submitInvoice, deleteInvoice, addInvoiceExtra, addForwardingItem,
+  refreshInvoiceExtras, refreshForwardingItems, refreshAttaches, refreshInvoiceCalc,
+  openProductModal, saveProduct, duplicateProduct, deleteProduct,
+  openEntityModal, saveEntity, deleteEntity,
+  openForwarderModal, saveForwarder, deleteForwarder,
+  openBrokerModal, saveBroker, deleteBroker,
+  openSupplierModal, saveSupplier, deleteSupplier,
+  exportJSON, resetDB, downloadProductTemplate,
+  _invDraft,
+});
+// keep _invDraft live (we re-read window._invDraft from inline handlers)
+Object.defineProperty(window, '_invDraft', { get: () => _invDraft, set: (v) => { _invDraft = v; } });
+
+/* ---------- bind sidebar nav ---------- */
+$$('#nav .nav-item').forEach((el) => {
+  el.onclick = () => go(el.dataset.tab);
+});
+$('#filter-brand').onchange = (e) => { state.db.filters.brand = e.target.value || null; persist(); render(); };
+$('#filter-entity').onchange = (e) => { state.db.filters.entity = e.target.value || null; persist(); render(); };
+
+/* ---------- start ---------- */
+go('orders');
+</script>
+</body>
+</html>
