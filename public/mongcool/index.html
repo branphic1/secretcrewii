@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>MONGCOOL 수출입원가관리 v3</title>
+<title>브랜픽 중국소싱관리</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -233,10 +233,10 @@ table{width:100%;border-collapse:collapse}
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-icon">M</div>
+      <div class="brand-icon">B</div>
       <div>
-        <div class="brand-name">MONGCOOL</div>
-        <div class="brand-sub">원가관리 v3</div>
+        <div class="brand-name">브랜픽</div>
+        <div class="brand-sub">중국소싱관리</div>
       </div>
     </div>
 
@@ -254,7 +254,8 @@ table{width:100%;border-collapse:collapse}
       <div class="nav-item" data-tab="invoices"><span class="nav-icon">🧾</span>청구서/원가</div>
       <div class="nav-item" data-tab="samples"><span class="nav-icon">🧪</span>샘플 품평</div>
       <div class="nav-item" data-tab="products"><span class="nav-icon">📦</span>제품 DB</div>
-      <div class="nav-item" data-tab="parties"><span class="nav-icon">🏢</span>거래처</div>
+      <div class="nav-item" data-tab="companies"><span class="nav-icon">🏭</span>중국 공급처</div>
+      <div class="nav-item" data-tab="parties"><span class="nav-icon">🏢</span>국내 거래처</div>
       <div class="nav-item" data-tab="settings"><span class="nav-icon">⚙</span>설정</div>
     </div>
 
@@ -280,8 +281,8 @@ table{width:100%;border-collapse:collapse}
 "use strict";
 
 /* =====================================================================
- *  MONGCOOL 수출입원가관리 v3
- *  Single-file vanilla JS app — see specification doc for details.
+ *  브랜픽 중국소싱관리 — 원가관리 / 중국발주관리
+ *  Single-file vanilla JS app
  * ===================================================================== */
 
 /* ---------- utility ---------- */
@@ -531,7 +532,8 @@ function render() {
     case 'invoices':  title.textContent = '청구서 / 원가';    actions.innerHTML = '<button class="btn btn-primary" onclick="openInvoiceModal()">+ 청구서 등록</button>'; renderInvoices(view); break;
     case 'samples':   title.textContent = '샘플 품평';        actions.innerHTML = '<button class="btn btn-primary" onclick="openSampleModal()">+ 샘플 등록</button>'; renderSamples(view); break;
     case 'products':  title.textContent = '제품 DB';           actions.innerHTML = '<button class="btn" onclick="downloadProductTemplate()">엑셀 템플릿</button> <button class="btn" onclick="$(\'#xlsx-import-products\').click()">엑셀 일괄 업로드</button> <button class="btn btn-primary" onclick="openProductModal()">+ 제품 등록</button>'; renderProducts(view); break;
-    case 'parties':   title.textContent = '거래처';            actions.innerHTML = ''; renderParties(view); break;
+    case 'companies': title.textContent = '중국 공급처 평가';  actions.innerHTML = '<button class="btn btn-primary" onclick="openSupplierModal()">+ 공급처 등록</button>'; renderCompanies(view); break;
+    case 'parties':   title.textContent = '국내 거래처';        actions.innerHTML = ''; renderParties(view); break;
     case 'settings':  title.textContent = '설정';              actions.innerHTML = ''; renderSettings(view); break;
   }
 }
@@ -890,12 +892,13 @@ function importProductsXlsx(ev) {
  *  TAB 4: PARTIES
  * ===================================================================== */
 function renderParties(view) {
+  // 공급처는 사이드바의 별도 '중국 공급처' 탭으로 이동
+  if (state.partiesSubtab === 'suppliers') state.partiesSubtab = 'entities';
   view.innerHTML = `
     <div class="subtabs" id="parties-subtabs">
       <div class="subtab" data-st="entities">법인 (${state.db.entities.length})</div>
       <div class="subtab" data-st="forwarders">포워딩사 (${state.db.forwarders.length})</div>
       <div class="subtab" data-st="brokers">관세사 (${state.db.customsBrokers.length})</div>
-      <div class="subtab" data-st="suppliers">중국 공급처 (${state.db.suppliers.length})</div>
     </div>
     <div id="parties-body"></div>
   `;
@@ -908,7 +911,6 @@ function renderParties(view) {
     case 'entities':   renderEntities(body); break;
     case 'forwarders': renderForwarders(body); break;
     case 'brokers':    renderBrokers(body); break;
-    case 'suppliers':  renderSuppliers(body); break;
   }
 }
 
@@ -1982,51 +1984,251 @@ function saveBroker(id) {
   persist(); closeModal(); render(); toast('저장됨', 'success');
 }
 
+/* ==== Supplier (중국 공급처/회사) ==== */
+
+const SUPPLIER_TAGS = [
+  '주력공급처', '신뢰도 높음', '단가 경쟁력', '응답 빠름', '품질 우수', 'OEM 가능',
+  '리드타임 길음', '품질 이슈', '가격 인상', '응답 느림', '신규 거래', '재거래 보류'
+];
+
+function supplierAvgRating(s) {
+  const evals = s.evaluations || [];
+  if (evals.length === 0) return null;
+  return evals.reduce((sum, e) => sum + (Number(e.rating) || 0), 0) / evals.length;
+}
+function supplierStats(s) {
+  // 발주 이력 자동 계산
+  const productIds = state.db.products.filter((p) => p.supplierId === s.id).map((p) => p.id);
+  const orders = state.db.orders.filter((o) => productIds.includes(o.pid));
+  const totalCNY = orders.reduce((sum, o) => sum + (Number(o.qty) || 0) * (Number(o.price) || 0), 0);
+  return { orderCount: orders.length, totalCNY, productCount: productIds.length };
+}
+function renderStars(n) {
+  if (!n) return '<span class="muted2">미평가</span>';
+  const full = Math.floor(n), half = (n - full) >= 0.5;
+  return '<span class="eval-rating">' + '★'.repeat(full) + (half ? '☆' : '') + '</span> <span class="mono muted">' + n.toFixed(1) + '</span>';
+}
+
+let _supDraft = null;
 function openSupplierModal(id) {
   const isEdit = !!id;
-  const s = isEdit ? findById(state.db.suppliers, id) : { id: uid('sup'), name: '', nameKor: '', productGroup: '', contactPerson: '', wechat: '', email: '', tel: '', address: '', bankAccount: '', swift: '', paymentTerms: '', leadTime: '', memo: '' };
+  _supDraft = isEdit
+    ? structuredClone(findById(state.db.suppliers, id))
+    : { id: uid('sup'), name: '', nameKor: '', productGroup: '', contactPerson: '', wechat: '', email: '', tel: '', address: '', bankAccount: '', swift: '', paymentTerms: '', leadTime: '', memo: '', photos: [], evaluations: [], tags: [] };
+  // 누락 필드 백필
+  _supDraft.photos = _supDraft.photos || [];
+  _supDraft.evaluations = _supDraft.evaluations || [];
+  _supDraft.tags = _supDraft.tags || [];
+
+  const stats = isEdit ? supplierStats(_supDraft) : { orderCount: 0, totalCNY: 0, productCount: 0 };
+  const avg = supplierAvgRating(_supDraft);
+
   showModal(`
-    <div class="modal-header"><div class="modal-title">${isEdit ? '공급처 편집' : '공급처 등록'}</div><button class="modal-close" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="field-row">
-        <div class="field"><label class="field-label">영문명*</label><input id="sup-name" value="${escHTML(s.name)}" /></div>
-        <div class="field"><label class="field-label">한글명</label><input id="sup-nameKor" value="${escHTML(s.nameKor)}" /></div>
-      </div>
-      <div class="field"><label class="field-label">취급 제품군</label><input id="sup-pg" value="${escHTML(s.productGroup)}" /></div>
-      <div class="field-row-3">
-        <div class="field"><label class="field-label">담당자</label><input id="sup-contact" value="${escHTML(s.contactPerson)}" /></div>
-        <div class="field"><label class="field-label">WeChat</label><input id="sup-wechat" value="${escHTML(s.wechat)}" /></div>
-        <div class="field"><label class="field-label">Tel</label><input id="sup-tel" value="${escHTML(s.tel)}" /></div>
-      </div>
-      <div class="field"><label class="field-label">Email</label><input id="sup-email" value="${escHTML(s.email)}" /></div>
-      <div class="field"><label class="field-label">주소</label><input id="sup-addr" value="${escHTML(s.address)}" /></div>
-      <div class="field-row">
-        <div class="field"><label class="field-label">계좌</label><input id="sup-bank" value="${escHTML(s.bankAccount)}" /></div>
-        <div class="field"><label class="field-label">SWIFT</label><input id="sup-swift" value="${escHTML(s.swift)}" /></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label class="field-label">결제조건</label><input id="sup-pay" value="${escHTML(s.paymentTerms)}" /></div>
-        <div class="field"><label class="field-label">리드타임</label><input id="sup-lead" value="${escHTML(s.leadTime)}" /></div>
-      </div>
-      <div class="field"><label class="field-label">메모</label><textarea id="sup-memo" rows="2">${escHTML(s.memo)}</textarea></div>
+    <div class="modal-header">
+      <div class="modal-title">${isEdit ? '공급처 / 회사 평가' : '공급처 등록'}</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
     </div>
-    <div class="modal-footer"><div class="flex-1"></div><button class="btn" onclick="closeModal()">취소</button>
-      <button class="btn btn-primary" onclick="saveSupplier('${isEdit ? id : ''}')">${isEdit ? '저장' : '등록'}</button>
+    <div class="modal-body">
+      ${isEdit ? `
+        <div class="card" style="background:var(--accent-bg);border-color:var(--accent-border);margin-bottom:16px">
+          <div class="flex" style="gap:24px;flex-wrap:wrap">
+            <div><div class="muted" style="font-size:11px">평균 평점 (${(_supDraft.evaluations || []).length}회)</div><div style="font-size:18px">${renderStars(avg)}</div></div>
+            <div><div class="muted" style="font-size:11px">등록 제품</div><div class="mono" style="font-size:18px;font-weight:600">${stats.productCount}개</div></div>
+            <div><div class="muted" style="font-size:11px">발주 이력</div><div class="mono" style="font-size:18px;font-weight:600">${stats.orderCount}건</div></div>
+            <div><div class="muted" style="font-size:11px">누적 발주액</div><div class="mono" style="font-size:18px;font-weight:600">¥${fmt(Math.round(stats.totalCNY))}</div></div>
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="section-title">기본 정보</div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">영문명*</label><input data-supk="name" value="${escHTML(_supDraft.name)}" /></div>
+        <div class="field"><label class="field-label">한글명</label><input data-supk="nameKor" value="${escHTML(_supDraft.nameKor)}" /></div>
+      </div>
+      <div class="field"><label class="field-label">취급 제품군</label><input data-supk="productGroup" value="${escHTML(_supDraft.productGroup)}" placeholder="선풍기 / 쿨시트 …" /></div>
+
+      <div class="section-title mt-4">연락처</div>
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">담당자</label><input data-supk="contactPerson" value="${escHTML(_supDraft.contactPerson)}" /></div>
+        <div class="field"><label class="field-label">WeChat</label><input data-supk="wechat" value="${escHTML(_supDraft.wechat)}" /></div>
+        <div class="field"><label class="field-label">Tel</label><input data-supk="tel" value="${escHTML(_supDraft.tel)}" /></div>
+      </div>
+      <div class="field"><label class="field-label">Email</label><input data-supk="email" value="${escHTML(_supDraft.email)}" /></div>
+      <div class="field"><label class="field-label">주소</label><input data-supk="address" value="${escHTML(_supDraft.address)}" /></div>
+
+      <div class="section-title mt-4">결제 / 거래 조건</div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">계좌</label><input data-supk="bankAccount" value="${escHTML(_supDraft.bankAccount)}" /></div>
+        <div class="field"><label class="field-label">SWIFT</label><input data-supk="swift" value="${escHTML(_supDraft.swift)}" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">결제조건</label><input data-supk="paymentTerms" value="${escHTML(_supDraft.paymentTerms)}" placeholder="50% 선금-잔금 / FOB / T/T" /></div>
+        <div class="field"><label class="field-label">리드타임</label><input data-supk="leadTime" value="${escHTML(_supDraft.leadTime)}" placeholder="30일 / 35일" /></div>
+      </div>
+
+      <div class="section-title mt-4">🏷 태그 (강점/약점/특이사항)</div>
+      <div id="sup-tags" class="flex" style="flex-wrap:wrap;gap:6px"></div>
+
+      <div class="section-title mt-4">📷 공장/제품 사진</div>
+      <div class="muted" style="font-size:12px;margin-bottom:6px">공장 외관, 생산 라인, 샘플 사진, 명함 등 — 끌어다 놓거나 클릭</div>
+      <div class="drop" id="sup-drop">사진 드래그 또는 클릭해서 업로드</div>
+      <input type="file" id="sup-file" accept="image/*" multiple class="hidden" />
+      <div id="sup-photos"></div>
+
+      <div class="section-title mt-6">⭐ 회사 평가 기록 (다중 — 거래 후 누적)</div>
+      <div class="muted" style="font-size:12px;margin-bottom:6px">발주 진행 후, 분기마다, 또는 이슈가 생겼을 때 평가 추가하세요. 누적되어 평균 평점이 됩니다.</div>
+      <div id="sup-evals"></div>
+      <button type="button" class="btn mt-4" onclick="addSupplierEvaluation()">+ 평가 추가</button>
+
+      <div class="field mt-6"><label class="field-label">메모</label><textarea data-supk="memo" rows="2">${escHTML(_supDraft.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer">
+      ${isEdit ? `<button class="btn btn-danger" onclick="deleteSupplier('${id}')">삭제</button>` : ''}
+      <div class="flex-1"></div>
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitSupplier('${isEdit ? id : ''}')">${isEdit ? '저장' : '등록'}</button>
     </div>
   `, { lg: true });
+
+  // bind text inputs
+  $$('#modal-root [data-supk]').forEach((el) => {
+    el.oninput = () => { _supDraft[el.dataset.supk] = el.value; };
+  });
+  setupImageDropzone($('#sup-drop'), $('#sup-file'), (img) => { _supDraft.photos.push(img); refreshSupPhotos(); });
+  refreshSupPhotos();
+  refreshSupTags();
+  refreshSupEvals();
 }
-function saveSupplier(id) {
-  const data = {
-    name: $('#sup-name').value.trim(), nameKor: $('#sup-nameKor').value, productGroup: $('#sup-pg').value,
-    contactPerson: $('#sup-contact').value, wechat: $('#sup-wechat').value, tel: $('#sup-tel').value,
-    email: $('#sup-email').value, address: $('#sup-addr').value,
-    bankAccount: $('#sup-bank').value, swift: $('#sup-swift').value,
-    paymentTerms: $('#sup-pay').value, leadTime: $('#sup-lead').value, memo: $('#sup-memo').value,
-  };
-  if (!data.name) { toast('영문명 필수', 'error'); return; }
-  if (id) Object.assign(findById(state.db.suppliers, id), data);
-  else state.db.suppliers.push({ id: uid('sup'), ...data });
+function refreshSupPhotos() {
+  const wrap = $('#sup-photos');
+  if (!wrap) return;
+  wrap.innerHTML = renderImageGrid(_supDraft.photos, '_supRemovePhoto');
+}
+window._supRemovePhoto = (i) => { _supDraft.photos.splice(i, 1); refreshSupPhotos(); };
+function refreshSupTags() {
+  const wrap = $('#sup-tags');
+  if (!wrap) return;
+  wrap.innerHTML = SUPPLIER_TAGS.map((t) => {
+    const on = _supDraft.tags.includes(t);
+    return `<button type="button" class="pill ${on ? 'pill-accent' : 'pill-muted'}" style="cursor:pointer;border-style:solid" onclick="_supToggleTag('${t}')">${t}</button>`;
+  }).join('');
+}
+window._supToggleTag = (t) => {
+  const i = _supDraft.tags.indexOf(t);
+  if (i >= 0) _supDraft.tags.splice(i, 1); else _supDraft.tags.push(t);
+  refreshSupTags();
+};
+function refreshSupEvals() {
+  const wrap = $('#sup-evals');
+  if (!wrap) return;
+  if (_supDraft.evaluations.length === 0) {
+    wrap.innerHTML = '<div class="muted" style="font-size:12px">아직 평가 없음. [+ 평가 추가] 로 시작.</div>';
+    return;
+  }
+  wrap.innerHTML = _supDraft.evaluations.map((ev, i) => `
+    <div class="card" style="padding:12px;margin-bottom:8px">
+      <div class="field-row-4">
+        <div class="field"><label class="field-label">평가자</label><input value="${escHTML(ev.evaluator || '')}" oninput="_supDraft.evaluations[${i}].evaluator=this.value" /></div>
+        <div class="field"><label class="field-label">평가일</label><input type="date" value="${ev.date || todayISO()}" onchange="_supDraft.evaluations[${i}].date=this.value" /></div>
+        <div class="field"><label class="field-label">종합 별점</label>
+          <select onchange="_supDraft.evaluations[${i}].rating=Number(this.value)">
+            <option value="">-</option>
+            ${[5,4,3,2,1].map((n) => `<option value="${n}" ${ev.rating == n ? 'selected' : ''}>${'★'.repeat(n)} (${n})</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label class="field-label">관련 발주(선택)</label><input value="${escHTML(ev.relatedOrder || '')}" placeholder="P/O 번호" oninput="_supDraft.evaluations[${i}].relatedOrder=this.value" /></div>
+      </div>
+      <div class="field-row-4">
+        <div class="field"><label class="field-label">품질 (1~5)</label><input type="number" min="1" max="5" value="${ev.quality || ''}" oninput="_supDraft.evaluations[${i}].quality=Number(this.value)||0" /></div>
+        <div class="field"><label class="field-label">가격 (1~5)</label><input type="number" min="1" max="5" value="${ev.price || ''}" oninput="_supDraft.evaluations[${i}].price=Number(this.value)||0" /></div>
+        <div class="field"><label class="field-label">납기준수 (1~5)</label><input type="number" min="1" max="5" value="${ev.leadTimeAccuracy || ''}" oninput="_supDraft.evaluations[${i}].leadTimeAccuracy=Number(this.value)||0" /></div>
+        <div class="field"><label class="field-label">소통 (1~5)</label><input type="number" min="1" max="5" value="${ev.communication || ''}" oninput="_supDraft.evaluations[${i}].communication=Number(this.value)||0" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">👍 장점</label><textarea rows="2" oninput="_supDraft.evaluations[${i}].pros=this.value">${escHTML(ev.pros || '')}</textarea></div>
+        <div class="field"><label class="field-label">👎 단점/주의</label><textarea rows="2" oninput="_supDraft.evaluations[${i}].cons=this.value">${escHTML(ev.cons || '')}</textarea></div>
+      </div>
+      <div class="field"><label class="field-label">메모</label><textarea rows="1" oninput="_supDraft.evaluations[${i}].note=this.value">${escHTML(ev.note || '')}</textarea></div>
+      <div class="flex" style="justify-content:flex-end"><button type="button" class="btn btn-sm btn-danger" onclick="_supDraft.evaluations.splice(${i},1);refreshSupEvals()">평가 삭제</button></div>
+    </div>
+  `).join('');
+}
+function addSupplierEvaluation() {
+  _supDraft.evaluations.push({ id: uid('ev'), date: todayISO(), evaluator: '', rating: 0, quality: 0, price: 0, leadTimeAccuracy: 0, communication: 0, pros: '', cons: '', note: '', relatedOrder: '' });
+  refreshSupEvals();
+}
+function submitSupplier(id) {
+  if (!_supDraft.name) { toast('영문명 필수', 'error'); return; }
+  if (id) Object.assign(findById(state.db.suppliers, id), _supDraft);
+  else state.db.suppliers.push(structuredClone(_supDraft));
   persist(); closeModal(); render(); toast('저장됨', 'success');
+}
+// 호환: 외부 호출처가 saveSupplier 그대로 쓰는 곳을 위해 alias
+function saveSupplier(id) { return submitSupplier(id); }
+
+/* =====================================================================
+ *  TAB: COMPANIES (중국 공급처 평가)
+ * ===================================================================== */
+function renderCompanies(view) {
+  const all = state.db.suppliers.slice();
+  // 정렬: 평균 평점 내림차순
+  all.sort((a, b) => (supplierAvgRating(b) || 0) - (supplierAvgRating(a) || 0));
+
+  const filt = state.search ? all.filter((s) => [s.name, s.nameKor, s.productGroup, s.contactPerson, s.wechat, ...(s.tags || [])].some((v) => String(v || '').toLowerCase().includes(state.search.toLowerCase()))) : all;
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="search"><input id="search-companies" placeholder="회사명/한글명/제품군/태그/위챗 검색…" value="${escHTML(state.search)}" /></div>
+      <select id="filter-tag" class="btn" style="padding:8px">
+        <option value="">전체 태그</option>
+        ${SUPPLIER_TAGS.map((t) => `<option value="${escHTML(t)}">${escHTML(t)}</option>`).join('')}
+      </select>
+      <span class="muted">총 <strong>${all.length}</strong>개</span>
+    </div>
+    ${filt.length === 0 ? `<div class="empty">
+      등록된 중국 공급처가 없어요.<br><br>
+      우상단 <strong>[+ 공급처 등록]</strong> 으로 추가하세요.<br>
+      회사 사진, 별점, 장단점, 거래 이력을 한눈에 관리할 수 있어요.
+    </div>` : `<div id="company-list">${filt.map(renderCompanyCard).join('')}</div>`}
+  `;
+  $('#search-companies').oninput = (e) => { state.search = e.target.value; renderCompanies(view); };
+  $('#filter-tag').onchange = (e) => {
+    const t = e.target.value;
+    const list = t ? filt.filter((s) => (s.tags || []).includes(t)) : filt;
+    const wrap = $('#company-list');
+    if (wrap) wrap.innerHTML = list.length === 0 ? '<div class="empty">결과 없음</div>' : list.map(renderCompanyCard).join('');
+  };
+}
+function renderCompanyCard(s) {
+  const avg = supplierAvgRating(s);
+  const stats = supplierStats(s);
+  const cover = (s.photos && s.photos[0]) ? s.photos[0].dataUrl : null;
+  const lastEval = (s.evaluations || []).slice(-1)[0];
+  return `
+    <div class="sample-card" style="cursor:pointer" onclick="openSupplierModal('${s.id}')">
+      ${cover ? `<img class="sample-thumb" src="${cover}" alt="" />` : '<div class="sample-thumb-empty">🏭</div>'}
+      <div>
+        <div class="flex" style="gap:8px;flex-wrap:wrap;margin-bottom:4px">
+          <span style="font-size:14px">${renderStars(avg)} ${avg ? `<span class="muted2">(${(s.evaluations || []).length}회)</span>` : ''}</span>
+          ${(s.tags || []).map((t) => `<span class="pill pill-accent">${escHTML(t)}</span>`).join('')}
+        </div>
+        <div style="font-size:15px;font-weight:600">${escHTML(s.name)}</div>
+        <div class="muted" style="font-size:12px">${escHTML(s.nameKor || '')} · ${escHTML(s.productGroup || '-')}</div>
+        <div class="muted2 mono" style="font-size:11px;margin-top:4px">
+          담당 ${escHTML(s.contactPerson || '-')} · WeChat ${escHTML(s.wechat || '-')} · 결제 ${escHTML(s.paymentTerms || '-')} · 리드타임 ${escHTML(s.leadTime || '-')}
+        </div>
+        <div class="muted2" style="font-size:11px;margin-top:4px">
+          📦 등록제품 ${stats.productCount}개 · 🚛 발주 ${stats.orderCount}건 · ¥${fmt(Math.round(stats.totalCNY))}
+          ${(s.photos || []).length > 0 ? ' · 📷 ' + s.photos.length + '장' : ''}
+        </div>
+        ${lastEval ? `<div class="muted2" style="font-size:11px;margin-top:6px">최근 평가 (${escHTML(lastEval.evaluator || '-')}, ${escHTML(lastEval.date || '')}): ${escHTML((lastEval.note || lastEval.pros || lastEval.cons || '').slice(0, 80))}</div>` : ''}
+      </div>
+      <div class="flex" onclick="event.stopPropagation()">
+        <button class="btn btn-sm" onclick="openSupplierModal('${s.id}')">상세 / 평가</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteSupplier('${s.id}')">삭제</button>
+      </div>
+    </div>
+  `;
 }
 
 /* ---------- Product modal ---------- */
@@ -2121,7 +2323,8 @@ Object.assign(window, {
   openEntityModal, saveEntity, deleteEntity,
   openForwarderModal, saveForwarder, deleteForwarder,
   openBrokerModal, saveBroker, deleteBroker,
-  openSupplierModal, saveSupplier, deleteSupplier,
+  openSupplierModal, submitSupplier, saveSupplier, deleteSupplier,
+  addSupplierEvaluation, refreshSupEvals, refreshSupPhotos, refreshSupTags,
   exportJSON, resetDB, downloadProductTemplate,
 });
 // live refs for inline handlers
@@ -2129,6 +2332,7 @@ Object.defineProperty(window, '_invDraft', { get: () => _invDraft, set: (v) => {
 Object.defineProperty(window, '_sampleDraft', { get: () => _sampleDraft, set: (v) => { _sampleDraft = v; } });
 Object.defineProperty(window, '_orderExtras', { get: () => _orderExtras, set: (v) => { _orderExtras = v; } });
 Object.defineProperty(window, '_productImages', { get: () => _productImages, set: (v) => { _productImages = v; } });
+Object.defineProperty(window, '_supDraft', { get: () => _supDraft, set: (v) => { _supDraft = v; } });
 
 /* ---------- bind sidebar nav ---------- */
 $$('#nav .nav-item').forEach((el) => {
