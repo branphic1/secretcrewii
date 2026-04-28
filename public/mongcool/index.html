@@ -181,6 +181,33 @@ table{width:100%;border-collapse:collapse}
 .attach-item{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border);font-size:12px}
 .attach-item a{color:var(--accent);text-decoration:none}
 
+/* image gallery */
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:8px}
+.img-tile{position:relative;width:100%;aspect-ratio:1;border-radius:var(--radius-sm);overflow:hidden;background:var(--surface-2);border:1px solid var(--border);cursor:pointer;transition:all .12s}
+.img-tile:hover{border-color:var(--accent);transform:scale(1.02)}
+.img-tile img{width:100%;height:100%;object-fit:cover;display:block}
+.img-tile-rm{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;font-size:14px;line-height:22px;text-align:center;cursor:pointer;opacity:0;transition:opacity .12s}
+.img-tile:hover .img-tile-rm{opacity:1}
+.img-tile-note{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:3px 6px;text-align:center;opacity:0;transition:opacity .12s}
+.img-tile:hover .img-tile-note{opacity:1}
+.img-thumb{width:60px;height:60px;border-radius:var(--radius-sm);object-fit:cover;background:var(--surface-2);border:1px solid var(--border)}
+
+/* sample card */
+.sample-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:grid;grid-template-columns:120px 1fr auto;gap:16px;align-items:start;transition:all .15s}
+.sample-card:hover{border-color:var(--accent-border);box-shadow:var(--shadow-md)}
+.sample-card+.sample-card{margin-top:12px}
+.sample-thumb{width:120px;height:120px;border-radius:var(--radius-sm);object-fit:cover;background:var(--surface-2);border:1px solid var(--border)}
+.sample-thumb-empty{width:120px;height:120px;border-radius:var(--radius-sm);background:var(--surface-2);border:1px dashed var(--border-strong);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:28px}
+.eval-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.eval-item{padding:8px 12px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border);font-size:12px}
+.eval-rating{color:#d4a426;font-size:14px;letter-spacing:1px}
+.eval-meta{color:var(--text3);font-size:11px;margin-top:2px}
+
+/* lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:300;cursor:zoom-out;padding:24px}
+.lightbox img{max-width:100%;max-height:100%;border-radius:var(--radius)}
+.lightbox-cap{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:#fff;background:rgba(0,0,0,.6);padding:8px 16px;border-radius:var(--radius-sm);font-size:13px}
+
 /* toast */
 .toast-host{position:fixed;top:80px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:200;pointer-events:none}
 .toast{background:var(--text);color:var(--surface);padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;box-shadow:var(--shadow-md);animation:toast-in .2s ease;pointer-events:auto;max-width:360px}
@@ -225,6 +252,7 @@ table{width:100%;border-collapse:collapse}
     <div class="nav" id="nav">
       <div class="nav-item" data-tab="orders"><span class="nav-icon">🚛</span>발주 추적</div>
       <div class="nav-item" data-tab="invoices"><span class="nav-icon">🧾</span>청구서/원가</div>
+      <div class="nav-item" data-tab="samples"><span class="nav-icon">🧪</span>샘플 품평</div>
       <div class="nav-item" data-tab="products"><span class="nav-icon">📦</span>제품 DB</div>
       <div class="nav-item" data-tab="parties"><span class="nav-icon">🏢</span>거래처</div>
       <div class="nav-item" data-tab="settings"><span class="nav-icon">⚙</span>설정</div>
@@ -286,6 +314,7 @@ const SEED = {
   customsBrokers: [],
   suppliers: [],
   products: [],
+  samples: [],
   invoiceGroups: [],
   orders: [],
 };
@@ -303,6 +332,7 @@ function freshDB() {
     customsBrokers: structuredClone(SEED.customsBrokers),
     suppliers: structuredClone(SEED.suppliers),
     products: structuredClone(SEED.products),
+    samples: structuredClone(SEED.samples),
     invoiceGroups: structuredClone(SEED.invoiceGroups),
     orders: structuredClone(SEED.orders),
     filters: { brand: null, entity: null },
@@ -410,7 +440,10 @@ function calcOrderCost(order, product, rates) {
   const logistics = rates.logisticsPerUnit;
   const customsDuty = rates.customsRate * goodsValue;
   const vat = rates.vatRate * goodsValue;
-  const extra = rates.extraPerUnit;
+  // 발주 자체의 추가비용 (장치료/검사비/지연비 등) → 1개당으로 분배
+  const orderExtraTotal = (order.extraCosts || []).reduce((s, x) => s + (Number(x.amount) || 0), 0);
+  const orderExtraPerUnit = (Number(order.qty) || 0) > 0 ? orderExtraTotal / order.qty : 0;
+  const extra = rates.extraPerUnit + orderExtraPerUnit;
   const costPerUnit = goodsValue + forwarding + logistics + customsDuty + vat + extra;
   return {
     costPerUnit: Math.round(costPerUnit),
@@ -421,6 +454,8 @@ function calcOrderCost(order, product, rates) {
       customsDuty: Math.round(customsDuty),
       vat: Math.round(vat),
       extra: Math.round(extra),
+      extraInvoice: Math.round(rates.extraPerUnit),
+      extraOrder: Math.round(orderExtraPerUnit),
     },
   };
 }
@@ -494,6 +529,7 @@ function render() {
   switch (state.tab) {
     case 'orders':    title.textContent = '발주 추적';        actions.innerHTML = '<button class="btn btn-primary" onclick="openOrderModal()">+ 발주 등록</button>'; renderOrders(view); break;
     case 'invoices':  title.textContent = '청구서 / 원가';    actions.innerHTML = '<button class="btn btn-primary" onclick="openInvoiceModal()">+ 청구서 등록</button>'; renderInvoices(view); break;
+    case 'samples':   title.textContent = '샘플 품평';        actions.innerHTML = '<button class="btn btn-primary" onclick="openSampleModal()">+ 샘플 등록</button>'; renderSamples(view); break;
     case 'products':  title.textContent = '제품 DB';           actions.innerHTML = '<button class="btn" onclick="downloadProductTemplate()">엑셀 템플릿</button> <button class="btn" onclick="$(\'#xlsx-import-products\').click()">엑셀 일괄 업로드</button> <button class="btn btn-primary" onclick="openProductModal()">+ 제품 등록</button>'; renderProducts(view); break;
     case 'parties':   title.textContent = '거래처';            actions.innerHTML = ''; renderParties(view); break;
     case 'settings':  title.textContent = '설정';              actions.innerHTML = ''; renderSettings(view); break;
@@ -748,12 +784,15 @@ function renderProducts(view) {
       <div class="product-grid">
         ${arr.map((p) => {
           const sup = findById(state.db.suppliers, p.supplierId);
+          const cover = (p.images && p.images[0]) ? p.images[0].dataUrl : (p.imageUrl || null);
           return `<div class="prod-card">
             <div class="prod-pill-row">
               <span class="pill pill-accent">${escHTML(p.brand || '?')}</span>
               <span class="pill pill-muted">${escHTML(p.category || '?')}</span>
               ${p.kcCert ? '<span class="pill pill-info">KC ✓</span>' : ''}
+              ${(p.images || []).length > 0 ? `<span class="pill pill-info">📷 ${p.images.length}</span>` : ''}
             </div>
+            ${cover ? `<img src="${cover}" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-sm);margin:4px 0;cursor:zoom-in" onclick="openLightbox('${cover.replace(/'/g, "\\'")}', '${escHTML(p.name)}')" />` : ''}
             <div class="prod-name">${escHTML(p.name)}</div>
             <div class="prod-opt">${escHTML(p.option || '-')}</div>
             <div class="prod-meta">${escHTML(p.pcode)} / ${escHTML(p.ocode)} · CBM ${p.cbm}㎥ · ${p.weightKg}kg</div>
@@ -1066,6 +1105,267 @@ function resetDB() {
 }
 
 /* =====================================================================
+ *  IMAGE HELPERS — 드래그 업로드 + 라이트박스
+ * ===================================================================== */
+function readImageAsDataUrl(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res({ name: file.name, dataUrl: r.result, sizeBytes: file.size, uploadedAt: nowISO(), note: '' });
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+function setupImageDropzone(dropEl, fileInputEl, onAdded) {
+  dropEl.onclick = () => fileInputEl.click();
+  dropEl.ondragover = (e) => { e.preventDefault(); dropEl.classList.add('drag-over'); };
+  dropEl.ondragleave = () => dropEl.classList.remove('drag-over');
+  dropEl.ondrop = async (e) => {
+    e.preventDefault(); dropEl.classList.remove('drag-over');
+    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
+    for (const f of files) onAdded(await readImageAsDataUrl(f));
+  };
+  fileInputEl.onchange = async (e) => {
+    for (const f of e.target.files) if (f.type.startsWith('image/')) onAdded(await readImageAsDataUrl(f));
+    e.target.value = '';
+  };
+}
+function renderImageGrid(images, onRemove) {
+  if (!images || images.length === 0) return '<div class="muted2" style="font-size:12px;margin-top:6px">사진 없음</div>';
+  return `<div class="img-grid">${images.map((img, i) => `
+    <div class="img-tile" onclick="openLightbox(${JSON.stringify(img.dataUrl).replace(/"/g, '&quot;')}, ${JSON.stringify(img.name || '').replace(/"/g, '&quot;')})">
+      <img src="${img.dataUrl}" alt="${escHTML(img.name)}" loading="lazy" />
+      ${img.note ? `<div class="img-tile-note">${escHTML(img.note)}</div>` : ''}
+      ${onRemove ? `<button class="img-tile-rm" onclick="event.stopPropagation();${onRemove}(${i})">×</button>` : ''}
+    </div>
+  `).join('')}</div>`;
+}
+function openLightbox(dataUrl, caption) {
+  const root = $('#modal-root');
+  const prev = root.innerHTML;
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = `<img src="${dataUrl}" alt="" />${caption ? `<div class="lightbox-cap">${escHTML(caption)}</div>` : ''}`;
+  lb.onclick = () => lb.remove();
+  document.body.appendChild(lb);
+}
+
+/* =====================================================================
+ *  TAB: SAMPLES (샘플 품평)
+ * ===================================================================== */
+function renderSamples(view) {
+  const arr = state.db.samples.slice().sort((a, b) => (b.receivedDate || '').localeCompare(a.receivedDate || ''));
+  const filt = state.search ? arr.filter((s) => [s.name, s.brand, s.category, s.memo].some((v) => String(v || '').toLowerCase().includes(state.search.toLowerCase()))) : arr;
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="search"><input id="search-samples" placeholder="샘플명/브랜드/카테고리 검색…" value="${escHTML(state.search)}" /></div>
+      <select id="filter-sample-status" class="btn" style="padding:8px">
+        <option value="">전체 상태</option>
+        <option value="pending">평가중</option>
+        <option value="approved">승인 (발주예정)</option>
+        <option value="rejected">반려</option>
+      </select>
+      <span class="muted">총 <strong>${arr.length}</strong>개</span>
+    </div>
+    ${filt.length === 0 ? `<div class="empty">
+      샘플이 없어요.<br><br>
+      공장에서 샘플을 받았을 때 우상단 <strong>[+ 샘플 등록]</strong> 으로 사진과 함께 기록하세요.<br>
+      품평회에서 별점/장단점/평가자를 누적 기록하고, 승인되면 <strong>제품 DB로 전환</strong>할 수 있어요.
+    </div>` : `<div id="sample-list">${filt.map(renderSampleCard).join('')}</div>`}
+  `;
+  $('#search-samples').oninput = (e) => { state.search = e.target.value; renderSamples(view); };
+  $('#filter-sample-status').onchange = (e) => {
+    const v = e.target.value;
+    const list = v ? filt.filter((s) => (s.status || 'pending') === v) : filt;
+    const wrap = $('#sample-list');
+    if (wrap) wrap.innerHTML = list.length === 0 ? '<div class="empty">결과 없음</div>' : list.map(renderSampleCard).join('');
+  };
+}
+function renderSampleCard(s) {
+  const sup = findById(state.db.suppliers, s.supplierId);
+  const status = s.status || 'pending';
+  const statusPills = {
+    pending: '<span class="pill pill-warn">⏳ 평가중</span>',
+    approved: '<span class="pill pill-accent">✓ 승인</span>',
+    rejected: '<span class="pill pill-danger">✗ 반려</span>',
+  };
+  const evals = s.evaluations || [];
+  const avg = evals.length ? (evals.reduce((sum, e) => sum + (Number(e.rating) || 0), 0) / evals.length).toFixed(1) : null;
+  const cover = (s.images && s.images[0]) ? s.images[0].dataUrl : null;
+  return `
+    <div class="sample-card" onclick="openSampleModal('${s.id}')" style="cursor:pointer">
+      ${cover ? `<img class="sample-thumb" src="${cover}" alt="" />` : '<div class="sample-thumb-empty">📷</div>'}
+      <div>
+        <div class="flex" style="gap:8px;flex-wrap:wrap">
+          ${s.brand ? `<span class="pill pill-accent">${escHTML(s.brand)}</span>` : ''}
+          ${s.category ? `<span class="pill pill-muted">${escHTML(s.category)}</span>` : ''}
+          ${statusPills[status]}
+          ${avg ? `<span class="pill pill-info">⭐ ${avg} (${evals.length})</span>` : ''}
+        </div>
+        <div style="font-size:15px;font-weight:600;margin-top:6px">${escHTML(s.name)}</div>
+        <div class="muted" style="font-size:12px;margin-top:2px">
+          공급처: ${escHTML(sup?.nameKor || sup?.name || '-')} ·
+          접수일: <span class="mono">${escHTML(s.receivedDate || '-')}</span> ·
+          사진 ${(s.images || []).length}장
+        </div>
+        ${s.memo ? `<div class="muted" style="font-size:12px;margin-top:4px">${escHTML(s.memo)}</div>` : ''}
+        ${evals.length > 0 ? `<div class="muted2" style="font-size:11px;margin-top:6px">최근 평가: ${escHTML(evals[evals.length - 1].evaluator || '-')} — ${escHTML((evals[evals.length - 1].note || '').slice(0, 60))}</div>` : ''}
+      </div>
+      <div class="flex" onclick="event.stopPropagation()">
+        <button class="btn btn-sm" onclick="openSampleModal('${s.id}')">편집</button>
+        ${status === 'approved' ? `<button class="btn btn-sm btn-primary" onclick="convertSampleToProduct('${s.id}')">→ 제품등록</button>` : ''}
+        <button class="btn btn-sm btn-danger" onclick="deleteSample('${s.id}')">삭제</button>
+      </div>
+    </div>
+  `;
+}
+
+let _sampleDraft = null;
+function openSampleModal(id) {
+  const isEdit = !!id;
+  const s = isEdit ? findById(state.db.samples, id) : null;
+  if (isEdit && !s) { toast('샘플 없음', 'error'); return; }
+  _sampleDraft = isEdit ? structuredClone(s) : {
+    id: uid('sm'), name: '', brand: '', category: '', supplierId: state.db.suppliers[0]?.id || '',
+    receivedDate: todayISO(), images: [], evaluations: [], status: 'pending', memo: '',
+  };
+  showModal(sampleModalHTML(isEdit, id), { lg: true });
+  bindSampleModal();
+}
+function sampleModalHTML(isEdit, id) {
+  const s = _sampleDraft;
+  const brands = [...new Set(state.db.products.map((p) => p.brand).filter(Boolean))];
+  return `
+    <div class="modal-header">
+      <div class="modal-title">${isEdit ? '샘플 편집' : '샘플 등록 (공장 도착 기록)'}</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field"><label class="field-label">샘플명*</label><input data-sk="name" value="${escHTML(s.name)}" placeholder="예: 몽쿨 미스트선풍기 v3 시제품" /></div>
+        <div class="field"><label class="field-label">접수일</label><input type="date" data-sk="receivedDate" value="${s.receivedDate}" /></div>
+      </div>
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">브랜드</label><input data-sk="brand" value="${escHTML(s.brand)}" list="sample-brand-list" /><datalist id="sample-brand-list">${brands.map((b) => `<option value="${escHTML(b)}">`).join('')}</datalist></div>
+        <div class="field"><label class="field-label">카테고리</label><input data-sk="category" value="${escHTML(s.category)}" placeholder="선풍기 / 쿨시트 …" /></div>
+        <div class="field"><label class="field-label">상태</label>
+          <select data-sk="status">
+            <option value="pending" ${s.status === 'pending' ? 'selected' : ''}>⏳ 평가중</option>
+            <option value="approved" ${s.status === 'approved' ? 'selected' : ''}>✓ 승인 (발주예정)</option>
+            <option value="rejected" ${s.status === 'rejected' ? 'selected' : ''}>✗ 반려</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label class="field-label">공급처</label>
+        <select data-sk="supplierId">
+          <option value="">(미지정)</option>
+          ${state.db.suppliers.map((x) => `<option value="${x.id}" ${s.supplierId === x.id ? 'selected' : ''}>${escHTML(x.nameKor || x.name)}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="section-title mt-6">📷 샘플 사진 (드래그 또는 클릭, 여러 장 OK)</div>
+      <div class="drop" id="sm-drop">사진 파일을 끌어다 놓거나 클릭해서 선택 (jpg/png 등)</div>
+      <input type="file" id="sm-file" accept="image/*" multiple class="hidden" />
+      <div id="sm-images"></div>
+
+      <div class="section-title mt-6">⭐ 품평 기록 (다중)</div>
+      <div id="sm-evals"></div>
+      <button class="btn mt-4" onclick="addSampleEvaluation()">+ 평가 추가</button>
+
+      <div class="field mt-6"><label class="field-label">메모</label><textarea data-sk="memo" rows="2">${escHTML(s.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer">
+      ${isEdit ? `<button class="btn btn-danger" onclick="deleteSample('${id}')">삭제</button>` : ''}
+      <div class="flex-1"></div>
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitSample()">${isEdit ? '저장' : '등록'}</button>
+    </div>
+  `;
+}
+function bindSampleModal() {
+  $$('#modal-root [data-sk]').forEach((el) => {
+    el.oninput = el.onchange = () => {
+      const k = el.dataset.sk;
+      _sampleDraft[k] = el.type === 'number' ? Number(el.value) : el.value;
+    };
+  });
+  setupImageDropzone($('#sm-drop'), $('#sm-file'), (img) => { _sampleDraft.images.push(img); refreshSampleImages(); });
+  refreshSampleImages();
+  refreshSampleEvals();
+}
+function refreshSampleImages() {
+  const wrap = $('#sm-images');
+  if (!wrap) return;
+  wrap.innerHTML = renderImageGrid(_sampleDraft.images, '_smRemoveImg');
+}
+window._smRemoveImg = (i) => { _sampleDraft.images.splice(i, 1); refreshSampleImages(); };
+function refreshSampleEvals() {
+  const wrap = $('#sm-evals');
+  if (!wrap) return;
+  const evals = _sampleDraft.evaluations || [];
+  if (evals.length === 0) {
+    wrap.innerHTML = '<div class="muted" style="font-size:12px">아직 평가 없음. [+ 평가 추가] 로 시작하세요.</div>';
+    return;
+  }
+  wrap.innerHTML = evals.map((ev, i) => `
+    <div class="card" style="padding:12px;margin-bottom:8px">
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">평가자</label><input value="${escHTML(ev.evaluator || '')}" oninput="_sampleDraft.evaluations[${i}].evaluator=this.value" placeholder="이름" /></div>
+        <div class="field"><label class="field-label">평가일</label><input type="date" value="${ev.date || todayISO()}" onchange="_sampleDraft.evaluations[${i}].date=this.value" /></div>
+        <div class="field"><label class="field-label">별점 (1~5)</label>
+          <select onchange="_sampleDraft.evaluations[${i}].rating=Number(this.value)">
+            <option value="">-</option>
+            ${[5,4,3,2,1].map((n) => `<option value="${n}" ${ev.rating == n ? 'selected' : ''}>${'⭐'.repeat(n)} (${n})</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">👍 장점</label><textarea rows="2" oninput="_sampleDraft.evaluations[${i}].pros=this.value">${escHTML(ev.pros || '')}</textarea></div>
+        <div class="field"><label class="field-label">👎 단점</label><textarea rows="2" oninput="_sampleDraft.evaluations[${i}].cons=this.value">${escHTML(ev.cons || '')}</textarea></div>
+      </div>
+      <div class="field"><label class="field-label">메모</label><textarea rows="1" oninput="_sampleDraft.evaluations[${i}].note=this.value">${escHTML(ev.note || '')}</textarea></div>
+      <div class="flex" style="justify-content:flex-end"><button class="btn btn-sm btn-danger" onclick="_sampleDraft.evaluations.splice(${i},1);refreshSampleEvals()">평가 삭제</button></div>
+    </div>
+  `).join('');
+}
+function addSampleEvaluation() {
+  _sampleDraft.evaluations = _sampleDraft.evaluations || [];
+  _sampleDraft.evaluations.push({ id: uid('ev'), date: todayISO(), evaluator: '', rating: 0, pros: '', cons: '', note: '' });
+  refreshSampleEvals();
+}
+function submitSample() {
+  if (!_sampleDraft.name) { toast('샘플명 필수', 'error'); return; }
+  const ex = findById(state.db.samples, _sampleDraft.id);
+  if (ex) Object.assign(ex, _sampleDraft);
+  else state.db.samples.unshift(_sampleDraft);
+  persist(); closeModal(); render(); toast('저장됨', 'success');
+}
+function deleteSample(id) {
+  if (!confirm('이 샘플을 삭제하시겠습니까?')) return;
+  state.db.samples = state.db.samples.filter((s) => s.id !== id);
+  persist(); closeModal(); render(); toast('삭제됨');
+}
+function convertSampleToProduct(id) {
+  const s = findById(state.db.samples, id);
+  if (!s) return;
+  if (!confirm(`"${s.name}" 을(를) 제품 DB에 등록할까요? (샘플 사진도 함께 복사됩니다)`)) return;
+  closeModal();
+  // Pre-fill product modal with sample data
+  setTimeout(() => {
+    openProductModal();
+    // populate fields after modal renders
+    setTimeout(() => {
+      const pBrand = $('#p-brand'); if (pBrand) pBrand.value = s.brand || '';
+      const pCat = $('#p-cat'); if (pCat) pCat.value = s.category || '';
+      const pName = $('#p-name'); if (pName) pName.value = s.name || '';
+      const pSup = $('#p-sup'); if (pSup && s.supplierId) pSup.value = s.supplierId;
+      // store images for save (we need a hook — extend product save flow)
+      window._pendingProductImages = structuredClone(s.images || []);
+      toast('샘플 사진이 새 제품에 복사됩니다 — 나머지 정보 채우고 저장하세요', 'success');
+    }, 80);
+  }, 50);
+}
+
+/* =====================================================================
  *  MODALS
  * ===================================================================== */
 function showModal(html, opts = {}) {
@@ -1133,7 +1433,7 @@ function openOrderModal(id) {
           <select id="om-entity">${state.db.entities.map((e) => `<option value="${e.id}" ${o?.entityId === e.id ? 'selected' : ''}>${escHTML(e.name)}</option>`).join('')}</select>
         </div>
         <div class="field"><label class="field-label">발주일</label><input type="date" id="om-orderDate" value="${o?.orderDate || todayISO()}" /></div>
-        <div class="field"><label class="field-label">환율 (₩/¥)</label><input type="number" id="om-rate" step="0.01" value="${o?.rate || ''}" /></div>
+        <div class="field"><label class="field-label">결제환율 (₩/¥)</label><input type="number" id="om-rate" step="0.01" value="${o?.rate || ''}" placeholder="실제 결제한 환율" /></div>
         <div class="field"><label class="field-label">P/O 번호</label><input id="om-po" value="${escHTML(o?.poNumber || '')}" /></div>
       </div>
       <div class="section-title mt-4">물류 일정 (선택)</div>
@@ -1148,7 +1448,13 @@ function openOrderModal(id) {
           ${state.db.invoiceGroups.map((g) => `<option value="${g.id}" ${o?.invoiceId === g.id ? 'selected' : ''}>${escHTML(g.blNo || g.invoiceNo || g.id)} (${escHTML(g.itemDesc || '')})</option>`).join('')}
         </select>
       </div>
-      <div class="field"><label class="field-label">메모</label><textarea id="om-memo" rows="2">${escHTML(o?.memo || '')}</textarea></div>
+
+      <div class="section-title mt-4">💸 발주 추가비용 (장치료 / 검사비 / 지연비 / 기타)</div>
+      <div class="muted" style="font-size:12px;margin-bottom:6px">청구서와 별개로 이 발주에만 발생한 비용. 1개당으로 자동 분배되어 도착시가에 더해집니다.</div>
+      <div id="om-extras"></div>
+      <button type="button" class="btn btn-sm mt-4" onclick="addOrderExtra()">+ 추가비용 항목</button>
+
+      <div class="field mt-6"><label class="field-label">메모</label><textarea id="om-memo" rows="2">${escHTML(o?.memo || '')}</textarea></div>
     </div>
     <div class="modal-footer">
       ${isEdit ? `<button class="btn btn-danger" onclick="deleteOrder('${id}')">삭제</button>` : ''}
@@ -1188,6 +1494,38 @@ function openOrderModal(id) {
   $('#om-name').onchange = rebuildOptions;
   $('#om-option').onchange = rebuildRows;
   rebuildName();
+
+  // order extras
+  _orderExtras = isEdit ? structuredClone(o.extraCosts || []) : [];
+  refreshOrderExtras();
+}
+
+let _orderExtras = [];
+function refreshOrderExtras() {
+  const wrap = $('#om-extras');
+  if (!wrap) return;
+  if (_orderExtras.length === 0) {
+    wrap.innerHTML = '<div class="muted" style="font-size:12px">추가비용 없음.</div>';
+    return;
+  }
+  wrap.innerHTML = _orderExtras.map((x, i) => `
+    <div class="field-row-4" style="margin-bottom:8px">
+      <div class="field"><label class="field-label">유형</label>
+        <select onchange="_orderExtras[${i}].type=this.value">
+          ${['통관수수료추가','장치료','검사비추가','지연비','기타'].map((t) => `<option value="${t}" ${x.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label class="field-label">금액 (₩)</label><input type="number" value="${x.amount || 0}" oninput="_orderExtras[${i}].amount=Number(this.value)||0" /></div>
+      <div class="field"><label class="field-label">날짜</label><input type="date" value="${x.date || ''}" onchange="_orderExtras[${i}].date=this.value" /></div>
+      <div class="field flex"><input value="${escHTML(x.note || '')}" placeholder="메모" oninput="_orderExtras[${i}].note=this.value" />
+        <button type="button" class="btn btn-sm btn-danger" onclick="_orderExtras.splice(${i},1);refreshOrderExtras()">×</button>
+      </div>
+    </div>
+  `).join('');
+}
+function addOrderExtra() {
+  _orderExtras.push({ type: '통관수수료추가', amount: 0, date: todayISO(), note: '' });
+  refreshOrderExtras();
 }
 
 function submitOrder(id) {
@@ -1206,6 +1544,8 @@ function submitOrder(id) {
     memo: $('#om-memo').value,
   };
 
+  const extraCosts = structuredClone(_orderExtras);
+
   if (id) {
     // edit single order
     const o = findById(state.db.orders, id);
@@ -1214,6 +1554,7 @@ function submitOrder(id) {
     o.pid = row.dataset.pid;
     o.qty = Number(row.querySelector('.row-qty').value) || 0;
     o.price = Number(row.querySelector('.row-price').value) || 0;
+    o.extraCosts = extraCosts;
     toast('저장됨', 'success');
   } else {
     // create one order per option row
@@ -1224,7 +1565,9 @@ function submitOrder(id) {
       if (!qty) continue;
       state.db.orders.push({
         id: uid('o'), pid: row.dataset.pid, ...common, qty, price,
-        factoryMemo: '', costPerUnit: 0, costBreakdown: null, extraCosts: [], status: 'active',
+        factoryMemo: '', costPerUnit: 0, costBreakdown: null,
+        extraCosts: structuredClone(extraCosts),
+        status: 'active',
       });
       n++;
     }
@@ -1363,11 +1706,12 @@ function invoiceModalHTML(isEdit, id) {
       <div class="section-title mt-6">기타</div>
       <div class="field"><label class="field-label">사상한·전단지 등 (₩)</label><input type="number" data-k="extraCost" value="${ig.extraCost}" /></div>
 
-      <div class="section-title mt-6">📎 첨부 파일 (PDF)</div>
+      <div class="section-title mt-6">📎 포워딩 / 통관 서류 (PDF · 이미지 · 엑셀 등)</div>
+      <div class="muted" style="font-size:12px;margin-bottom:6px">관세사 청구서, B/L, 포장명세서, P/I, 통관내역서, 사진 등 모두 첨부 가능 (1개당 5MB 이하 권장)</div>
       <div class="drop" id="inv-drop" onclick="$('#inv-file').click()">
-        PDF 드래그 또는 클릭해서 첨부 (5MB 이하 권장)
+        파일 드래그 또는 클릭해서 첨부
       </div>
-      <input type="file" id="inv-file" accept="application/pdf" multiple class="hidden" />
+      <input type="file" id="inv-file" multiple class="hidden" />
       <div class="attach-list" id="inv-attaches"></div>
 
       <div class="section-title mt-6" style="color:var(--accent)">자동 계산 (실시간)</div>
@@ -1686,9 +2030,13 @@ function saveSupplier(id) {
 }
 
 /* ---------- Product modal ---------- */
+let _productImages = [];
 function openProductModal(id) {
   const isEdit = !!id;
-  const p = isEdit ? findById(state.db.products, id) : { id: uid('p'), brand: '', category: '', name: '', option: '', pcode: '', ocode: '', cbm: 0, weightKg: 0, htsCode: '', customsRate: 0, supplierId: state.db.suppliers[0]?.id || '', url: '', imageUrl: '', kcCert: '', memo: '' };
+  const p = isEdit ? findById(state.db.products, id) : { id: uid('p'), brand: '', category: '', name: '', option: '', pcode: '', ocode: '', cbm: 0, weightKg: 0, htsCode: '', customsRate: 0, supplierId: state.db.suppliers[0]?.id || '', url: '', imageUrl: '', kcCert: '', memo: '', images: [] };
+  // pull pending images from sample-conversion flow if any
+  _productImages = isEdit ? structuredClone(p.images || []) : (window._pendingProductImages || []);
+  window._pendingProductImages = null;
   showModal(`
     <div class="modal-header"><div class="modal-title">${isEdit ? '제품 편집' : '제품 등록'}</div><button class="modal-close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
@@ -1717,16 +2065,31 @@ function openProductModal(id) {
       </div>
       <div class="field-row">
         <div class="field"><label class="field-label">발주 URL (1688)</label><input id="p-url" value="${escHTML(p.url)}" /></div>
-        <div class="field"><label class="field-label">이미지 URL</label><input id="p-img" value="${escHTML(p.imageUrl)}" /></div>
+        <div class="field"><label class="field-label">대표 이미지 URL (외부)</label><input id="p-img" value="${escHTML(p.imageUrl)}" /></div>
       </div>
       <div class="field"><label class="field-label">KC 인증</label><input id="p-kc" value="${escHTML(p.kcCert)}" placeholder="인증번호 또는 '면제'" /></div>
-      <div class="field"><label class="field-label">메모</label><textarea id="p-memo" rows="2">${escHTML(p.memo)}</textarea></div>
+
+      <div class="section-title mt-6">📷 제품 사진 (드래그 또는 클릭, 여러 장 OK)</div>
+      <div class="drop" id="p-drop">사진 파일을 끌어다 놓거나 클릭해서 선택</div>
+      <input type="file" id="p-file" accept="image/*" multiple class="hidden" />
+      <div id="p-images"></div>
+
+      <div class="field mt-4"><label class="field-label">메모</label><textarea id="p-memo" rows="2">${escHTML(p.memo)}</textarea></div>
     </div>
     <div class="modal-footer"><div class="flex-1"></div><button class="btn" onclick="closeModal()">취소</button>
       <button class="btn btn-primary" onclick="saveProduct('${isEdit ? id : ''}')">${isEdit ? '저장' : '등록'}</button>
     </div>
   `, { lg: true });
+  setupImageDropzone($('#p-drop'), $('#p-file'), (img) => { _productImages.push(img); refreshProductImages(); });
+  refreshProductImages();
 }
+function refreshProductImages() {
+  const wrap = $('#p-images');
+  if (!wrap) return;
+  wrap.innerHTML = renderImageGrid(_productImages, '_pRemoveImg');
+}
+window._pRemoveImg = (i) => { _productImages.splice(i, 1); refreshProductImages(); };
+
 function saveProduct(id) {
   const data = {
     brand: $('#p-brand').value.trim(), category: $('#p-cat').value,
@@ -1736,9 +2099,9 @@ function saveProduct(id) {
     htsCode: $('#p-hts').value, customsRate: Number($('#p-customs').value) || 0,
     supplierId: $('#p-sup').value, url: $('#p-url').value, imageUrl: $('#p-img').value,
     kcCert: $('#p-kc').value, memo: $('#p-memo').value,
+    images: structuredClone(_productImages),
   };
   if (!data.name || !data.ocode) { toast('제품명/옵션코드 필수', 'error'); return; }
-  // duplicate ocode guard
   if (!id && state.db.products.some((p) => p.ocode === data.ocode)) {
     if (!confirm('동일한 옵션코드가 존재합니다. 그래도 추가할까요?')) return;
   }
@@ -1749,19 +2112,23 @@ function saveProduct(id) {
 
 /* ---------- expose globals (so onclick handlers work) ---------- */
 Object.assign(window, {
-  $, openOrderModal, closeModal, submitOrder, deleteOrder,
+  $, go, closeModal, openLightbox,
+  openOrderModal, submitOrder, deleteOrder, addOrderExtra, refreshOrderExtras,
   openInvoiceModal, submitInvoice, deleteInvoice, addInvoiceExtra, addForwardingItem,
   refreshInvoiceExtras, refreshForwardingItems, refreshAttaches, refreshInvoiceCalc,
-  openProductModal, saveProduct, duplicateProduct, deleteProduct,
+  openProductModal, saveProduct, duplicateProduct, deleteProduct, refreshProductImages,
+  openSampleModal, submitSample, deleteSample, addSampleEvaluation, refreshSampleEvals, refreshSampleImages, convertSampleToProduct,
   openEntityModal, saveEntity, deleteEntity,
   openForwarderModal, saveForwarder, deleteForwarder,
   openBrokerModal, saveBroker, deleteBroker,
   openSupplierModal, saveSupplier, deleteSupplier,
   exportJSON, resetDB, downloadProductTemplate,
-  _invDraft,
 });
-// keep _invDraft live (we re-read window._invDraft from inline handlers)
+// live refs for inline handlers
 Object.defineProperty(window, '_invDraft', { get: () => _invDraft, set: (v) => { _invDraft = v; } });
+Object.defineProperty(window, '_sampleDraft', { get: () => _sampleDraft, set: (v) => { _sampleDraft = v; } });
+Object.defineProperty(window, '_orderExtras', { get: () => _orderExtras, set: (v) => { _orderExtras = v; } });
+Object.defineProperty(window, '_productImages', { get: () => _productImages, set: (v) => { _productImages = v; } });
 
 /* ---------- bind sidebar nav ---------- */
 $$('#nav .nav-item').forEach((el) => {
