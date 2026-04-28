@@ -277,99 +277,22 @@ function toast(msg, type = '') {
   setTimeout(() => el.remove(), 2600);
 }
 
-/* ---------- seed data (real MONGCOOL) ---------- */
+/* ---------- seed data ---------- *
+ * 모든 데이터는 사용자가 직접 입력합니다. 빈 상태로 시작.
+ */
 const SEED = {
-  entities: [
-    { id: 'e1', name: '주식회사 블랙픽', bizNo: '', ceo: '몽드', address: '경기도 용인시 기흥구 강남서로 9', memo: '' },
-    { id: 'e2', name: '몽쿨 주식회사', bizNo: '', ceo: '몽드', address: '', memo: '' },
-    { id: 'e3', name: '개인사업자A', bizNo: '', ceo: '몽드', address: '', memo: '' },
-  ],
-  forwarders: [
-    {
-      id: 'fw1', name: '보명해이항공', tel: '070-8785-4598',
-      email: 'BOMYOUNG7731823@naver.com', contactPerson: '박상희',
-      bankAccounts: [
-        '국민은행 651001-01-226422 (KRW 원화)',
-        '하나은행 630-004820-313 (KRW 원화)',
-        '국민은행 651068-11-000987 (USD 외화)',
-      ],
-      memo: 'BOMYOUNG SHIPPING & AIRCARGO CO.,LTD. 인천 송도',
-    },
-  ],
-  customsBrokers: [
-    {
-      id: 'cb1', name: '코스모 관세사무소', tel: '032-773-5235',
-      fax: '032-765-5232', contactPerson: '주만배',
-      bankAccount: '국민은행 651001-01-312321 주만배(코스모관세사무소)', memo: '',
-    },
-  ],
-  suppliers: [
-    { id: 'sup1', name: 'Shenzhen Leleduo Technology Co., Ltd.', nameKor: '심천 러러둬', productGroup: '몽쿨 선풍기, 미스트선풍기 클립, 부품, 클립금형', contactPerson: 'wangchao', wechat: 'wangchao481125', email: 'wangchao@cnleleduo.com', tel: '+86 18665218008', address: '3rd Fl, Bldg 13, Area C, Fangxing Sci-Tech Park, No.33 Baonan Rd, Longgang, Shenzhen', bankAccount: '深圳南方农业银行龙平支行 Acc:6230 3558 9441 5618 수취:王超心', swift: '', paymentTerms: '법인결제 / 50% 선금-잔금', leadTime: '30일', memo: '' },
-    { id: 'sup2', name: 'Baoding Yimu Textile Co., Ltd.', nameKor: '바오딩 이무 텍스타일', productGroup: '등팩, 쿨시트, 보조리가방', contactPerson: 'Dawn', wechat: 'wxid_kikigar85s4722', email: '13933221009@163.com', tel: '+86 18931213810', address: 'Room 903-1, Bldg B, Shenzhen Bay (Baoding), No.3088 Lekai St, Baoding, Hebei', bankAccount: 'China Construction Bank Acc:13050166550800002300 수취:Baoding Yimu', swift: 'PCBCCNBJHBX', paymentTerms: 'FOB / 50% 선금-잔금', leadTime: '30일', memo: '' },
-    { id: 'sup3', name: 'Anhui Chuangnuo Medical Device Co., Ltd.', nameKor: '안휘 창눠 의료기기', productGroup: '아이스 등팩 젤 (Ice Pack)', contactPerson: 'Eva.fan', wechat: 'bmlian20l2', email: '', tel: '+86 18155603283', address: 'No.1 Dingxiang Rd, Shilipu Anqing City, Anhui', bankAccount: 'ICBC Acc:6222031309003155886 수취:Gao Linbing', swift: 'ICBKCNBJ', paymentTerms: '1차 100% 선결제, 2차 1차 출고시 결제', leadTime: '', memo: '' },
-    { id: 'sup4', name: 'Shenzhen Lianyi Industrial Co., Ltd.', nameKor: '심천 리엔이', productGroup: '물순환 시트', contactPerson: 'Vicky', wechat: 'leadfarlisa', email: '', tel: '+86 755-28827888', address: '11/F, Bldg 6, No.10 MaoTian Rd, PingShan, ShenZhen', bankAccount: 'ShenZhen Rural Commercial Bank Acc:0002 2595 2822', swift: 'SRCCCNBS', paymentTerms: '법인결제 / 50% 선금', leadTime: '35일', memo: '' },
-    { id: 'sup5', name: 'Zhongshan Gaodian / Xiaobudian Infant', nameKor: '중산 가오뎬', productGroup: '1구·2구 컵홀더', contactPerson: 'Zhu Anhua', wechat: 'wxid_mfmbr3zvbogm22', email: '', tel: '+86 13421445907', address: '3rd-4th Fl, No.99, Yulong 2nd Rd, Dongsheng Town, Zhongshan', bankAccount: 'Bank of China / ICBC Zhongshan Acc:6232602011000443483', swift: '', paymentTerms: '자체결제 / 30~50% 선금', leadTime: '30일', memo: '' },
-    { id: 'sup6', name: 'Tengzhou Beikeduo Children\'s Vehicle', nameKor: '텅저우 베이커러', productGroup: '2구 컵홀더 클립 금형', contactPerson: 'Guo Jingang', wechat: '_461103692', email: '', tel: '+86 18678274599', address: 'No.89 Longyang Town, Tengzhou City, Shandong', bankAccount: 'Agricultural Bank of China Acc:6228461316014929460 수취:Guo Jingang', swift: '', paymentTerms: '금형비 27,500CNY', leadTime: '', memo: '3월 중순 완성' },
-    { id: 'sup7', name: 'Yiwu Sanju Trading Co., Ltd.', nameKor: '이우 산쥐 무역', productGroup: '유모차 고리', contactPerson: 'Zuofei', wechat: 'zzyx88866', email: '', tel: '+86 14757957285', address: 'Unit 5, Bldg 17, Wancun, Beiyuan St, Yiwu City, Zhejiang', bankAccount: 'Agricultural Bank of China Acc:19647501040014272 수취:Zuo Fei', swift: 'ABOCCNBJ110', paymentTerms: '100% 선결제', leadTime: '', memo: '진행원함 처리' },
-    { id: 'sup8', name: 'Dongguan Jiacheng Brush Products Co., Ltd.', nameKor: '동관 쟈청 브러쉬', productGroup: '청소 브러쉬', contactPerson: '', wechat: 'aini1781325', email: '', tel: '', address: 'No.5, Lane 1, Shadun Market, Chashan Town, Dongguan', bankAccount: '', swift: '', paymentTerms: '', leadTime: '15~20일', memo: '' },
-    { id: 'sup9', name: '深圳市方林科技有限公司', nameKor: '심천 츠스이ら 과기', productGroup: '보조배터리', contactPerson: '', wechat: 'LY7788518', email: '', tel: '', address: 'Shenzhen', bankAccount: '', swift: '', paymentTerms: '', leadTime: '', memo: 'KC인증 / 10000mAh / KC인증서 수령완료' },
-  ],
-  products: [
-    { id: 'p1', brand: '몽쿨', category: '선풍기', name: '몽쿨 선풍기', option: '화이트', pcode: 'MGC-FAN', ocode: 'MGC-FAN-WH', cbm: 0.012, weightKg: 0.18, htsCode: '', customsRate: 0, supplierId: 'sup1', url: '', imageUrl: '', kcCert: '', memo: '' },
-    { id: 'p2', brand: '몽쿨', category: '선풍기', name: '몽쿨 선풍기', option: '핑크', pcode: 'MGC-FAN', ocode: 'MGC-FAN-PK', cbm: 0.012, weightKg: 0.18, htsCode: '', customsRate: 0, supplierId: 'sup1', url: '', imageUrl: '', kcCert: '', memo: '' },
-    { id: 'p3', brand: '몽쿨', category: '쿨시트', name: '쿨시트', option: '화이트 87×31cm', pcode: 'MGC-CS', ocode: 'MGC-CS-WH-87', cbm: 0.008, weightKg: 0.25, htsCode: '', customsRate: 0, supplierId: 'sup2', url: '', imageUrl: '', kcCert: '', memo: '' },
-    { id: 'p4', brand: '몽쿨', category: '등팩', name: '몽쿨 등팩', option: '화이트 15.5×20.5cm', pcode: 'MGC-BP', ocode: 'MGC-BP-WH', cbm: 0.005, weightKg: 0.15, htsCode: '', customsRate: 0, supplierId: 'sup2', url: '', imageUrl: '', kcCert: '', memo: '' },
-    { id: 'p5', brand: '아이노즈', category: '가방', name: '아이노즈 가방', option: '베이지', pcode: 'AIN-BAG', ocode: 'AIN-BAG-BG', cbm: 0.004, weightKg: 0.12, htsCode: '', customsRate: 0, supplierId: 'sup2', url: '', imageUrl: '', kcCert: '', memo: '' },
-    { id: 'p6', brand: '몽쿨', category: '저장가방', name: 'STORAGE BAG', option: '기본', pcode: 'MGC-SB', ocode: 'MGC-SB-01', cbm: 0.09, weightKg: 12, htsCode: '', customsRate: 0, supplierId: 'sup2', url: '', imageUrl: '', kcCert: '', memo: '실측 검증용 — 50개=4.5CBM' },
-  ],
-  invoiceGroups: [
-    {
-      id: 'inv1', invoiceNo: '11108-26-201908M', blNo: 'WHQM1094E010YBPS', mblNo: 'WHQM1094E003YBSTM',
-      forwarderId: 'fw1', customsBrokerId: 'cb1', importerId: 'e1',
-      pol: '웨이하이', pod: '평택', shipName: 'NEW GRAND PEACE', voyNo: '1094E',
-      cntrType: 'LCL', frtTerms: 'Collect (FOB)', arrivalDate: '2026-04-14', warehouseName: '대전 보세창고',
-      declareDate: '2026-04-14', declareCny: 61500, declareUsd: 9244, taxPriceKrw: 13826310,
-      declareRate: 218.12, totalCbm: 4.5, totalWeightKg: 600, totalPkgs: 50, itemDesc: 'STORAGE BAG',
-      customsDuty: 0, vat: 1382630,
-      logistics: { clearanceFee: 33000, extras: [] },
-      forwarding: {
-        items: [
-          { name: 'OCEAN FREIGHT', amount: 411930, vat: 0, memo: '해이비' },
-          { name: 'HANDLING CHARGE', amount: 20000, vat: 2000, memo: '' },
-          { name: 'CO CHARGE', amount: 33000, vat: 0, memo: '원산지' },
-          { name: 'OTHER CHARGE', amount: 270012, vat: 0, memo: '' },
-          { name: '내륙운송료-용달', amount: 95000, vat: 9500, memo: '용달' },
-        ],
-      },
-      extraCost: 0, attachments: [], saved: true, paidDate: '', memo: '',
-    },
-  ],
-  orders: [
-    {
-      id: 'o1', pid: 'p6', invoiceId: 'inv1', entityId: 'e1', poNumber: '',
-      qty: 50, rate: 218.12, price: 1230,
-      orderDate: '2026-03-19', factoryDate: '2026-04-04', factoryMemo: '',
-      whDate: '2026-04-08', shipDate: '2026-04-10', arriveDate: '2026-04-15',
-      costPerUnit: 0, costBreakdown: null, extraCosts: [], status: 'active', memo: '검증용 시드',
-    },
-    {
-      id: 'o2', pid: 'p1', invoiceId: null, entityId: 'e1', poNumber: '',
-      qty: 5000, rate: 218.51, price: 65,
-      orderDate: '2026-03-19', factoryDate: '', factoryMemo: '', whDate: '', shipDate: '', arriveDate: '',
-      costPerUnit: 0, costBreakdown: null, extraCosts: [], status: 'active', memo: '몽쿨 선풍기 1차',
-    },
-    {
-      id: 'o3', pid: 'p2', invoiceId: null, entityId: 'e1', poNumber: '',
-      qty: 3000, rate: 218.51, price: 65,
-      orderDate: '2026-03-19', factoryDate: '', factoryMemo: '', whDate: '', shipDate: '', arriveDate: '',
-      costPerUnit: 0, costBreakdown: null, extraCosts: [], status: 'active', memo: '',
-    },
-  ],
+  entities: [],
+  forwarders: [],
+  customsBrokers: [],
+  suppliers: [],
+  products: [],
+  invoiceGroups: [],
+  orders: [],
 };
 
 /* ---------- DB ---------- */
 const DB_KEY = 'mongcool_db';
-const DB_VERSION = '1.0';
+const DB_VERSION = '1.1'; // 1.1: 시드 비움 (사용자가 직접 입력)
 
 function freshDB() {
   return {
@@ -391,11 +314,20 @@ function loadDB() {
     const raw = localStorage.getItem(DB_KEY);
     if (!raw) return freshDB();
     const db = JSON.parse(raw);
-    // ensure all keys exist (forward-compat)
-    const fresh = freshDB();
-    for (const k of Object.keys(fresh)) {
-      if (!(k in db)) db[k] = fresh[k];
+
+    // v1.0 → v1.1 마이그레이션: 예전 시드 데이터(inv1, e1, sup1 등) 자동 청소
+    const looksLikeOldSeed =
+      (db.invoiceGroups || []).some((x) => x.id === 'inv1' && x.blNo === 'WHQM1094E010YBPS')
+      || ((db.entities || []).length === 3 && db.entities[0]?.id === 'e1' && db.entities[0]?.name === '주식회사 블랙픽');
+    if (looksLikeOldSeed && db.version !== DB_VERSION) {
+      console.info('[mongcool] 예전 시드 감지 → 빈 상태로 초기화');
+      return freshDB();
     }
+
+    // forward-compat: 누락 키 채움
+    const fresh = freshDB();
+    for (const k of Object.keys(fresh)) if (!(k in db)) db[k] = fresh[k];
+    db.version = DB_VERSION;
     return db;
   } catch (e) {
     console.error('loadDB failed', e);
@@ -611,7 +543,14 @@ function renderOrders(view) {
           <th>청구서</th><th>상태</th><th class="right">단가(KRW)</th>
         </tr></thead>
         <tbody>
-          ${arr.length === 0 ? `<tr><td colspan="12" class="empty">발주가 없어요. 우상단 [+ 발주 등록] 으로 추가하세요.</td></tr>` :
+          ${arr.length === 0 ? `<tr><td colspan="12" class="empty">
+            발주가 없어요. <br><br>
+            <strong>처음 시작하시나요?</strong> 다음 순서로 등록해주세요:<br>
+            ① <a href="#" onclick="go('parties');return false" style="color:var(--accent)">거래처</a> 탭 — 법인 / 포워딩사 / 관세사 / 중국공급처 등록 →
+            ② <a href="#" onclick="go('products');return false" style="color:var(--accent)">제품 DB</a> 탭 — 제품(브랜드/CBM/공급처) 등록 →
+            ③ 우상단 <strong>[+ 발주 등록]</strong> →
+            ④ <a href="#" onclick="go('invoices');return false" style="color:var(--accent)">청구서/원가</a> 탭에서 청구서 등록 → 자동 원가 산출
+          </td></tr>` :
             arr.map((o) => {
               const p = productById(o.pid);
               const inv = findById(state.db.invoiceGroups, o.invoiceId);
@@ -1154,6 +1093,15 @@ function openOrderModal(id) {
   const o = isEdit ? findById(state.db.orders, id) : null;
   if (isEdit && !o) { toast('발주 없음', 'error'); return; }
 
+  if (!isEdit && state.db.products.length === 0) {
+    toast('먼저 [제품 DB] 탭에서 제품을 등록하세요', 'error');
+    go('products'); return;
+  }
+  if (!isEdit && state.db.entities.length === 0) {
+    toast('먼저 [거래처] → 법인을 등록하세요', 'error');
+    go('parties'); return;
+  }
+
   const products = state.db.products;
   const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))];
   const initBrand = o ? productById(o.pid)?.brand || '' : (brands[0] || '');
@@ -1307,6 +1255,17 @@ function openInvoiceModal(id) {
   const isEdit = !!id;
   const ig = isEdit ? findById(state.db.invoiceGroups, id) : null;
   if (isEdit && !ig) { toast('청구서 없음', 'error'); return; }
+
+  if (!isEdit) {
+    const need = [];
+    if (state.db.entities.length === 0) need.push('법인');
+    if (state.db.forwarders.length === 0) need.push('포워딩사');
+    if (state.db.customsBrokers.length === 0) need.push('관세사');
+    if (need.length > 0) {
+      toast(`먼저 [거래처] 탭에서 ${need.join(' / ')} 등록 필요`, 'error');
+      go('parties'); return;
+    }
+  }
 
   _invDraft = isEdit ? structuredClone(ig) : {
     id: uid('inv'), invoiceNo: '', blNo: '', mblNo: '',
