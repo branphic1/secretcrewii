@@ -220,11 +220,76 @@ table{width:100%;border-collapse:collapse}
 .divider{height:1px;background:var(--border);margin:16px 0}
 .kbd{display:inline-block;padding:1px 5px;font-family:var(--mono);font-size:11px;background:var(--surface-2);border:1px solid var(--border);border-radius:3px;color:var(--text2)}
 
+/* schedule / calendar */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:12px}
+.cal-cell{background:var(--surface);min-height:96px;padding:6px;display:flex;flex-direction:column;gap:3px;font-size:12px}
+.cal-head{background:var(--surface-2);font-size:11px;font-weight:600;color:var(--text2);text-align:center;padding:8px 6px;text-transform:uppercase;letter-spacing:.04em}
+.cal-cell.other-month{background:var(--surface-2);color:var(--text3)}
+.cal-cell.today{background:var(--accent-bg)}
+.cal-date{font-size:11px;font-weight:600;color:var(--text2);font-family:var(--mono)}
+.cal-cell.today .cal-date{color:var(--accent)}
+.cal-evt{font-size:11px;padding:2px 5px;border-radius:3px;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.cal-evt.evt-shoot{background:#fde7f3;color:#9a2370;border-color:#f0c0d8}
+.cal-evt.evt-sample{background:#e9f0ff;color:#1a4a8b;border-color:#bbcae0}
+.cal-evt.evt-order{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-border)}
+.cal-evt.evt-meeting{background:#f0e8fb;color:#5b248c;border-color:#d4c2e8}
+.cal-evt.evt-other{background:var(--surface-2);color:var(--text2);border-color:var(--border-strong)}
+.cal-evt.evt-done{opacity:.45;text-decoration:line-through}
+.cal-nav{display:flex;align-items:center;gap:8px}
+.cal-nav .cal-title{font-size:18px;font-weight:600;letter-spacing:-.01em;min-width:140px;text-align:center}
+
+.evt-list{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.evt-row{display:grid;grid-template-columns:90px 80px 1fr auto;gap:12px;align-items:center;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;transition:all .12s}
+.evt-row:hover{border-color:var(--accent-border);box-shadow:var(--shadow)}
+.evt-row.evt-done-row{opacity:.55;background:var(--surface-2)}
+.evt-row .evt-date{font-family:var(--mono);font-weight:600;color:var(--accent)}
+.evt-row.evt-done-row .evt-date{color:var(--text2);text-decoration:line-through}
+
+/* gallery */
+.gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:12px}
+.gal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .15s;display:flex;flex-direction:column}
+.gal-card:hover{border-color:var(--accent-border);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.gal-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--surface-2);display:block}
+.gal-img-empty{width:100%;aspect-ratio:1;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--text3)}
+.gal-meta{padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.gal-title{font-size:13px;font-weight:600;line-height:1.3}
+.gal-sub{font-size:11px;color:var(--text2)}
+.gal-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:2px}
+
+/* defect card */
+.def-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;display:grid;grid-template-columns:90px 1fr auto;gap:14px;align-items:start}
+.def-card+.def-card{margin-top:10px}
+.def-card.severity-high{border-left:4px solid var(--danger)}
+.def-card.severity-mid{border-left:4px solid var(--warn)}
+.def-card.severity-low{border-left:4px solid var(--accent)}
+.def-thumb{width:90px;height:90px;border-radius:var(--radius-sm);object-fit:cover;background:var(--surface-2);border:1px solid var(--border)}
+.def-thumb-empty{width:90px;height:90px;border-radius:var(--radius-sm);background:var(--surface-2);border:1px dashed var(--border-strong);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:24px}
+
+/* link list */
+.link-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.link-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border);font-size:12px}
+.link-item a{color:var(--accent);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.link-item .link-label{font-weight:500;color:var(--text)}
+.link-kind{font-size:10px;padding:2px 6px;border-radius:3px;background:var(--info-bg);color:var(--info);border:1px solid var(--info-border);text-transform:uppercase;font-weight:600}
+
+/* timeline */
+.tl{position:relative;margin:12px 0 4px 8px;padding-left:20px;border-left:2px solid var(--border)}
+.tl-item{position:relative;padding:8px 12px;margin-bottom:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px}
+.tl-item::before{content:'';position:absolute;left:-27px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--surface)}
+.tl-item.tl-sample::before{background:var(--info)}
+.tl-item.tl-order::before{background:var(--warn)}
+.tl-item.tl-defect::before{background:var(--danger)}
+.tl-item.tl-shoot::before{background:#9a2370}
+.tl-date{font-family:var(--mono);font-size:11px;color:var(--text2);font-weight:600}
+.tl-body{margin-top:2px}
+
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
   .sidebar{display:none}
   .field-row,.field-row-3,.field-row-4{grid-template-columns:1fr}
   .inv-body{grid-template-columns:1fr}
+  .cal-cell{min-height:60px;font-size:10px}
+  .cal-evt{font-size:9px}
 }
 </style>
 </head>
@@ -250,10 +315,13 @@ table{width:100%;border-collapse:collapse}
     </div>
 
     <div class="nav" id="nav">
+      <div class="nav-item" data-tab="schedule"><span class="nav-icon">📅</span>일정 / 촬영</div>
       <div class="nav-item" data-tab="orders"><span class="nav-icon">🚛</span>발주 추적</div>
       <div class="nav-item" data-tab="invoices"><span class="nav-icon">🧾</span>청구서/원가</div>
       <div class="nav-item" data-tab="samples"><span class="nav-icon">🧪</span>샘플 품평</div>
+      <div class="nav-item" data-tab="defects"><span class="nav-icon">🛑</span>완제품 불량</div>
       <div class="nav-item" data-tab="products"><span class="nav-icon">📦</span>제품 DB</div>
+      <div class="nav-item" data-tab="gallery"><span class="nav-icon">🎨</span>디자이너 갤러리</div>
       <div class="nav-item" data-tab="companies"><span class="nav-icon">🏭</span>중국 공급처</div>
       <div class="nav-item" data-tab="parties"><span class="nav-icon">🏢</span>국내 거래처</div>
       <div class="nav-item" data-tab="settings"><span class="nav-icon">⚙</span>설정</div>
@@ -296,6 +364,27 @@ const escHTML = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;
 const todayISO = () => new Date().toISOString().slice(0, 10);
 const nowISO = () => new Date().toISOString();
 const debounce = (fn, ms = 500) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+function restoreFocus(sel) {
+  setTimeout(() => {
+    const el = $(sel);
+    if (!el) return;
+    el.focus();
+    if (el.setSelectionRange && typeof el.value === 'string') {
+      const v = el.value.length;
+      try { el.setSelectionRange(v, v); } catch {}
+    }
+  }, 0);
+}
+function ymd(d) {
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function parseISO(s) {
+  if (!s) return null;
+  const [y, m, d] = String(s).slice(0, 10).split('-').map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
 
 function toast(msg, type = '') {
   const host = $('#toast-root');
@@ -318,11 +407,14 @@ const SEED = {
   samples: [],
   invoiceGroups: [],
   orders: [],
+  defects: [],         // 완제품 불량
+  designAssets: [],    // 디자이너 갤러리 자산
+  events: [],          // 일정 / 촬영
 };
 
 /* ---------- DB ---------- */
 const DB_KEY = 'mongcool_db';
-const DB_VERSION = '1.1'; // 1.1: 시드 비움 (사용자가 직접 입력)
+const DB_VERSION = '1.2'; // 1.2: 샘플 차수/진행상황/예정일 + 완제품불량 + 디자이너갤러리 + 일정 탭
 
 function freshDB() {
   return {
@@ -336,6 +428,9 @@ function freshDB() {
     samples: structuredClone(SEED.samples),
     invoiceGroups: structuredClone(SEED.invoiceGroups),
     orders: structuredClone(SEED.orders),
+    defects: structuredClone(SEED.defects),
+    designAssets: structuredClone(SEED.designAssets),
+    events: structuredClone(SEED.events),
     filters: { brand: null, entity: null },
   };
 }
@@ -528,10 +623,13 @@ function render() {
   const title = $('#topbar-title');
   const actions = $('#topbar-actions');
   switch (state.tab) {
+    case 'schedule':  title.textContent = '일정 / 촬영';      actions.innerHTML = '<button class="btn btn-primary" onclick="openEventModal()">+ 일정 등록</button>'; renderSchedule(view); break;
     case 'orders':    title.textContent = '발주 추적';        actions.innerHTML = '<button class="btn btn-primary" onclick="openOrderModal()">+ 발주 등록</button>'; renderOrders(view); break;
     case 'invoices':  title.textContent = '청구서 / 원가';    actions.innerHTML = '<button class="btn btn-primary" onclick="openInvoiceModal()">+ 청구서 등록</button>'; renderInvoices(view); break;
     case 'samples':   title.textContent = '샘플 품평';        actions.innerHTML = '<button class="btn btn-primary" onclick="openSampleModal()">+ 샘플 등록</button>'; renderSamples(view); break;
+    case 'defects':   title.textContent = '완제품 불량';       actions.innerHTML = '<button class="btn btn-primary" onclick="openDefectModal()">+ 불량 등록</button>'; renderDefects(view); break;
     case 'products':  title.textContent = '제품 DB';           actions.innerHTML = '<button class="btn" onclick="downloadProductTemplate()">엑셀 템플릿</button> <button class="btn" onclick="$(\'#xlsx-import-products\').click()">엑셀 일괄 업로드</button> <button class="btn btn-primary" onclick="openProductModal()">+ 제품 등록</button>'; renderProducts(view); break;
+    case 'gallery':   title.textContent = '디자이너 갤러리';   actions.innerHTML = '<button class="btn btn-primary" onclick="openDesignAssetModal()">+ 자료 등록</button>'; renderGallery(view); break;
     case 'companies': title.textContent = '중국 공급처 평가';  actions.innerHTML = '<button class="btn btn-primary" onclick="openSupplierModal()">+ 공급처 등록</button>'; renderCompanies(view); break;
     case 'parties':   title.textContent = '국내 거래처';        actions.innerHTML = ''; renderParties(view); break;
     case 'settings':  title.textContent = '설정';              actions.innerHTML = ''; renderSettings(view); break;
@@ -551,16 +649,7 @@ function populateFilters() {
  *  TAB 1: ORDERS
  * ===================================================================== */
 function renderOrders(view) {
-  const arr = applyFilters(state.db.orders).slice().sort((a, b) => (b.orderDate || '').localeCompare(a.orderDate || ''));
-  const stats = (() => {
-    const total = arr.length;
-    const done = arr.filter((o) => o.arriveDate).length;
-    const inProg = arr.filter((o) => !o.arriveDate).length;
-    const delay = arr.filter((o) => o.arriveDate && (o.extraCosts || []).length > 0).length;
-    const costed = arr.filter((o) => o.invoiceId && o.costBreakdown).length;
-    const uncosted = arr.filter((o) => !o.invoiceId).length;
-    return { total, done, inProg, delay, costed, uncosted };
-  })();
+  const baseArr = applyFilters(state.db.orders).slice().sort((a, b) => (b.orderDate || '').localeCompare(a.orderDate || ''));
 
   view.innerHTML = `
     <div class="toolbar">
@@ -580,54 +669,33 @@ function renderOrders(view) {
           <th>공장출고</th><th>위해입고</th><th>선적</th><th>국내입고</th>
           <th>청구서</th><th>상태</th><th class="right">단가(KRW)</th>
         </tr></thead>
-        <tbody>
-          ${arr.length === 0 ? `<tr><td colspan="12" class="empty">
-            발주가 없어요. <br><br>
-            <strong>처음 시작하시나요?</strong> 다음 순서로 등록해주세요:<br>
-            ① <a href="#" onclick="go('parties');return false" style="color:var(--accent)">거래처</a> 탭 — 법인 / 포워딩사 / 관세사 / 중국공급처 등록 →
-            ② <a href="#" onclick="go('products');return false" style="color:var(--accent)">제품 DB</a> 탭 — 제품(브랜드/CBM/공급처) 등록 →
-            ③ 우상단 <strong>[+ 발주 등록]</strong> →
-            ④ <a href="#" onclick="go('invoices');return false" style="color:var(--accent)">청구서/원가</a> 탭에서 청구서 등록 → 자동 원가 산출
-          </td></tr>` :
-            arr.map((o) => {
-              const p = productById(o.pid);
-              const inv = findById(state.db.invoiceGroups, o.invoiceId);
-              return `<tr class="clickable" onclick="openOrderModal('${o.id}')">
-                <td>${escHTML(p?.brand || '-')}</td>
-                <td><strong>${escHTML(p?.name || '-')}</strong> <span class="muted">${escHTML(p?.option || '')}</span></td>
-                <td>${escHTML(entityName(o.entityId))}</td>
-                <td class="right mono">${fmt(o.qty)}</td>
-                <td class="mono">${escHTML(o.orderDate || '')}</td>
-                <td class="mono">${escHTML(o.factoryDate || (o.factoryMemo ? '🟠' : '-'))}</td>
-                <td class="mono">${escHTML(o.whDate || '-')}</td>
-                <td class="mono">${escHTML(o.shipDate || '-')}</td>
-                <td class="mono">${escHTML(o.arriveDate || '-')}</td>
-                <td>${inv ? '<span class="pill pill-info mono" style="font-size:11px">' + escHTML(inv.blNo || inv.invoiceNo || inv.id) + '</span>' : '<span class="muted2">-</span>'}</td>
-                <td>${statusPill(o)}</td>
-                <td class="right mono">${o.costPerUnit ? fmtKRW(o.costPerUnit) : '<span class="muted2">미산</span>'}</td>
-              </tr>`;
-            }).join('')}
-        </tbody>
+        <tbody id="orders-tbody"></tbody>
       </table>
-      <div class="stats-bar">
-        <span>전체 <strong>${stats.total}</strong>건</span>
-        <span>진행중 <strong>${stats.inProg}</strong></span>
-        <span>완료 <strong>${stats.done}</strong></span>
-        <span>지연 <strong>${stats.delay}</strong></span>
-        <span>원가산출 <strong>${stats.costed}</strong></span>
-        <span>청구서 미배정 <strong>${stats.uncosted}</strong></span>
-      </div>
+      <div class="stats-bar" id="orders-stats"></div>
     </div>
   `;
 
-  $('#search-orders').oninput = (e) => { state.search = e.target.value; renderOrders(view); };
-  $('#filter-status').onchange = (e) => {
-    const v = e.target.value;
-    if (!v) { renderOrders(view); return; }
-    const filtered = state.db.orders.filter((o) => getOrderStatus(o) === v);
-    // re-render with the filtered set inline
-    const tbody = $('#orders-tbl tbody');
-    tbody.innerHTML = filtered.map((o) => {
+  function paint() {
+    const status = $('#filter-status')?.value || '';
+    let arr = baseArr;
+    if (status) arr = arr.filter((o) => getOrderStatus(o) === status);
+    const stats = {
+      total: arr.length,
+      done: arr.filter((o) => o.arriveDate).length,
+      inProg: arr.filter((o) => !o.arriveDate).length,
+      delay: arr.filter((o) => o.arriveDate && (o.extraCosts || []).length > 0).length,
+      costed: arr.filter((o) => o.invoiceId && o.costBreakdown).length,
+      uncosted: arr.filter((o) => !o.invoiceId).length,
+    };
+    const tbody = $('#orders-tbody');
+    tbody.innerHTML = arr.length === 0 ? `<tr><td colspan="12" class="empty">
+      발주가 없어요. <br><br>
+      <strong>처음 시작하시나요?</strong> 다음 순서로 등록해주세요:<br>
+      ① <a href="#" onclick="go('parties');return false" style="color:var(--accent)">거래처</a> 탭 — 법인 / 포워딩사 / 관세사 / 중국공급처 등록 →
+      ② <a href="#" onclick="go('products');return false" style="color:var(--accent)">제품 DB</a> 탭 — 제품(브랜드/CBM/공급처) 등록 →
+      ③ 우상단 <strong>[+ 발주 등록]</strong> →
+      ④ <a href="#" onclick="go('invoices');return false" style="color:var(--accent)">청구서/원가</a> 탭에서 청구서 등록 → 자동 원가 산출
+    </td></tr>` : arr.map((o) => {
       const p = productById(o.pid);
       const inv = findById(state.db.invoiceGroups, o.invoiceId);
       return `<tr class="clickable" onclick="openOrderModal('${o.id}')">
@@ -636,16 +704,34 @@ function renderOrders(view) {
         <td>${escHTML(entityName(o.entityId))}</td>
         <td class="right mono">${fmt(o.qty)}</td>
         <td class="mono">${escHTML(o.orderDate || '')}</td>
-        <td class="mono">${escHTML(o.factoryDate || '-')}</td>
+        <td class="mono">${escHTML(o.factoryDate || (o.factoryMemo ? '🟠' : '-'))}</td>
         <td class="mono">${escHTML(o.whDate || '-')}</td>
         <td class="mono">${escHTML(o.shipDate || '-')}</td>
         <td class="mono">${escHTML(o.arriveDate || '-')}</td>
-        <td>${inv ? '<span class="pill pill-info mono">' + escHTML(inv.blNo || inv.id) + '</span>' : '<span class="muted2">-</span>'}</td>
+        <td>${inv ? '<span class="pill pill-info mono" style="font-size:11px">' + escHTML(inv.blNo || inv.invoiceNo || inv.id) + '</span>' : '<span class="muted2">-</span>'}</td>
         <td>${statusPill(o)}</td>
         <td class="right mono">${o.costPerUnit ? fmtKRW(o.costPerUnit) : '<span class="muted2">미산</span>'}</td>
       </tr>`;
     }).join('');
-  };
+    $('#orders-stats').innerHTML = `
+      <span>전체 <strong>${stats.total}</strong>건</span>
+      <span>진행중 <strong>${stats.inProg}</strong></span>
+      <span>완료 <strong>${stats.done}</strong></span>
+      <span>지연 <strong>${stats.delay}</strong></span>
+      <span>원가산출 <strong>${stats.costed}</strong></span>
+      <span>청구서 미배정 <strong>${stats.uncosted}</strong></span>
+    `;
+  }
+
+  $('#search-orders').oninput = debounce(() => {
+    state.search = $('#search-orders').value;
+    // applyFilters depends on state.search → recompute baseArr inline
+    const arr2 = applyFilters(state.db.orders).slice().sort((a, b) => (b.orderDate || '').localeCompare(a.orderDate || ''));
+    baseArr.length = 0; arr2.forEach((x) => baseArr.push(x));
+    paint();
+  }, 200);
+  $('#filter-status').onchange = paint;
+  paint();
 }
 
 /* =====================================================================
@@ -771,18 +857,21 @@ function deleteInvoice(id) {
  *  TAB 3: PRODUCTS
  * ===================================================================== */
 function renderProducts(view) {
-  const arr = state.db.products.filter((p) => {
-    if (!state.search) return true;
-    const q = state.search.toLowerCase();
-    return [p.name, p.option, p.pcode, p.ocode, p.brand, p.category].some((s) => String(s || '').toLowerCase().includes(q));
-  });
   view.innerHTML = `
     <div class="toolbar">
       <div class="search"><input id="search-products" placeholder="브랜드/제품/옵션/코드 검색…" value="${escHTML(state.search)}" /></div>
-      <span class="muted">총 <strong>${arr.length}</strong>개 / ${state.db.products.length}개</span>
+      <span class="muted" id="prod-count"></span>
     </div>
     <input type="file" id="xlsx-import-products" accept=".xlsx,.xls" class="hidden" />
-    ${arr.length === 0 ? '<div class="empty">제품이 없어요. [+ 제품 등록] 또는 [엑셀 일괄 업로드] 를 시작점으로.</div>' : `
+    <div id="prod-host"></div>
+  `;
+
+  function paint() {
+    const q = state.search.toLowerCase();
+    const arr = state.db.products.filter((p) => !q || [p.name, p.option, p.pcode, p.ocode, p.brand, p.category].some((s) => String(s || '').toLowerCase().includes(q)));
+    $('#prod-count').innerHTML = `총 <strong>${arr.length}</strong>개 / ${state.db.products.length}개`;
+    const host = $('#prod-host');
+    host.innerHTML = arr.length === 0 ? '<div class="empty">제품이 없어요. [+ 제품 등록] 또는 [엑셀 일괄 업로드] 를 시작점으로.</div>' : `
       <div class="product-grid">
         ${arr.map((p) => {
           const sup = findById(state.db.suppliers, p.supplierId);
@@ -794,12 +883,14 @@ function renderProducts(view) {
               ${p.kcCert ? '<span class="pill pill-info">KC ✓</span>' : ''}
               ${(p.images || []).length > 0 ? `<span class="pill pill-info">📷 ${p.images.length}</span>` : ''}
             </div>
-            ${cover ? `<img src="${cover}" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-sm);margin:4px 0;cursor:zoom-in" onclick="openLightbox('${cover.replace(/'/g, "\\'")}', '${escHTML(p.name)}')" />` : ''}
-            <div class="prod-name">${escHTML(p.name)}</div>
+            ${cover ? `<img src="${cover}" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-sm);margin:4px 0;cursor:zoom-in" onclick="openProductDetail('${p.id}')" />` : ''}
+            <div class="prod-name" style="cursor:pointer" onclick="openProductDetail('${p.id}')">${escHTML(p.name)}</div>
             <div class="prod-opt">${escHTML(p.option || '-')}</div>
             <div class="prod-meta">${escHTML(p.pcode)} / ${escHTML(p.ocode)} · CBM ${p.cbm}㎥ · ${p.weightKg}kg</div>
             <div class="prod-meta muted2">공급처: ${escHTML(sup?.nameKor || sup?.name || '-')}</div>
+            ${p.shootingNote ? `<div class="prod-meta" style="color:#9a2370">📸 ${escHTML(p.shootingNote)}</div>` : ''}
             <div class="prod-actions">
+              <button class="btn btn-sm btn-primary" onclick="openProductDetail('${p.id}')">📖 이력</button>
               <button class="btn btn-sm" onclick="openProductModal('${p.id}')">편집</button>
               <button class="btn btn-sm" onclick="duplicateProduct('${p.id}')">복제</button>
               <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p.id}')">삭제</button>
@@ -807,10 +898,12 @@ function renderProducts(view) {
           </div>`;
         }).join('')}
       </div>
-    `}
-  `;
-  $('#search-products').oninput = (e) => { state.search = e.target.value; renderProducts(view); };
+    `;
+  }
+
+  $('#search-products').oninput = debounce(() => { state.search = $('#search-products').value; paint(); }, 200);
   $('#xlsx-import-products').onchange = importProductsXlsx;
+  paint();
 }
 
 function duplicateProduct(id) {
@@ -991,11 +1084,11 @@ function renderSuppliers(body) {
     </div>
     <div id="sup-list">${renderSupplierList(state.db.suppliers)}</div>
   `;
-  $('#sup-search').oninput = (e) => {
-    const q = e.target.value.toLowerCase();
+  $('#sup-search').oninput = debounce(() => {
+    const q = $('#sup-search').value.toLowerCase();
     const filt = state.db.suppliers.filter((s) => [s.name, s.nameKor, s.wechat, s.productGroup, s.contactPerson].some((v) => String(v || '').toLowerCase().includes(q)));
     $('#sup-list').innerHTML = renderSupplierList(filt);
-  };
+  }, 200);
 }
 function renderSupplierList(list) {
   if (list.length === 0) return '<div class="empty">결과 없음</div>';
@@ -1154,67 +1247,95 @@ function openLightbox(dataUrl, caption) {
 /* =====================================================================
  *  TAB: SAMPLES (샘플 품평)
  * ===================================================================== */
+const SAMPLE_PROGRESS = ['요청', '제작중', '배송중', '도착', '평가중', '결재대기'];
+
 function renderSamples(view) {
-  const arr = state.db.samples.slice().sort((a, b) => (b.receivedDate || '').localeCompare(a.receivedDate || ''));
-  const filt = state.search ? arr.filter((s) => [s.name, s.brand, s.category, s.memo].some((v) => String(v || '').toLowerCase().includes(state.search.toLowerCase()))) : arr;
   view.innerHTML = `
     <div class="toolbar">
-      <div class="search"><input id="search-samples" placeholder="샘플명/브랜드/카테고리 검색…" value="${escHTML(state.search)}" /></div>
-      <select id="filter-sample-status" class="btn" style="padding:8px">
-        <option value="">전체 상태</option>
-        <option value="pending">평가중</option>
-        <option value="approved">승인 (발주예정)</option>
-        <option value="rejected">반려</option>
+      <div class="search"><input id="search-samples" placeholder="샘플명/브랜드/카테고리/메모 검색…" value="${escHTML(state.search)}" /></div>
+      <select id="filter-sample-decision" class="btn" style="padding:8px">
+        <option value="">전체 결재</option>
+        <option value="pending">⏳ 결재대기</option>
+        <option value="approved">✓ 진행 (발주예정)</option>
+        <option value="rejected">✗ 반려</option>
       </select>
-      <span class="muted">총 <strong>${arr.length}</strong>개</span>
+      <select id="filter-sample-progress" class="btn" style="padding:8px">
+        <option value="">전체 진행</option>
+        ${SAMPLE_PROGRESS.map((p) => `<option value="${p}">${p}</option>`).join('')}
+      </select>
+      <span class="muted" id="sample-count"></span>
     </div>
-    ${filt.length === 0 ? `<div class="empty">
-      샘플이 없어요.<br><br>
-      공장에서 샘플을 받았을 때 우상단 <strong>[+ 샘플 등록]</strong> 으로 사진과 함께 기록하세요.<br>
-      품평회에서 별점/장단점/평가자를 누적 기록하고, 승인되면 <strong>제품 DB로 전환</strong>할 수 있어요.
-    </div>` : `<div id="sample-list">${filt.map(renderSampleCard).join('')}</div>`}
+    <div id="sample-host"></div>
   `;
-  $('#search-samples').oninput = (e) => { state.search = e.target.value; renderSamples(view); };
-  $('#filter-sample-status').onchange = (e) => {
-    const v = e.target.value;
-    const list = v ? filt.filter((s) => (s.status || 'pending') === v) : filt;
-    const wrap = $('#sample-list');
-    if (wrap) wrap.innerHTML = list.length === 0 ? '<div class="empty">결과 없음</div>' : list.map(renderSampleCard).join('');
-  };
+
+  function paint() {
+    const q = state.search.toLowerCase();
+    const fd = $('#filter-sample-decision')?.value || '';
+    const fp = $('#filter-sample-progress')?.value || '';
+    const arr = state.db.samples.slice().sort((a, b) => (b.receivedDate || '').localeCompare(a.receivedDate || ''));
+    const filt = arr.filter((s) => {
+      if (q && ![s.name, s.brand, s.category, s.memo].some((v) => String(v || '').toLowerCase().includes(q))) return false;
+      const decision = s.finalDecision || s.status || 'pending';
+      if (fd && decision !== fd) return false;
+      if (fp && (s.progress || '') !== fp) return false;
+      return true;
+    });
+    $('#sample-count').innerHTML = `총 <strong>${arr.length}</strong>개`;
+    $('#sample-host').innerHTML = filt.length === 0
+      ? `<div class="empty">
+          샘플이 없어요.<br><br>
+          공장에서 샘플을 받았을 때 우상단 <strong>[+ 샘플 등록]</strong> 으로 사진과 함께 기록하세요.<br>
+          차수·진행상황·도착예정일·결재상태까지 한 카드에 누적됩니다.
+        </div>`
+      : `<div id="sample-list">${filt.map(renderSampleCard).join('')}</div>`;
+  }
+
+  $('#search-samples').oninput = debounce(() => { state.search = $('#search-samples').value; paint(); }, 200);
+  $('#filter-sample-decision').onchange = paint;
+  $('#filter-sample-progress').onchange = paint;
+  paint();
 }
 function renderSampleCard(s) {
   const sup = findById(state.db.suppliers, s.supplierId);
-  const status = s.status || 'pending';
-  const statusPills = {
-    pending: '<span class="pill pill-warn">⏳ 평가중</span>',
-    approved: '<span class="pill pill-accent">✓ 승인</span>',
+  const decision = s.finalDecision || s.status || 'pending';
+  const decisionPills = {
+    pending: '<span class="pill pill-warn">⏳ 결재대기</span>',
+    approved: '<span class="pill pill-accent">✓ 진행</span>',
     rejected: '<span class="pill pill-danger">✗ 반려</span>',
   };
   const evals = s.evaluations || [];
   const avg = evals.length ? (evals.reduce((sum, e) => sum + (Number(e.rating) || 0), 0) / evals.length).toFixed(1) : null;
   const cover = (s.images && s.images[0]) ? s.images[0].dataUrl : null;
+  const round = Number(s.sampleRound) || 1;
+  const progress = s.progress || '평가중';
+  const exp = s.expectedDate;
   return `
     <div class="sample-card" onclick="openSampleModal('${s.id}')" style="cursor:pointer">
       ${cover ? `<img class="sample-thumb" src="${cover}" alt="" />` : '<div class="sample-thumb-empty">📷</div>'}
       <div>
         <div class="flex" style="gap:8px;flex-wrap:wrap">
+          <span class="pill pill-info">${round}차 샘플</span>
+          <span class="pill pill-muted">📋 ${escHTML(progress)}</span>
+          ${decisionPills[decision]}
           ${s.brand ? `<span class="pill pill-accent">${escHTML(s.brand)}</span>` : ''}
           ${s.category ? `<span class="pill pill-muted">${escHTML(s.category)}</span>` : ''}
-          ${statusPills[status]}
           ${avg ? `<span class="pill pill-info">⭐ ${avg} (${evals.length})</span>` : ''}
         </div>
         <div style="font-size:15px;font-weight:600;margin-top:6px">${escHTML(s.name)}</div>
         <div class="muted" style="font-size:12px;margin-top:2px">
           공급처: ${escHTML(sup?.nameKor || sup?.name || '-')} ·
-          접수일: <span class="mono">${escHTML(s.receivedDate || '-')}</span> ·
-          사진 ${(s.images || []).length}장
+          접수일 <span class="mono">${escHTML(s.receivedDate || '-')}</span>
+          ${exp ? ` · 예정일 <span class="mono" style="color:var(--accent);font-weight:600">${escHTML(exp)}</span>` : ''}
+          · 사진 ${(s.images || []).length}장
+          ${(s.attachments || []).length > 0 ? ` · 📎 ${s.attachments.length}` : ''}
         </div>
+        ${s.progressNote ? `<div class="muted" style="font-size:12px;margin-top:4px">진행: ${escHTML(s.progressNote)}</div>` : ''}
         ${s.memo ? `<div class="muted" style="font-size:12px;margin-top:4px">${escHTML(s.memo)}</div>` : ''}
         ${evals.length > 0 ? `<div class="muted2" style="font-size:11px;margin-top:6px">최근 평가: ${escHTML(evals[evals.length - 1].evaluator || '-')} — ${escHTML((evals[evals.length - 1].note || '').slice(0, 60))}</div>` : ''}
       </div>
       <div class="flex" onclick="event.stopPropagation()">
         <button class="btn btn-sm" onclick="openSampleModal('${s.id}')">편집</button>
-        ${status === 'approved' ? `<button class="btn btn-sm btn-primary" onclick="convertSampleToProduct('${s.id}')">→ 제품등록</button>` : ''}
+        ${decision === 'approved' ? `<button class="btn btn-sm btn-primary" onclick="convertSampleToProduct('${s.id}')">→ 제품등록</button>` : ''}
         <button class="btn btn-sm btn-danger" onclick="deleteSample('${s.id}')">삭제</button>
       </div>
     </div>
@@ -1228,8 +1349,17 @@ function openSampleModal(id) {
   if (isEdit && !s) { toast('샘플 없음', 'error'); return; }
   _sampleDraft = isEdit ? structuredClone(s) : {
     id: uid('sm'), name: '', brand: '', category: '', supplierId: state.db.suppliers[0]?.id || '',
-    receivedDate: todayISO(), images: [], evaluations: [], status: 'pending', memo: '',
+    receivedDate: todayISO(), expectedDate: '', sampleRound: 1, progress: '제작중',
+    progressNote: '', images: [], evaluations: [], attachments: [],
+    status: 'pending', finalDecision: 'pending', memo: '',
   };
+  // 백필 (예전 데이터)
+  _sampleDraft.sampleRound = _sampleDraft.sampleRound || 1;
+  _sampleDraft.progress = _sampleDraft.progress || '평가중';
+  _sampleDraft.expectedDate = _sampleDraft.expectedDate || '';
+  _sampleDraft.attachments = _sampleDraft.attachments || [];
+  _sampleDraft.finalDecision = _sampleDraft.finalDecision || _sampleDraft.status || 'pending';
+
   showModal(sampleModalHTML(isEdit, id), { lg: true });
   bindSampleModal();
 }
@@ -1238,22 +1368,35 @@ function sampleModalHTML(isEdit, id) {
   const brands = [...new Set(state.db.products.map((p) => p.brand).filter(Boolean))];
   return `
     <div class="modal-header">
-      <div class="modal-title">${isEdit ? '샘플 편집' : '샘플 등록 (공장 도착 기록)'}</div>
+      <div class="modal-title">${isEdit ? `샘플 편집 (${Number(s.sampleRound) || 1}차)` : '샘플 등록 (공장 도착 기록)'}</div>
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="field-row">
         <div class="field"><label class="field-label">샘플명*</label><input data-sk="name" value="${escHTML(s.name)}" placeholder="예: 몽쿨 미스트선풍기 v3 시제품" /></div>
+        <div class="field"><label class="field-label">샘플 차수</label>
+          <select data-sk="sampleRound">
+            ${[1,2,3,4,5,6,7,8,9,10].map((n) => `<option value="${n}" ${Number(s.sampleRound) === n ? 'selected' : ''}>${n}차</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="field-row-3">
         <div class="field"><label class="field-label">접수일</label><input type="date" data-sk="receivedDate" value="${s.receivedDate}" /></div>
+        <div class="field"><label class="field-label">📅 도착 예정일</label><input type="date" data-sk="expectedDate" value="${s.expectedDate || ''}" /></div>
+        <div class="field"><label class="field-label">📋 진행상황</label>
+          <select data-sk="progress">
+            ${SAMPLE_PROGRESS.map((p) => `<option value="${p}" ${s.progress === p ? 'selected' : ''}>${p}</option>`).join('')}
+          </select>
+        </div>
       </div>
       <div class="field-row-3">
         <div class="field"><label class="field-label">브랜드</label><input data-sk="brand" value="${escHTML(s.brand)}" list="sample-brand-list" /><datalist id="sample-brand-list">${brands.map((b) => `<option value="${escHTML(b)}">`).join('')}</datalist></div>
         <div class="field"><label class="field-label">카테고리</label><input data-sk="category" value="${escHTML(s.category)}" placeholder="선풍기 / 쿨시트 …" /></div>
-        <div class="field"><label class="field-label">상태</label>
-          <select data-sk="status">
-            <option value="pending" ${s.status === 'pending' ? 'selected' : ''}>⏳ 평가중</option>
-            <option value="approved" ${s.status === 'approved' ? 'selected' : ''}>✓ 승인 (발주예정)</option>
-            <option value="rejected" ${s.status === 'rejected' ? 'selected' : ''}>✗ 반려</option>
+        <div class="field"><label class="field-label">최종 결정</label>
+          <select data-sk="finalDecision">
+            <option value="pending" ${s.finalDecision === 'pending' ? 'selected' : ''}>⏳ 결재대기</option>
+            <option value="approved" ${s.finalDecision === 'approved' ? 'selected' : ''}>✓ 진행 (발주예정)</option>
+            <option value="rejected" ${s.finalDecision === 'rejected' ? 'selected' : ''}>✗ 반려</option>
           </select>
         </div>
       </div>
@@ -1263,11 +1406,17 @@ function sampleModalHTML(isEdit, id) {
           ${state.db.suppliers.map((x) => `<option value="${x.id}" ${s.supplierId === x.id ? 'selected' : ''}>${escHTML(x.nameKor || x.name)}</option>`).join('')}
         </select>
       </div>
+      <div class="field"><label class="field-label">진행 메모 (이번 차수에서 무엇을 요청·확인했는지)</label><textarea data-sk="progressNote" rows="2" placeholder="예: 색상 변경 요청, 모터 사양 확인 중">${escHTML(s.progressNote || '')}</textarea></div>
 
       <div class="section-title mt-6">📷 샘플 사진 (드래그 또는 클릭, 여러 장 OK)</div>
       <div class="drop" id="sm-drop">사진 파일을 끌어다 놓거나 클릭해서 선택 (jpg/png 등)</div>
       <input type="file" id="sm-file" accept="image/*" multiple class="hidden" />
       <div id="sm-images"></div>
+
+      <div class="section-title mt-6">📎 외부 파일 / 링크 (NAS · Google Drive · 공용폴더)</div>
+      <div class="muted" style="font-size:12px;margin-bottom:6px">계약서, 자세한 도면, 사양서 등 무거운 파일은 외부 링크로 연결</div>
+      <div id="sm-attaches"></div>
+      <button type="button" class="btn btn-sm mt-4" onclick="addSampleAttach()">+ 링크 추가</button>
 
       <div class="section-title mt-6">⭐ 품평 기록 (다중)</div>
       <div id="sm-evals"></div>
@@ -1288,11 +1437,40 @@ function bindSampleModal() {
     el.oninput = el.onchange = () => {
       const k = el.dataset.sk;
       _sampleDraft[k] = el.type === 'number' ? Number(el.value) : el.value;
+      // status도 같이 동기화 (기존 호환)
+      if (k === 'finalDecision') _sampleDraft.status = el.value;
     };
   });
   setupImageDropzone($('#sm-drop'), $('#sm-file'), (img) => { _sampleDraft.images.push(img); refreshSampleImages(); });
   refreshSampleImages();
+  refreshSampleAttaches();
   refreshSampleEvals();
+}
+function refreshSampleAttaches() {
+  const wrap = $('#sm-attaches');
+  if (!wrap) return;
+  const list = _sampleDraft.attachments || [];
+  if (list.length === 0) {
+    wrap.innerHTML = '<div class="muted2" style="font-size:12px">링크 없음</div>';
+    return;
+  }
+  wrap.innerHTML = list.map((a, i) => `
+    <div class="field-row-3" style="margin-bottom:6px">
+      <div class="field"><input value="${escHTML(a.label || '')}" placeholder="라벨 (예: 사양서 v2)" oninput="_sampleDraft.attachments[${i}].label=this.value" /></div>
+      <div class="field"><input value="${escHTML(a.url || '')}" placeholder="URL (https:// 또는 file://)" oninput="_sampleDraft.attachments[${i}].url=this.value" /></div>
+      <div class="field flex">
+        <select onchange="_sampleDraft.attachments[${i}].kind=this.value">
+          ${['nas','drive','local','other'].map((k) => `<option value="${k}" ${a.kind === k ? 'selected' : ''}>${k.toUpperCase()}</option>`).join('')}
+        </select>
+        <button type="button" class="btn btn-sm btn-danger" onclick="_sampleDraft.attachments.splice(${i},1);refreshSampleAttaches()">×</button>
+      </div>
+    </div>
+  `).join('');
+}
+function addSampleAttach() {
+  _sampleDraft.attachments = _sampleDraft.attachments || [];
+  _sampleDraft.attachments.push({ id: uid('at'), label: '', url: '', kind: 'drive', addedAt: nowISO() });
+  refreshSampleAttaches();
 }
 function refreshSampleImages() {
   const wrap = $('#sm-images');
@@ -2170,12 +2348,6 @@ function saveSupplier(id) { return submitSupplier(id); }
  *  TAB: COMPANIES (중국 공급처 평가)
  * ===================================================================== */
 function renderCompanies(view) {
-  const all = state.db.suppliers.slice();
-  // 정렬: 평균 평점 내림차순
-  all.sort((a, b) => (supplierAvgRating(b) || 0) - (supplierAvgRating(a) || 0));
-
-  const filt = state.search ? all.filter((s) => [s.name, s.nameKor, s.productGroup, s.contactPerson, s.wechat, ...(s.tags || [])].some((v) => String(v || '').toLowerCase().includes(state.search.toLowerCase()))) : all;
-
   view.innerHTML = `
     <div class="toolbar">
       <div class="search"><input id="search-companies" placeholder="회사명/한글명/제품군/태그/위챗 검색…" value="${escHTML(state.search)}" /></div>
@@ -2183,21 +2355,34 @@ function renderCompanies(view) {
         <option value="">전체 태그</option>
         ${SUPPLIER_TAGS.map((t) => `<option value="${escHTML(t)}">${escHTML(t)}</option>`).join('')}
       </select>
-      <span class="muted">총 <strong>${all.length}</strong>개</span>
+      <span class="muted" id="company-count"></span>
     </div>
-    ${filt.length === 0 ? `<div class="empty">
-      등록된 중국 공급처가 없어요.<br><br>
-      우상단 <strong>[+ 공급처 등록]</strong> 으로 추가하세요.<br>
-      회사 사진, 별점, 장단점, 거래 이력을 한눈에 관리할 수 있어요.
-    </div>` : `<div id="company-list">${filt.map(renderCompanyCard).join('')}</div>`}
+    <div id="company-host"></div>
   `;
-  $('#search-companies').oninput = (e) => { state.search = e.target.value; renderCompanies(view); };
-  $('#filter-tag').onchange = (e) => {
-    const t = e.target.value;
-    const list = t ? filt.filter((s) => (s.tags || []).includes(t)) : filt;
-    const wrap = $('#company-list');
-    if (wrap) wrap.innerHTML = list.length === 0 ? '<div class="empty">결과 없음</div>' : list.map(renderCompanyCard).join('');
-  };
+
+  function paint() {
+    const q = state.search.toLowerCase();
+    const tag = $('#filter-tag')?.value || '';
+    const all = state.db.suppliers.slice();
+    all.sort((a, b) => (supplierAvgRating(b) || 0) - (supplierAvgRating(a) || 0));
+    const filt = all.filter((s) => {
+      if (q && ![s.name, s.nameKor, s.productGroup, s.contactPerson, s.wechat, ...(s.tags || [])].some((v) => String(v || '').toLowerCase().includes(q))) return false;
+      if (tag && !(s.tags || []).includes(tag)) return false;
+      return true;
+    });
+    $('#company-count').innerHTML = `총 <strong>${all.length}</strong>개`;
+    $('#company-host').innerHTML = filt.length === 0
+      ? `<div class="empty">
+          등록된 중국 공급처가 없어요.<br><br>
+          우상단 <strong>[+ 공급처 등록]</strong> 으로 추가하세요.<br>
+          회사 사진, 별점, 장단점, 거래 이력을 한눈에 관리할 수 있어요.
+        </div>`
+      : `<div id="company-list">${filt.map(renderCompanyCard).join('')}</div>`;
+  }
+
+  $('#search-companies').oninput = debounce(() => { state.search = $('#search-companies').value; paint(); }, 200);
+  $('#filter-tag').onchange = paint;
+  paint();
 }
 function renderCompanyCard(s) {
   const avg = supplierAvgRating(s);
@@ -2233,11 +2418,13 @@ function renderCompanyCard(s) {
 
 /* ---------- Product modal ---------- */
 let _productImages = [];
+let _productAttaches = [];
 function openProductModal(id) {
   const isEdit = !!id;
-  const p = isEdit ? findById(state.db.products, id) : { id: uid('p'), brand: '', category: '', name: '', option: '', pcode: '', ocode: '', cbm: 0, weightKg: 0, htsCode: '', customsRate: 0, supplierId: state.db.suppliers[0]?.id || '', url: '', imageUrl: '', kcCert: '', memo: '', images: [] };
+  const p = isEdit ? findById(state.db.products, id) : { id: uid('p'), brand: '', category: '', name: '', option: '', pcode: '', ocode: '', cbm: 0, weightKg: 0, htsCode: '', customsRate: 0, supplierId: state.db.suppliers[0]?.id || '', url: '', imageUrl: '', kcCert: '', memo: '', images: [], shootingNote: '', attachments: [] };
   // pull pending images from sample-conversion flow if any
   _productImages = isEdit ? structuredClone(p.images || []) : (window._pendingProductImages || []);
+  _productAttaches = isEdit ? structuredClone(p.attachments || []) : [];
   window._pendingProductImages = null;
   showModal(`
     <div class="modal-header"><div class="modal-title">${isEdit ? '제품 편집' : '제품 등록'}</div><button class="modal-close" onclick="closeModal()">×</button></div>
@@ -2276,6 +2463,11 @@ function openProductModal(id) {
       <input type="file" id="p-file" accept="image/*" multiple class="hidden" />
       <div id="p-images"></div>
 
+      <div class="section-title mt-6">📎 외부 파일 / 링크 (NAS · Drive · 계약서 · 사양서)</div>
+      <div id="p-attaches"></div>
+      <button type="button" class="btn btn-sm mt-4" onclick="addProductAttach()">+ 링크 추가</button>
+
+      <div class="field mt-6"><label class="field-label">📸 촬영 일정 메모</label><textarea id="p-shooting" rows="2" placeholder="다음 촬영에서 챙길 것 / 라이프컷 컨셉 …">${escHTML(p.shootingNote || '')}</textarea></div>
       <div class="field mt-4"><label class="field-label">메모</label><textarea id="p-memo" rows="2">${escHTML(p.memo)}</textarea></div>
     </div>
     <div class="modal-footer"><div class="flex-1"></div><button class="btn" onclick="closeModal()">취소</button>
@@ -2284,6 +2476,28 @@ function openProductModal(id) {
   `, { lg: true });
   setupImageDropzone($('#p-drop'), $('#p-file'), (img) => { _productImages.push(img); refreshProductImages(); });
   refreshProductImages();
+  refreshProductAttaches();
+}
+function refreshProductAttaches() {
+  const wrap = $('#p-attaches');
+  if (!wrap) return;
+  if (_productAttaches.length === 0) { wrap.innerHTML = '<div class="muted2" style="font-size:12px">링크 없음</div>'; return; }
+  wrap.innerHTML = _productAttaches.map((a, i) => `
+    <div class="field-row-3" style="margin-bottom:6px">
+      <div class="field"><input value="${escHTML(a.label || '')}" placeholder="라벨 (예: 사양서 v2)" oninput="_productAttaches[${i}].label=this.value" /></div>
+      <div class="field"><input value="${escHTML(a.url || '')}" placeholder="URL" oninput="_productAttaches[${i}].url=this.value" /></div>
+      <div class="field flex">
+        <select onchange="_productAttaches[${i}].kind=this.value">
+          ${['nas','drive','figma','dropbox','other'].map((k) => `<option value="${k}" ${a.kind === k ? 'selected' : ''}>${k.toUpperCase()}</option>`).join('')}
+        </select>
+        <button type="button" class="btn btn-sm btn-danger" onclick="_productAttaches.splice(${i},1);refreshProductAttaches()">×</button>
+      </div>
+    </div>
+  `).join('');
+}
+function addProductAttach() {
+  _productAttaches.push({ id: uid('at'), label: '', url: '', kind: 'drive', addedAt: nowISO() });
+  refreshProductAttaches();
 }
 function refreshProductImages() {
   const wrap = $('#p-images');
@@ -2301,7 +2515,9 @@ function saveProduct(id) {
     htsCode: $('#p-hts').value, customsRate: Number($('#p-customs').value) || 0,
     supplierId: $('#p-sup').value, url: $('#p-url').value, imageUrl: $('#p-img').value,
     kcCert: $('#p-kc').value, memo: $('#p-memo').value,
+    shootingNote: $('#p-shooting')?.value || '',
     images: structuredClone(_productImages),
+    attachments: structuredClone(_productAttaches),
   };
   if (!data.name || !data.ocode) { toast('제품명/옵션코드 필수', 'error'); return; }
   if (!id && state.db.products.some((p) => p.ocode === data.ocode)) {
@@ -2312,6 +2528,869 @@ function saveProduct(id) {
   persist(); closeModal(); render(); toast('저장됨', 'success');
 }
 
+/* =====================================================================
+ *  TAB: DEFECTS (완제품 불량)
+ * ===================================================================== */
+const DEFECT_TYPES = ['외관', '기능', '포장', '수량부족', '오배송', '치수', '색상', '소재', '안전', '기타'];
+
+function defectSeverity(d) {
+  const rate = Number(d.defectRate) || 0;
+  if (rate >= 5) return 'high';
+  if (rate >= 1) return 'mid';
+  return 'low';
+}
+
+function renderDefects(view) {
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="search"><input id="search-defects" placeholder="제품/유형/원인/메모 검색…" value="${escHTML(state.search)}" /></div>
+      <select id="filter-defect-type" class="btn" style="padding:8px">
+        <option value="">전체 유형</option>
+        ${DEFECT_TYPES.map((t) => `<option value="${escHTML(t)}">${escHTML(t)}</option>`).join('')}
+      </select>
+      <select id="filter-defect-status" class="btn" style="padding:8px">
+        <option value="">전체 상태</option>
+        <option value="open">미해결</option>
+        <option value="resolved">해결됨</option>
+      </select>
+      <span class="muted" id="defect-count"></span>
+    </div>
+    <div id="defect-host"></div>
+  `;
+
+  function paint() {
+    const q = state.search.toLowerCase();
+    const ft = $('#filter-defect-type')?.value || '';
+    const fs = $('#filter-defect-status')?.value || '';
+    const arr = state.db.defects.slice().sort((a, b) => (b.reportedDate || '').localeCompare(a.reportedDate || ''));
+    const filt = arr.filter((d) => {
+      const p = productById(d.productId);
+      const hay = [p?.name, p?.option, d.defectType, d.cause, d.resolution, d.memo].map((v) => String(v || '').toLowerCase()).join(' ');
+      if (q && !hay.includes(q)) return false;
+      if (ft && d.defectType !== ft) return false;
+      if (fs === 'open' && d.resolved) return false;
+      if (fs === 'resolved' && !d.resolved) return false;
+      return true;
+    });
+    $('#defect-count').innerHTML = `총 <strong>${arr.length}</strong>건`;
+    $('#defect-host').innerHTML = filt.length === 0
+      ? `<div class="empty">
+          등록된 불량이 없어요.<br><br>
+          국내 입고 후 발견된 완제품 불량을 우상단 <strong>[+ 불량 등록]</strong> 으로 기록하세요.<br>
+          제품·발주와 자동 연결되어 제품 DB 이력에 누적됩니다.
+        </div>`
+      : filt.map(renderDefectCard).join('');
+  }
+
+  $('#search-defects').oninput = debounce(() => { state.search = $('#search-defects').value; paint(); }, 200);
+  $('#filter-defect-type').onchange = paint;
+  $('#filter-defect-status').onchange = paint;
+  paint();
+}
+function renderDefectCard(d) {
+  const p = productById(d.productId);
+  const order = findById(state.db.orders, d.orderId);
+  const sev = defectSeverity(d);
+  const cover = (d.photos && d.photos[0]) ? d.photos[0].dataUrl : null;
+  return `
+    <div class="def-card severity-${sev}" onclick="openDefectModal('${d.id}')" style="cursor:pointer">
+      ${cover ? `<img class="def-thumb" src="${cover}" alt="" />` : '<div class="def-thumb-empty">🛑</div>'}
+      <div>
+        <div class="flex" style="gap:6px;flex-wrap:wrap;margin-bottom:4px">
+          ${d.resolved ? '<span class="pill pill-accent">✓ 해결</span>' : '<span class="pill pill-danger">⚠ 미해결</span>'}
+          ${d.defectType ? `<span class="pill pill-warn">${escHTML(d.defectType)}</span>` : ''}
+          <span class="pill pill-muted">불량률 ${(Number(d.defectRate) || 0).toFixed(1)}%</span>
+          ${d.claimAmount ? `<span class="pill pill-info">클레임 ${fmtKRW(d.claimAmount)}</span>` : ''}
+        </div>
+        <div style="font-size:14px;font-weight:600">${escHTML(p?.name || '(제품 미지정)')} <span class="muted">${escHTML(p?.option || '')}</span></div>
+        <div class="muted" style="font-size:12px;margin-top:2px">
+          신고일 <span class="mono">${escHTML(d.reportedDate || '-')}</span>
+          ${order ? ` · 발주 <span class="mono">${escHTML(order.poNumber || order.id.slice(0,6))}</span> · 수량 ${fmt(order.qty)}` : ''}
+          ${(d.photos || []).length > 0 ? ` · 📷 ${d.photos.length}장` : ''}
+          ${(d.attachments || []).length > 0 ? ` · 📎 ${d.attachments.length}` : ''}
+        </div>
+        ${d.cause ? `<div style="font-size:12px;margin-top:4px"><strong class="muted">원인:</strong> ${escHTML(d.cause)}</div>` : ''}
+        ${d.resolution ? `<div style="font-size:12px;margin-top:2px"><strong class="muted">조치:</strong> ${escHTML(d.resolution)}</div>` : ''}
+      </div>
+      <div class="flex" onclick="event.stopPropagation()">
+        <button class="btn btn-sm" onclick="openDefectModal('${d.id}')">편집</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteDefect('${d.id}')">삭제</button>
+      </div>
+    </div>
+  `;
+}
+
+let _defectDraft = null;
+function openDefectModal(id) {
+  const isEdit = !!id;
+  const d = isEdit ? findById(state.db.defects, id) : null;
+  if (isEdit && !d) { toast('불량 없음', 'error'); return; }
+  _defectDraft = isEdit ? structuredClone(d) : {
+    id: uid('df'), productId: state.db.products[0]?.id || '', orderId: '',
+    reportedDate: todayISO(), defectType: '외관', defectRate: 0, defectCount: 0,
+    cause: '', resolution: '', claimAmount: 0, claimStatus: '',
+    photos: [], attachments: [], resolved: false, memo: '',
+  };
+  _defectDraft.photos = _defectDraft.photos || [];
+  _defectDraft.attachments = _defectDraft.attachments || [];
+
+  showModal(`
+    <div class="modal-header">
+      <div class="modal-title">${isEdit ? '불량 편집' : '완제품 불량 등록'}</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">신고일*</label><input type="date" data-dk="reportedDate" value="${_defectDraft.reportedDate}" /></div>
+        <div class="field"><label class="field-label">유형</label>
+          <select data-dk="defectType">${DEFECT_TYPES.map((t) => `<option value="${t}" ${_defectDraft.defectType === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label class="field-label">해결 여부</label>
+          <select data-dk="resolved">
+            <option value="false" ${!_defectDraft.resolved ? 'selected' : ''}>⚠ 미해결</option>
+            <option value="true" ${_defectDraft.resolved ? 'selected' : ''}>✓ 해결됨</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label class="field-label">제품*</label>
+        <select data-dk="productId">
+          <option value="">(미지정)</option>
+          ${state.db.products.map((p) => `<option value="${p.id}" ${_defectDraft.productId === p.id ? 'selected' : ''}>${escHTML(p.brand || '?')} — ${escHTML(p.name)} ${escHTML(p.option || '')}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label class="field-label">관련 발주 (선택)</label>
+        <select data-dk="orderId">
+          <option value="">(미연결)</option>
+          ${state.db.orders.filter((o) => !_defectDraft.productId || o.pid === _defectDraft.productId).map((o) => {
+            const p = productById(o.pid);
+            return `<option value="${o.id}" ${_defectDraft.orderId === o.id ? 'selected' : ''}>${escHTML(p?.name || '')} · PO ${escHTML(o.poNumber || o.id.slice(0,6))} · ${escHTML(o.orderDate || '')} · ${fmt(o.qty)}개</option>`;
+          }).join('')}
+        </select>
+      </div>
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">불량 수량</label><input type="number" data-dk="defectCount" value="${_defectDraft.defectCount}" /></div>
+        <div class="field"><label class="field-label">불량률 (%)</label><input type="number" step="0.1" data-dk="defectRate" value="${_defectDraft.defectRate}" /></div>
+        <div class="field"><label class="field-label">클레임 금액 (₩)</label><input type="number" data-dk="claimAmount" value="${_defectDraft.claimAmount}" /></div>
+      </div>
+      <div class="field"><label class="field-label">클레임 처리 상태</label><input data-dk="claimStatus" value="${escHTML(_defectDraft.claimStatus)}" placeholder="예: 공장 30% 부담 합의 / 차기 발주 차감" /></div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">원인</label><textarea data-dk="cause" rows="2" placeholder="QC 누락 / 운송 충격 / 사양 미준수 …">${escHTML(_defectDraft.cause)}</textarea></div>
+        <div class="field"><label class="field-label">조치 / 해결</label><textarea data-dk="resolution" rows="2" placeholder="재작업 / 반품 / 차기 발주 보완 …">${escHTML(_defectDraft.resolution)}</textarea></div>
+      </div>
+
+      <div class="section-title mt-6">📷 불량 사진</div>
+      <div class="drop" id="df-drop">사진 드래그 또는 클릭해서 업로드</div>
+      <input type="file" id="df-file" accept="image/*" multiple class="hidden" />
+      <div id="df-photos"></div>
+
+      <div class="section-title mt-6">📎 외부 파일 / 링크 (검수 보고서, NAS 폴더 등)</div>
+      <div id="df-attaches"></div>
+      <button type="button" class="btn btn-sm mt-4" onclick="addDefectAttach()">+ 링크 추가</button>
+
+      <div class="field mt-6"><label class="field-label">메모</label><textarea data-dk="memo" rows="2">${escHTML(_defectDraft.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer">
+      ${isEdit ? `<button class="btn btn-danger" onclick="deleteDefect('${id}')">삭제</button>` : ''}
+      <div class="flex-1"></div>
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitDefect()">${isEdit ? '저장' : '등록'}</button>
+    </div>
+  `, { lg: true });
+
+  $$('#modal-root [data-dk]').forEach((el) => {
+    el.oninput = el.onchange = () => {
+      const k = el.dataset.dk;
+      if (k === 'resolved') _defectDraft.resolved = el.value === 'true';
+      else if (el.type === 'number') _defectDraft[k] = Number(el.value) || 0;
+      else _defectDraft[k] = el.value;
+    };
+  });
+  setupImageDropzone($('#df-drop'), $('#df-file'), (img) => { _defectDraft.photos.push(img); refreshDefectPhotos(); });
+  refreshDefectPhotos();
+  refreshDefectAttaches();
+}
+function refreshDefectPhotos() {
+  const wrap = $('#df-photos');
+  if (!wrap) return;
+  wrap.innerHTML = renderImageGrid(_defectDraft.photos, '_dfRemovePhoto');
+}
+window._dfRemovePhoto = (i) => { _defectDraft.photos.splice(i, 1); refreshDefectPhotos(); };
+function refreshDefectAttaches() {
+  const wrap = $('#df-attaches');
+  if (!wrap) return;
+  const list = _defectDraft.attachments || [];
+  if (list.length === 0) { wrap.innerHTML = '<div class="muted2" style="font-size:12px">링크 없음</div>'; return; }
+  wrap.innerHTML = list.map((a, i) => `
+    <div class="field-row-3" style="margin-bottom:6px">
+      <div class="field"><input value="${escHTML(a.label || '')}" placeholder="라벨 (예: 검수보고서)" oninput="_defectDraft.attachments[${i}].label=this.value" /></div>
+      <div class="field"><input value="${escHTML(a.url || '')}" placeholder="URL" oninput="_defectDraft.attachments[${i}].url=this.value" /></div>
+      <div class="field flex">
+        <select onchange="_defectDraft.attachments[${i}].kind=this.value">
+          ${['nas','drive','local','other'].map((k) => `<option value="${k}" ${a.kind === k ? 'selected' : ''}>${k.toUpperCase()}</option>`).join('')}
+        </select>
+        <button type="button" class="btn btn-sm btn-danger" onclick="_defectDraft.attachments.splice(${i},1);refreshDefectAttaches()">×</button>
+      </div>
+    </div>
+  `).join('');
+}
+function addDefectAttach() {
+  _defectDraft.attachments = _defectDraft.attachments || [];
+  _defectDraft.attachments.push({ id: uid('at'), label: '', url: '', kind: 'drive', addedAt: nowISO() });
+  refreshDefectAttaches();
+}
+function submitDefect() {
+  if (!_defectDraft.productId) { toast('제품 선택 필수', 'error'); return; }
+  const ex = findById(state.db.defects, _defectDraft.id);
+  if (ex) Object.assign(ex, _defectDraft);
+  else state.db.defects.unshift(structuredClone(_defectDraft));
+  persist(); closeModal(); render(); toast('저장됨', 'success');
+}
+function deleteDefect(id) {
+  if (!confirm('이 불량 기록을 삭제하시겠습니까?')) return;
+  state.db.defects = state.db.defects.filter((d) => d.id !== id);
+  persist(); closeModal(); render(); toast('삭제됨');
+}
+
+/* =====================================================================
+ *  TAB: DESIGNER GALLERY (디자이너 갤러리)
+ *  - 디자이너가 패키지/제품샷/시안을 자료로 등록 + 비주얼 갤러리
+ *  - 제품/샘플/공급처/불량 사진까지 모아 보는 통합 모드 지원
+ * ===================================================================== */
+const ASSET_KINDS = ['패키지', '제품샷', '시안', '디테일컷', '상세페이지', '광고소재', '계약서', '기타'];
+
+function renderGallery(view) {
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="search"><input id="search-gallery" placeholder="이름/브랜드/카테고리/디자이너/메모 검색…" value="${escHTML(state.search)}" /></div>
+      <select id="filter-asset-kind" class="btn" style="padding:8px">
+        <option value="">전체 유형</option>
+        ${ASSET_KINDS.map((k) => `<option value="${escHTML(k)}">${escHTML(k)}</option>`).join('')}
+      </select>
+      <select id="filter-asset-source" class="btn" style="padding:8px">
+        <option value="all">전체 소스</option>
+        <option value="design">디자인 자료만</option>
+        <option value="product">제품 사진만</option>
+        <option value="sample">샘플 사진만</option>
+        <option value="defect">불량 사진만</option>
+      </select>
+      <span class="muted" id="gallery-count"></span>
+    </div>
+    <div id="gallery-host"></div>
+  `;
+
+  function collectAll() {
+    // 통합 갤러리: 여러 소스의 이미지를 단일 셰이프로 모음
+    const items = [];
+    for (const a of state.db.designAssets) {
+      const cover = (a.images && a.images[0]) ? a.images[0].dataUrl : null;
+      items.push({
+        kind: 'design', srcId: a.id, title: a.name, sub: `${a.kind || '자료'} · ${a.designer || '-'}`,
+        brand: a.brand || '', category: a.category || '', cover, count: (a.images || []).length,
+        searchHay: [a.name, a.brand, a.category, a.designer, a.kind, a.memo, ...(a.tags || [])].join(' ').toLowerCase(),
+        kindLabel: a.kind || '자료',
+        onClick: `openDesignAssetModal('${a.id}')`,
+      });
+    }
+    for (const p of state.db.products) {
+      const imgs = p.images || [];
+      if (imgs.length === 0 && !p.imageUrl) continue;
+      const cover = imgs[0]?.dataUrl || p.imageUrl;
+      items.push({
+        kind: 'product', srcId: p.id, title: p.name, sub: `제품 · ${p.option || ''}`,
+        brand: p.brand || '', category: p.category || '', cover, count: imgs.length || (p.imageUrl ? 1 : 0),
+        searchHay: [p.name, p.option, p.brand, p.category, p.pcode, p.ocode].join(' ').toLowerCase(),
+        kindLabel: '제품',
+        onClick: `openProductDetail('${p.id}')`,
+      });
+    }
+    for (const s of state.db.samples) {
+      if (!(s.images || []).length) continue;
+      items.push({
+        kind: 'sample', srcId: s.id, title: s.name, sub: `샘플 ${Number(s.sampleRound)||1}차 · ${s.progress || ''}`,
+        brand: s.brand || '', category: s.category || '', cover: s.images[0].dataUrl, count: s.images.length,
+        searchHay: [s.name, s.brand, s.category, s.progressNote, s.memo].join(' ').toLowerCase(),
+        kindLabel: '샘플',
+        onClick: `openSampleModal('${s.id}')`,
+      });
+    }
+    for (const d of state.db.defects) {
+      if (!(d.photos || []).length) continue;
+      const p = productById(d.productId);
+      items.push({
+        kind: 'defect', srcId: d.id, title: `[불량] ${p?.name || '미지정'}`, sub: `${d.defectType || ''} · ${d.reportedDate || ''}`,
+        brand: p?.brand || '', category: p?.category || '', cover: d.photos[0].dataUrl, count: d.photos.length,
+        searchHay: [p?.name, d.defectType, d.cause, d.memo].join(' ').toLowerCase(),
+        kindLabel: '불량',
+        onClick: `openDefectModal('${d.id}')`,
+      });
+    }
+    return items;
+  }
+
+  function paint() {
+    const q = state.search.toLowerCase();
+    const fk = $('#filter-asset-kind')?.value || '';
+    const fs = $('#filter-asset-source')?.value || 'all';
+    let items = collectAll();
+    if (fs !== 'all') {
+      const map = { design: 'design', product: 'product', sample: 'sample', defect: 'defect' };
+      items = items.filter((it) => it.kind === map[fs]);
+    }
+    if (fk) items = items.filter((it) => it.kindLabel === fk);
+    if (q) items = items.filter((it) => it.searchHay.includes(q));
+
+    $('#gallery-count').innerHTML = `총 <strong>${items.length}</strong>개`;
+    $('#gallery-host').innerHTML = items.length === 0
+      ? `<div class="empty">
+          갤러리에 표시할 이미지가 없어요.<br><br>
+          <strong>[+ 자료 등록]</strong> 으로 디자이너가 패키지·제품샷·시안을 업로드하거나,<br>
+          제품 DB·샘플 품평·불량 등록 시 사진을 함께 올리면 여기에 자동으로 모입니다.
+        </div>`
+      : `<div class="gal-grid">
+          ${items.map((it) => {
+            const srcPill = {
+              design: '<span class="pill pill-info">🎨 자료</span>',
+              product: '<span class="pill pill-accent">📦 제품</span>',
+              sample: '<span class="pill pill-warn">🧪 샘플</span>',
+              defect: '<span class="pill pill-danger">🛑 불량</span>',
+            }[it.kind];
+            return `<div class="gal-card" onclick="${it.onClick}">
+              ${it.cover ? `<img class="gal-img" src="${it.cover}" alt="" loading="lazy" />` : '<div class="gal-img-empty">🎨</div>'}
+              <div class="gal-meta">
+                <div class="gal-pills">
+                  ${srcPill}
+                  ${it.brand ? `<span class="pill pill-muted">${escHTML(it.brand)}</span>` : ''}
+                </div>
+                <div class="gal-title">${escHTML(it.title)}</div>
+                <div class="gal-sub">${escHTML(it.sub)} · 📷 ${it.count}장</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+  }
+
+  $('#search-gallery').oninput = debounce(() => { state.search = $('#search-gallery').value; paint(); }, 200);
+  $('#filter-asset-kind').onchange = paint;
+  $('#filter-asset-source').onchange = paint;
+  paint();
+}
+
+let _assetDraft = null;
+function openDesignAssetModal(id) {
+  const isEdit = !!id;
+  const a = isEdit ? findById(state.db.designAssets, id) : null;
+  if (isEdit && !a) { toast('자료 없음', 'error'); return; }
+  _assetDraft = isEdit ? structuredClone(a) : {
+    id: uid('da'), name: '', kind: '패키지', brand: '', category: '',
+    productId: '', designer: '', memo: '', images: [], attachments: [],
+    tags: [], createdAt: nowISO(),
+  };
+  _assetDraft.images = _assetDraft.images || [];
+  _assetDraft.attachments = _assetDraft.attachments || [];
+  _assetDraft.tags = _assetDraft.tags || [];
+
+  const brands = [...new Set(state.db.products.map((p) => p.brand).filter(Boolean))];
+
+  showModal(`
+    <div class="modal-header">
+      <div class="modal-title">${isEdit ? '디자인 자료 편집' : '디자인 자료 등록'}</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field"><label class="field-label">자료명*</label><input data-ak="name" value="${escHTML(_assetDraft.name)}" placeholder="예: 몽쿨 선풍기 v3 패키지 시안" /></div>
+        <div class="field"><label class="field-label">유형</label>
+          <select data-ak="kind">${ASSET_KINDS.map((k) => `<option value="${k}" ${_assetDraft.kind === k ? 'selected' : ''}>${k}</option>`).join('')}</select>
+        </div>
+      </div>
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">브랜드</label><input data-ak="brand" value="${escHTML(_assetDraft.brand)}" list="asset-brand-list" /><datalist id="asset-brand-list">${brands.map((b) => `<option value="${escHTML(b)}">`).join('')}</datalist></div>
+        <div class="field"><label class="field-label">카테고리</label><input data-ak="category" value="${escHTML(_assetDraft.category)}" /></div>
+        <div class="field"><label class="field-label">디자이너</label><input data-ak="designer" value="${escHTML(_assetDraft.designer)}" placeholder="예: 은정" /></div>
+      </div>
+      <div class="field"><label class="field-label">연결 제품 (선택)</label>
+        <select data-ak="productId">
+          <option value="">(미연결)</option>
+          ${state.db.products.map((p) => `<option value="${p.id}" ${_assetDraft.productId === p.id ? 'selected' : ''}>${escHTML(p.brand || '?')} — ${escHTML(p.name)} ${escHTML(p.option || '')}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="section-title mt-6">🖼 이미지 (드래그 또는 클릭, 여러 장 OK)</div>
+      <div class="muted" style="font-size:12px;margin-bottom:6px">패키지 시안, 제품샷, 디테일컷 등. 1장당 5MB 이내 권장 — 큰 원본은 NAS 링크로 추가하세요.</div>
+      <div class="drop" id="da-drop">이미지 끌어다 놓거나 클릭</div>
+      <input type="file" id="da-file" accept="image/*" multiple class="hidden" />
+      <div id="da-images"></div>
+
+      <div class="section-title mt-6">📎 외부 파일 / 링크 (NAS · Google Drive · Figma · Dropbox)</div>
+      <div class="muted" style="font-size:12px;margin-bottom:6px">PSD/AI 원본, 인쇄용 PDF, Figma URL 등 무거운 파일은 외부 링크로 연결</div>
+      <div id="da-attaches"></div>
+      <button type="button" class="btn btn-sm mt-4" onclick="addAssetAttach()">+ 링크 추가</button>
+
+      <div class="field mt-6"><label class="field-label">메모</label><textarea data-ak="memo" rows="2">${escHTML(_assetDraft.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer">
+      ${isEdit ? `<button class="btn btn-danger" onclick="deleteDesignAsset('${id}')">삭제</button>` : ''}
+      <div class="flex-1"></div>
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitDesignAsset()">${isEdit ? '저장' : '등록'}</button>
+    </div>
+  `, { lg: true });
+
+  $$('#modal-root [data-ak]').forEach((el) => {
+    el.oninput = el.onchange = () => { _assetDraft[el.dataset.ak] = el.value; };
+  });
+  setupImageDropzone($('#da-drop'), $('#da-file'), (img) => { _assetDraft.images.push(img); refreshAssetImages(); });
+  refreshAssetImages();
+  refreshAssetAttaches();
+}
+function refreshAssetImages() {
+  const wrap = $('#da-images');
+  if (!wrap) return;
+  wrap.innerHTML = renderImageGrid(_assetDraft.images, '_daRemoveImg');
+}
+window._daRemoveImg = (i) => { _assetDraft.images.splice(i, 1); refreshAssetImages(); };
+function refreshAssetAttaches() {
+  const wrap = $('#da-attaches');
+  if (!wrap) return;
+  const list = _assetDraft.attachments || [];
+  if (list.length === 0) { wrap.innerHTML = '<div class="muted2" style="font-size:12px">링크 없음</div>'; return; }
+  wrap.innerHTML = list.map((a, i) => `
+    <div class="field-row-3" style="margin-bottom:6px">
+      <div class="field"><input value="${escHTML(a.label || '')}" placeholder="라벨 (예: PSD 원본)" oninput="_assetDraft.attachments[${i}].label=this.value" /></div>
+      <div class="field"><input value="${escHTML(a.url || '')}" placeholder="URL" oninput="_assetDraft.attachments[${i}].url=this.value" /></div>
+      <div class="field flex">
+        <select onchange="_assetDraft.attachments[${i}].kind=this.value">
+          ${['nas','drive','figma','dropbox','other'].map((k) => `<option value="${k}" ${a.kind === k ? 'selected' : ''}>${k.toUpperCase()}</option>`).join('')}
+        </select>
+        <button type="button" class="btn btn-sm btn-danger" onclick="_assetDraft.attachments.splice(${i},1);refreshAssetAttaches()">×</button>
+      </div>
+    </div>
+  `).join('');
+}
+function addAssetAttach() {
+  _assetDraft.attachments = _assetDraft.attachments || [];
+  _assetDraft.attachments.push({ id: uid('at'), label: '', url: '', kind: 'drive', addedAt: nowISO() });
+  refreshAssetAttaches();
+}
+function submitDesignAsset() {
+  if (!_assetDraft.name) { toast('자료명 필수', 'error'); return; }
+  const ex = findById(state.db.designAssets, _assetDraft.id);
+  if (ex) Object.assign(ex, _assetDraft);
+  else state.db.designAssets.unshift(structuredClone(_assetDraft));
+  persist(); closeModal(); render(); toast('저장됨', 'success');
+}
+function deleteDesignAsset(id) {
+  if (!confirm('이 디자인 자료를 삭제하시겠습니까?')) return;
+  state.db.designAssets = state.db.designAssets.filter((a) => a.id !== id);
+  persist(); closeModal(); render(); toast('삭제됨');
+}
+
+/* =====================================================================
+ *  TAB: SCHEDULE (일정 / 촬영)
+ *  - 자체 등록 events + 발주의 도착예정일 + 샘플의 expectedDate 자동 수집
+ *  - "진행 일정만" 기본 + "완료" 별도 섹션
+ *  - 월간 캘린더 + 리스트 뷰 토글
+ * ===================================================================== */
+const EVENT_TYPES = ['촬영', '샘플도착', '발주', '미팅', '기타'];
+
+function collectScheduleEvents() {
+  // 자동 수집 + 사용자 등록 events 통합
+  const all = [];
+  for (const e of state.db.events || []) {
+    all.push({
+      kind: 'manual', id: e.id, type: e.type || '기타', title: e.title || '(제목없음)',
+      date: e.date || '', time: e.time || '',
+      productId: e.productId || '', orderId: e.orderId || '', sampleId: e.sampleId || '',
+      memo: e.memo || '', done: !!e.done,
+      onClick: `openEventModal('${e.id}')`,
+    });
+  }
+  // 샘플 도착예정 자동 수집 (미도래만)
+  for (const s of state.db.samples || []) {
+    if (!s.expectedDate) continue;
+    const decision = s.finalDecision || s.status || 'pending';
+    const reached = (s.progress === '도착') || (s.progress === '평가중') || (s.progress === '결재대기') || decision !== 'pending';
+    all.push({
+      kind: 'auto-sample', id: 'sm-' + s.id, type: '샘플도착', title: `🧪 ${Number(s.sampleRound)||1}차 ${s.name}`,
+      date: s.expectedDate, time: '',
+      productId: '', orderId: '', sampleId: s.id, memo: s.progressNote || '',
+      done: reached,
+      onClick: `openSampleModal('${s.id}')`,
+    });
+  }
+  // 발주 도착예정 자동 수집
+  for (const o of state.db.orders || []) {
+    const p = productById(o.pid);
+    if (o.shipDate && !o.arriveDate) {
+      // 선적은 했는데 아직 국내 입고 X
+      all.push({
+        kind: 'auto-order', id: 'po-' + o.id, type: '발주', title: `🚛 ${p?.name || '발주'} 선적/입고 대기`,
+        date: o.shipDate, time: '',
+        productId: o.pid, orderId: o.id, sampleId: '', memo: o.poNumber || '',
+        done: !!o.arriveDate,
+        onClick: `openOrderModal('${o.id}')`,
+      });
+    }
+  }
+  return all;
+}
+
+function renderSchedule(view) {
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="cal-nav">
+        <button class="btn btn-sm" onclick="schedNav(-1)">← 이전 달</button>
+        <div class="cal-title" id="sched-title"></div>
+        <button class="btn btn-sm" onclick="schedNav(1)">다음 달 →</button>
+        <button class="btn btn-sm" onclick="schedToday()">오늘</button>
+      </div>
+      <div class="flex-1"></div>
+      <select id="filter-event-type" class="btn" style="padding:8px">
+        <option value="">전체 유형</option>
+        ${EVENT_TYPES.map((t) => `<option value="${escHTML(t)}">${escHTML(t)}</option>`).join('')}
+      </select>
+      <select id="schedule-view" class="btn" style="padding:8px">
+        <option value="month">📅 캘린더</option>
+        <option value="list">📋 리스트</option>
+      </select>
+    </div>
+    <div id="sched-host"></div>
+    <div class="section-title mt-6" style="display:flex;align-items:center;gap:8px">
+      <span>✓ 완료된 일정</span>
+      <button class="btn btn-sm" onclick="schedToggleDone()" id="sched-done-toggle">접기 ▾</button>
+    </div>
+    <div id="sched-done" style="margin-top:8px"></div>
+  `;
+
+  if (!state.schedCursor) state.schedCursor = todayISO().slice(0, 7); // YYYY-MM
+  if (!state.schedView) state.schedView = 'month';
+  if (state.schedDoneCollapsed === undefined) state.schedDoneCollapsed = false;
+  $('#schedule-view').value = state.schedView;
+  $('#schedule-view').onchange = (e) => { state.schedView = e.target.value; paint(); };
+  $('#filter-event-type').onchange = paint;
+
+  function paint() {
+    const ft = $('#filter-event-type')?.value || '';
+    const cur = state.schedCursor;
+    const [y, m] = cur.split('-').map(Number);
+    $('#sched-title').textContent = `${y}년 ${m}월`;
+
+    let evts = collectScheduleEvents();
+    if (ft) evts = evts.filter((e) => e.type === ft);
+
+    const ongoing = evts.filter((e) => !e.done);
+    const done = evts.filter((e) => e.done);
+
+    if (state.schedView === 'month') {
+      $('#sched-host').innerHTML = renderCalendarMonth(y, m, ongoing);
+    } else {
+      $('#sched-host').innerHTML = renderEventList(ongoing, '진행 중인 일정 없음');
+    }
+
+    $('#sched-done').innerHTML = state.schedDoneCollapsed
+      ? `<div class="muted" style="font-size:12px">완료 ${done.length}건 (펼치려면 위 버튼 클릭)</div>`
+      : (done.length === 0 ? '<div class="muted" style="font-size:12px">완료된 일정 없음</div>' : renderEventList(done, '완료된 일정 없음', true));
+    $('#sched-done-toggle').textContent = state.schedDoneCollapsed ? `펼치기 ▸ (${done.length})` : `접기 ▾ (${done.length})`;
+  }
+
+  // 다른 탭에서 잘못 호출되어도 안전하도록 가드
+  const safePaint = () => { if ($('#sched-title')) paint(); };
+  window.schedNav = (delta) => {
+    const [y, m] = state.schedCursor.split('-').map(Number);
+    const d = new Date(y, m - 1 + delta, 1);
+    state.schedCursor = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    safePaint();
+  };
+  window.schedToday = () => { state.schedCursor = todayISO().slice(0, 7); safePaint(); };
+  window.schedToggleDone = () => { state.schedDoneCollapsed = !state.schedDoneCollapsed; safePaint(); };
+
+  paint();
+}
+
+function renderCalendarMonth(year, month, events) {
+  const first = new Date(year, month - 1, 1);
+  const startDow = first.getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const today = todayISO();
+
+  // 6 weeks * 7 days
+  const cells = [];
+  // leading from prev month
+  for (let i = startDow - 1; i >= 0; i--) {
+    const d = new Date(year, month - 1, -i);
+    cells.push({ date: ymd(d), other: true });
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    cells.push({ date: ymd(new Date(year, month - 1, day)), other: false });
+  }
+  // trailing
+  while (cells.length % 7 !== 0 || cells.length < 35) {
+    const last = parseISO(cells[cells.length - 1].date);
+    last.setDate(last.getDate() + 1);
+    cells.push({ date: ymd(last), other: last.getMonth() !== month - 1 });
+  }
+
+  // group events by date
+  const byDate = {};
+  for (const e of events) {
+    if (!e.date) continue;
+    (byDate[e.date] = byDate[e.date] || []).push(e);
+  }
+
+  const dows = ['일', '월', '화', '수', '목', '금', '토'];
+  return `
+    <div class="cal-grid">
+      ${dows.map((d) => `<div class="cal-head">${d}</div>`).join('')}
+      ${cells.map((c) => {
+        const dayNum = parseISO(c.date).getDate();
+        const isToday = c.date === today;
+        const evts = byDate[c.date] || [];
+        return `<div class="cal-cell ${c.other ? 'other-month' : ''} ${isToday ? 'today' : ''}">
+          <div class="cal-date">${dayNum}</div>
+          ${evts.map((e) => {
+            const cls = ({
+              '촬영': 'evt-shoot', '샘플도착': 'evt-sample', '발주': 'evt-order',
+              '미팅': 'evt-meeting',
+            })[e.type] || 'evt-other';
+            const safeOnclick = e.onClick.replace(/'/g, "\\'");
+            return `<div class="cal-evt ${cls} ${e.done ? 'evt-done' : ''}" title="${escHTML(e.title)}" onclick="${e.onClick}">${escHTML(e.title)}</div>`;
+          }).join('')}
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderEventList(events, emptyMsg, isDone) {
+  if (events.length === 0) return `<div class="muted" style="font-size:12px;padding:12px">${escHTML(emptyMsg)}</div>`;
+  const sorted = events.slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  const today = todayISO();
+  return `<div class="evt-list">
+    ${sorted.map((e) => {
+      const overdue = !isDone && e.date && e.date < today;
+      const typeLabel = ({
+        '촬영': '📸', '샘플도착': '🧪', '발주': '🚛', '미팅': '🤝', '기타': '📌',
+      })[e.type] || '📌';
+      return `<div class="evt-row ${isDone ? 'evt-done-row' : ''}" onclick="${e.onClick}">
+        <div class="evt-date">${escHTML(e.date || '-')}${e.time ? ' ' + escHTML(e.time) : ''}</div>
+        <div><span class="pill pill-muted">${typeLabel} ${escHTML(e.type)}</span></div>
+        <div>
+          <div style="font-weight:600">${escHTML(e.title)} ${overdue ? '<span class="pill pill-danger">⏰ 지연</span>' : ''}</div>
+          ${e.memo ? `<div class="muted" style="font-size:11px">${escHTML(e.memo)}</div>` : ''}
+        </div>
+        <div class="muted2" style="font-size:11px">${e.kind === 'manual' ? '수동' : '자동'}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+let _eventDraft = null;
+function openEventModal(id) {
+  const isEdit = !!id;
+  const e = isEdit ? findById(state.db.events, id) : null;
+  if (isEdit && !e) { toast('일정 없음', 'error'); return; }
+  _eventDraft = isEdit ? structuredClone(e) : {
+    id: uid('ev'), type: '촬영', title: '', date: todayISO(), time: '',
+    productId: '', orderId: '', sampleId: '', memo: '', done: false,
+  };
+
+  showModal(`
+    <div class="modal-header">
+      <div class="modal-title">${isEdit ? '일정 편집' : '일정 등록'}</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row-3">
+        <div class="field"><label class="field-label">유형</label>
+          <select data-ek="type">${EVENT_TYPES.map((t) => `<option value="${t}" ${_eventDraft.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label class="field-label">날짜*</label><input type="date" data-ek="date" value="${_eventDraft.date}" /></div>
+        <div class="field"><label class="field-label">시간 (선택)</label><input type="time" data-ek="time" value="${_eventDraft.time || ''}" /></div>
+      </div>
+      <div class="field"><label class="field-label">제목*</label><input data-ek="title" value="${escHTML(_eventDraft.title)}" placeholder="예: 몽쿨 선풍기 v3 라이프 컷 촬영" /></div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">연결 제품 (선택)</label>
+          <select data-ek="productId">
+            <option value="">(미연결)</option>
+            ${state.db.products.map((p) => `<option value="${p.id}" ${_eventDraft.productId === p.id ? 'selected' : ''}>${escHTML(p.brand || '?')} — ${escHTML(p.name)} ${escHTML(p.option || '')}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label class="field-label">상태</label>
+          <select data-ek="done">
+            <option value="false" ${!_eventDraft.done ? 'selected' : ''}>📋 진행중</option>
+            <option value="true" ${_eventDraft.done ? 'selected' : ''}>✓ 완료</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label class="field-label">메모</label><textarea data-ek="memo" rows="3">${escHTML(_eventDraft.memo)}</textarea></div>
+    </div>
+    <div class="modal-footer">
+      ${isEdit ? `<button class="btn btn-danger" onclick="deleteEvent('${id}')">삭제</button>` : ''}
+      <div class="flex-1"></div>
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitEvent()">${isEdit ? '저장' : '등록'}</button>
+    </div>
+  `, { sm: true });
+
+  $$('#modal-root [data-ek]').forEach((el) => {
+    el.oninput = el.onchange = () => {
+      const k = el.dataset.ek;
+      if (k === 'done') _eventDraft.done = el.value === 'true';
+      else _eventDraft[k] = el.value;
+    };
+  });
+}
+function submitEvent() {
+  if (!_eventDraft.title || !_eventDraft.date) { toast('제목/날짜 필수', 'error'); return; }
+  const ex = findById(state.db.events, _eventDraft.id);
+  if (ex) Object.assign(ex, _eventDraft);
+  else state.db.events.unshift(structuredClone(_eventDraft));
+  persist(); closeModal(); render(); toast('저장됨', 'success');
+}
+function deleteEvent(id) {
+  if (!confirm('이 일정을 삭제하시겠습니까?')) return;
+  state.db.events = state.db.events.filter((e) => e.id !== id);
+  persist(); closeModal(); render(); toast('삭제됨');
+}
+
+/* =====================================================================
+ *  PRODUCT DETAIL — 제품 통합 스토리 뷰 (발주/샘플/불량/원가/촬영 타임라인)
+ * ===================================================================== */
+function openProductDetail(id) {
+  const p = productById(id);
+  if (!p) { toast('제품 없음', 'error'); return; }
+  const sup = findById(state.db.suppliers, p.supplierId);
+
+  const orders = state.db.orders.filter((o) => o.pid === id).slice().sort((a, b) => (b.orderDate || '').localeCompare(a.orderDate || ''));
+  const samples = state.db.samples.filter((s) => (s.brand && s.brand === p.brand) && (s.name && (s.name.includes(p.name) || p.name.includes(s.name))));
+  const defects = state.db.defects.filter((d) => d.productId === id).slice().sort((a, b) => (b.reportedDate || '').localeCompare(a.reportedDate || ''));
+  const designs = state.db.designAssets.filter((a) => a.productId === id);
+  const events = (state.db.events || []).filter((e) => e.productId === id);
+
+  // 통계
+  const totalQty = orders.reduce((s, o) => s + (Number(o.qty) || 0), 0);
+  const totalCNY = orders.reduce((s, o) => s + (Number(o.qty) || 0) * (Number(o.price) || 0), 0);
+  const lastCost = orders.find((o) => o.costPerUnit)?.costPerUnit || 0;
+  const defectCount = defects.length;
+  const openDefectCount = defects.filter((d) => !d.resolved).length;
+
+  // 타임라인 통합
+  const timeline = [];
+  for (const s of samples) {
+    timeline.push({ date: s.receivedDate || s.expectedDate || '', kind: 'sample', label: `🧪 ${Number(s.sampleRound)||1}차 샘플 — ${s.progress || '평가중'} / ${s.finalDecision || s.status || 'pending'}`, ref: s.id, refType: 'sample' });
+  }
+  for (const o of orders) {
+    timeline.push({ date: o.orderDate || '', kind: 'order', label: `🚛 발주 ${o.poNumber || o.id.slice(0,6)} — ${fmt(o.qty)}개 × ¥${fmt(o.price)}${o.arriveDate ? ` · 입고 ${o.arriveDate}` : (o.shipDate ? ` · 선적 ${o.shipDate}` : '')}`, ref: o.id, refType: 'order' });
+  }
+  for (const d of defects) {
+    timeline.push({ date: d.reportedDate || '', kind: 'defect', label: `🛑 불량 ${d.defectType} — ${d.defectRate}% (${d.resolved ? '해결' : '미해결'})`, ref: d.id, refType: 'defect' });
+  }
+  for (const e of events) {
+    timeline.push({ date: e.date || '', kind: e.type === '촬영' ? 'shoot' : 'order', label: `${e.type === '촬영' ? '📸' : '📌'} ${e.type} — ${e.title}${e.done ? ' (완료)' : ''}`, ref: e.id, refType: 'event' });
+  }
+  timeline.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  showModal(`
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📖 ${escHTML(p.name)} <span class="muted" style="font-weight:400">${escHTML(p.option || '')}</span></div>
+        <div class="muted" style="font-size:12px;margin-top:2px">${escHTML(p.brand || '-')} · ${escHTML(p.category || '-')} · ${escHTML(p.pcode)}/${escHTML(p.ocode)} · 공급처 ${escHTML(sup?.nameKor || sup?.name || '-')}</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="card" style="background:var(--accent-bg);border-color:var(--accent-border);margin-bottom:16px">
+        <div class="flex" style="gap:24px;flex-wrap:wrap">
+          <div><div class="muted" style="font-size:11px">발주 횟수</div><div class="mono" style="font-size:18px;font-weight:600">${orders.length}건</div></div>
+          <div><div class="muted" style="font-size:11px">누적 수량</div><div class="mono" style="font-size:18px;font-weight:600">${fmt(totalQty)}개</div></div>
+          <div><div class="muted" style="font-size:11px">누적 발주액</div><div class="mono" style="font-size:18px;font-weight:600">¥${fmt(Math.round(totalCNY))}</div></div>
+          <div><div class="muted" style="font-size:11px">최근 도착시가</div><div class="mono" style="font-size:18px;font-weight:600">${lastCost ? fmtKRW(lastCost) : '-'}</div></div>
+          <div><div class="muted" style="font-size:11px">샘플 차수</div><div class="mono" style="font-size:18px;font-weight:600">${samples.length}건</div></div>
+          <div><div class="muted" style="font-size:11px">불량 이력</div><div class="mono" style="font-size:18px;font-weight:600;${openDefectCount ? 'color:var(--danger)' : ''}">${defectCount}건${openDefectCount ? ` (미해결 ${openDefectCount})` : ''}</div></div>
+        </div>
+      </div>
+
+      <div class="section-title">📸 촬영 일정 메모</div>
+      <div class="field"><textarea id="pd-shootingNote" rows="2" placeholder="다음 촬영에서 챙길 것 / 라이프컷 컨셉 / 모델 / 장소…">${escHTML(p.shootingNote || '')}</textarea></div>
+      <button class="btn btn-sm" onclick="saveProductShootingNote('${id}')">메모 저장</button>
+      <button class="btn btn-sm" onclick="quickEventForProduct('${id}', '촬영')">+ 촬영 일정 등록</button>
+
+      ${(p.images || []).length > 0 ? `
+        <div class="section-title mt-6">🖼 제품 사진 (${p.images.length}장)</div>
+        ${renderImageGrid(p.images)}
+      ` : ''}
+
+      ${designs.length > 0 ? `
+        <div class="section-title mt-6">🎨 연결된 디자인 자료 (${designs.length}건)</div>
+        <div class="gal-grid">
+          ${designs.map((a) => {
+            const cover = (a.images && a.images[0]) ? a.images[0].dataUrl : null;
+            return `<div class="gal-card" onclick="openDesignAssetModal('${a.id}')">
+              ${cover ? `<img class="gal-img" src="${cover}" alt="" />` : '<div class="gal-img-empty">🎨</div>'}
+              <div class="gal-meta">
+                <div class="gal-pills"><span class="pill pill-info">${escHTML(a.kind || '자료')}</span></div>
+                <div class="gal-title">${escHTML(a.name)}</div>
+                <div class="gal-sub">${escHTML(a.designer || '-')} · 📷 ${(a.images || []).length}장</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      ` : ''}
+
+      <div class="section-title mt-6">🕒 통합 이력 타임라인</div>
+      ${timeline.length === 0 ? '<div class="muted" style="font-size:13px">아직 기록된 이력이 없어요.</div>' : `
+        <div class="tl">
+          ${timeline.map((t) => `
+            <div class="tl-item tl-${t.kind}" style="cursor:pointer" onclick="${t.refType === 'sample' ? `openSampleModal('${t.ref}')` : t.refType === 'order' ? `openOrderModal('${t.ref}')` : t.refType === 'defect' ? `openDefectModal('${t.ref}')` : t.refType === 'event' ? `openEventModal('${t.ref}')` : ''}">
+              <div class="tl-date">${escHTML(t.date || '-')}</div>
+              <div class="tl-body">${escHTML(t.label)}</div>
+            </div>
+          `).join('')}
+        </div>
+      `}
+
+      ${(p.attachments || []).length > 0 ? `
+        <div class="section-title mt-6">📎 외부 첨부 (${p.attachments.length})</div>
+        <div class="link-list">
+          ${p.attachments.map((a) => `
+            <div class="link-item">
+              <span class="link-kind">${escHTML(a.kind || 'link')}</span>
+              <span class="link-label">${escHTML(a.label || '(라벨 없음)')}</span>
+              <a href="${escHTML(a.url)}" target="_blank" rel="noopener">${escHTML(a.url)}</a>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="deleteProduct('${id}')">삭제</button>
+      <div class="flex-1"></div>
+      <button class="btn" onclick="closeModal()">닫기</button>
+      <button class="btn btn-primary" onclick="closeModal();openProductModal('${id}')">제품 정보 편집</button>
+    </div>
+  `, { lg: true });
+}
+
+function saveProductShootingNote(id) {
+  const p = productById(id);
+  if (!p) return;
+  p.shootingNote = $('#pd-shootingNote').value;
+  persist();
+  toast('촬영 메모 저장됨', 'success');
+}
+function quickEventForProduct(productId, type) {
+  closeModal();
+  setTimeout(() => {
+    openEventModal();
+    setTimeout(() => {
+      const sel = $('[data-ek="productId"]');
+      if (sel) { sel.value = productId; sel.dispatchEvent(new Event('change')); }
+      const ts = $('[data-ek="type"]');
+      if (ts) { ts.value = type; ts.dispatchEvent(new Event('change')); }
+    }, 50);
+  }, 50);
+}
+
 /* ---------- expose globals (so onclick handlers work) ---------- */
 Object.assign(window, {
   $, go, closeModal, openLightbox,
@@ -2319,7 +3398,12 @@ Object.assign(window, {
   openInvoiceModal, submitInvoice, deleteInvoice, addInvoiceExtra, addForwardingItem,
   refreshInvoiceExtras, refreshForwardingItems, refreshAttaches, refreshInvoiceCalc,
   openProductModal, saveProduct, duplicateProduct, deleteProduct, refreshProductImages,
+  refreshProductAttaches, addProductAttach, openProductDetail, saveProductShootingNote, quickEventForProduct,
   openSampleModal, submitSample, deleteSample, addSampleEvaluation, refreshSampleEvals, refreshSampleImages, convertSampleToProduct,
+  refreshSampleAttaches, addSampleAttach,
+  openDefectModal, submitDefect, deleteDefect, refreshDefectPhotos, refreshDefectAttaches, addDefectAttach,
+  openDesignAssetModal, submitDesignAsset, deleteDesignAsset, refreshAssetImages, refreshAssetAttaches, addAssetAttach,
+  openEventModal, submitEvent, deleteEvent,
   openEntityModal, saveEntity, deleteEntity,
   openForwarderModal, saveForwarder, deleteForwarder,
   openBrokerModal, saveBroker, deleteBroker,
@@ -2332,7 +3416,11 @@ Object.defineProperty(window, '_invDraft', { get: () => _invDraft, set: (v) => {
 Object.defineProperty(window, '_sampleDraft', { get: () => _sampleDraft, set: (v) => { _sampleDraft = v; } });
 Object.defineProperty(window, '_orderExtras', { get: () => _orderExtras, set: (v) => { _orderExtras = v; } });
 Object.defineProperty(window, '_productImages', { get: () => _productImages, set: (v) => { _productImages = v; } });
+Object.defineProperty(window, '_productAttaches', { get: () => _productAttaches, set: (v) => { _productAttaches = v; } });
 Object.defineProperty(window, '_supDraft', { get: () => _supDraft, set: (v) => { _supDraft = v; } });
+Object.defineProperty(window, '_defectDraft', { get: () => _defectDraft, set: (v) => { _defectDraft = v; } });
+Object.defineProperty(window, '_assetDraft', { get: () => _assetDraft, set: (v) => { _assetDraft = v; } });
+Object.defineProperty(window, '_eventDraft', { get: () => _eventDraft, set: (v) => { _eventDraft = v; } });
 
 /* ---------- bind sidebar nav ---------- */
 $$('#nav .nav-item').forEach((el) => {
