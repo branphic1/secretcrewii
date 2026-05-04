@@ -56,7 +56,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const isProtected = path.startsWith('/cafe-writer') || path.startsWith('/admin')
+  const isProtected = path.startsWith('/cafe-writer') || path.startsWith('/admin') || path.startsWith('/deck')
   const isAuthPage = path === '/login' || path === '/signup'
   const isPendingPage = path === '/pending'
 
