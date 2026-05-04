@@ -22,7 +22,8 @@ const SYSTEM_PROMPT = `당신은 한국 e-커머스 기업 '아이노즈'(육아
 
 ## 출력
 반드시 save_meeting_minutes 도구를 호출해 구조화된 결과를 반환하세요.
-한국어로 작성. 마크다운 금지.`;
+한국어로 작성. 마크다운 금지.
+**모든 필드는 필수**입니다. 비어있는 카테고리도 빈 배열 [] 로 명시적으로 채우세요. 절대 필드를 생략하지 마세요.`;
 
 const TOOL_SCHEMA = {
   name: "save_meeting_minutes",
@@ -167,15 +168,34 @@ ${params.cleanedTranscript}`;
     }
 
     const data = JSON.parse(text) as {
-      content?: Array<{ type: string; name?: string; input?: ClaudeAnalysisResult }>;
+      content?: Array<{ type: string; name?: string; input?: ClaudeAnalysisResult; text?: string }>;
+      stop_reason?: string;
     };
     const toolBlock = data.content?.find(
       (b) => b.type === "tool_use" && b.name === "save_meeting_minutes"
     );
     if (!toolBlock?.input) {
-      throw new Error("Claude 응답에서 tool_use 결과를 찾지 못했어요.");
+      const textBlock = data.content?.find((b) => b.type === "text");
+      console.error("[aiNose] Claude tool_use missing", {
+        stop_reason: data.stop_reason,
+        hasText: !!textBlock?.text,
+        textPreview: textBlock?.text?.slice(0, 500),
+      });
+      throw new Error(
+        `Claude 응답에서 tool_use 결과를 찾지 못했어요. stop_reason=${data.stop_reason || "unknown"}`
+      );
     }
-    return toolBlock.input;
+    // 누락 필드 보정 (Claude 가 빈 카테고리 키를 생략하는 경우 대비)
+    const r = toolBlock.input;
+    return {
+      executiveSummary: r.executiveSummary || "",
+      participants: r.participants || [],
+      keyDecisions: r.keyDecisions || [],
+      sections: r.sections || [],
+      actionItems: r.actionItems || [],
+      risks: r.risks || [],
+      nextAgenda: r.nextAgenda || [],
+    };
   } finally {
     clearTimeout(timeout);
   }

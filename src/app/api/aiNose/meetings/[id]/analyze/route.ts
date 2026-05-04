@@ -55,53 +55,65 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
       sb.from("ainose_risks").delete().eq("meeting_id", id),
     ]);
 
+    // Claude 가 빈 카테고리는 키 자체를 생략할 수 있어 모든 배열 접근에 fallback
+    const safeParticipants = Array.isArray(result.participants) ? result.participants : [];
+    const safeDecisions = Array.isArray(result.keyDecisions) ? result.keyDecisions : [];
+    const safeSections = Array.isArray(result.sections) ? result.sections : [];
+    const safeActions = Array.isArray(result.actionItems) ? result.actionItems : [];
+    const safeRisks = Array.isArray(result.risks) ? result.risks : [];
+    const safeNextAgenda = Array.isArray(result.nextAgenda) ? result.nextAgenda : [];
+
     // participants — 클로바 카운트로 보정
-    const partRows = result.participants.map((p, i) => {
+    const partRows = safeParticipants.map((p, i) => {
       const found = partsSummary.find((s) => s.label === p.rawLabel);
       return {
         meeting_id: id,
-        raw_label: p.rawLabel,
-        name: p.inferredName,
-        role: p.inferredRole,
+        raw_label: p.rawLabel || `참석자 ${i + 1}`,
+        name: p.inferredName ?? null,
+        role: p.inferredRole ?? null,
         is_external: false,
         utterance_count: found?.count ?? p.utteranceCount ?? 0,
         order_idx: i,
       };
     });
 
-    const decisionRows = result.keyDecisions.map((d, i) => ({
+    const decisionRows = safeDecisions.map((d, i) => ({
       meeting_id: id,
-      title: d.title,
-      description: d.description,
+      title: d.title || "(제목 없음)",
+      description: d.description ?? null,
       category: d.category ?? null,
       source_timestamp: d.sourceTimestamp ?? null,
       order_idx: i,
     }));
 
-    const sectionRows = result.sections.map((s, i) => ({
+    const sectionRows = safeSections.map((s, i) => ({
       meeting_id: id,
-      title: s.title,
-      bullets: s.bullets,
+      title: s.title || "(제목 없음)",
+      bullets: Array.isArray(s.bullets) ? s.bullets : [],
       order_idx: i,
     }));
 
-    const actionRows = result.actionItems.map((a, i) => ({
+    const actionRows = safeActions.map((a, i) => ({
       meeting_id: id,
-      title: a.title,
+      title: a.title || "(할 일 없음)",
       description: a.description ?? null,
       owner_name: a.ownerName ?? null,
       due_date: a.dueDate && /^\d{4}-\d{2}-\d{2}$/.test(a.dueDate) ? a.dueDate : null,
-      priority: a.priority,
+      priority: (["high", "medium", "low"] as const).includes(a.priority as never)
+        ? a.priority
+        : "medium",
       status: "pending" as const,
       source_timestamp: a.sourceTimestamp ?? null,
       order_idx: i,
     }));
 
-    const riskRows = result.risks.map((r, i) => ({
+    const riskRows = safeRisks.map((r, i) => ({
       meeting_id: id,
-      title: r.title,
-      description: r.description,
-      severity: r.severity,
+      title: r.title || "(제목 없음)",
+      description: r.description ?? null,
+      severity: (["high", "medium", "low"] as const).includes(r.severity as never)
+        ? r.severity
+        : "medium",
       mitigation: r.mitigation ?? null,
       order_idx: i,
     }));
@@ -131,8 +143,8 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
     const { error: updErr } = await sb
       .from("ainose_meetings")
       .update({
-        executive_summary: result.executiveSummary,
-        next_agenda: result.nextAgenda,
+        executive_summary: result.executiveSummary || "",
+        next_agenda: safeNextAgenda,
         status: "reviewed",
         analyze_error: null,
       })
