@@ -571,18 +571,24 @@ function saveCostsForInvoiceGroup(ig) {
 }
 
 function getOrderStatus(order) {
-  if (order.arriveDate && (order.extraCosts || []).length > 0) return 'delay';
-  if (order.arriveDate) return 'done';
+  const today = todayISO();
+  // 미래 날짜는 "예정" 으로 분류 → 진행중 취급
+  if (order.arriveDate && order.arriveDate <= today && (order.extraCosts || []).length > 0) return 'delay';
+  if (order.arriveDate && order.arriveDate <= today) return 'done';
   return 'active';
 }
 
 function statusPill(o) {
+  const today = todayISO();
+  // 모든 단계마다 "미래 = 예정 / 과거·오늘 = 완료" 로 일관 처리
+  if (o.arriveDate && o.arriveDate > today) return '<span class="pill pill-info">🔵 입고예정</span>';
   if (o.arriveDate && (o.extraCosts || []).length > 0) return '<span class="pill pill-warn">🟡 지연/추가비</span>';
   if (o.arriveDate) return '<span class="pill pill-accent">🟢 입고완료</span>';
-  if (o.shipDate && new Date(o.shipDate) > new Date()) return '<span class="pill pill-info">🔵 선적예정</span>';
+  if (o.shipDate && o.shipDate > today) return '<span class="pill pill-info">🔵 선적예정</span>';
   if (o.shipDate) return '<span class="pill pill-info">🔵 선적완료</span>';
+  if (o.whDate && o.whDate > today) return '<span class="pill pill-info">🔵 위해입고예정</span>';
   if (o.whDate) return '<span class="pill pill-info">🔵 위해입고</span>';
-  if (o.factoryDate && new Date(o.factoryDate) > new Date()) return '<span class="pill pill-muted">⚪ 출고예정</span>';
+  if (o.factoryDate && o.factoryDate > today) return '<span class="pill pill-muted">⚪ 출고예정</span>';
   if (o.factoryDate) return '<span class="pill pill-muted">⚪ 공장출고</span>';
   if (o.factoryMemo) return '<span class="pill pill-warn">🟠 출고 미확인</span>';
   return '<span class="pill pill-muted">⚪ 발주중</span>';
@@ -679,11 +685,12 @@ function renderOrders(view) {
     const status = $('#filter-status')?.value || '';
     let arr = baseArr;
     if (status) arr = arr.filter((o) => getOrderStatus(o) === status);
+    const today = todayISO();
     const stats = {
       total: arr.length,
-      done: arr.filter((o) => o.arriveDate).length,
-      inProg: arr.filter((o) => !o.arriveDate).length,
-      delay: arr.filter((o) => o.arriveDate && (o.extraCosts || []).length > 0).length,
+      done: arr.filter((o) => o.arriveDate && o.arriveDate <= today).length,
+      inProg: arr.filter((o) => !o.arriveDate || o.arriveDate > today).length,
+      delay: arr.filter((o) => o.arriveDate && o.arriveDate <= today && (o.extraCosts || []).length > 0).length,
       costed: arr.filter((o) => o.invoiceId && o.costBreakdown).length,
       uncosted: arr.filter((o) => !o.invoiceId).length,
     };
@@ -710,7 +717,13 @@ function renderOrders(view) {
         <td class="mono">${escHTML(o.arriveDate || '-')}</td>
         <td>${inv ? '<span class="pill pill-info mono" style="font-size:11px">' + escHTML(inv.blNo || inv.invoiceNo || inv.id) + '</span>' : '<span class="muted2">-</span>'}</td>
         <td>${statusPill(o)}</td>
-        <td class="right mono">${o.costPerUnit ? fmtKRW(o.costPerUnit) : '<span class="muted2">미산</span>'}</td>
+        <td class="right mono">${
+          o.costPerUnit
+            ? `${fmtKRW(o.costPerUnit)}<br><span class="muted2" style="font-size:10px">도착시가</span>`
+            : (o.price && o.rate
+                ? `<span class="muted">${fmtKRW(Number(o.price) * Number(o.rate))}</span><br><span class="muted2" style="font-size:10px">발주가 (청구서 미연결)</span>`
+                : '<span class="muted2">미산</span>')
+        }</td>
       </tr>`;
     }).join('');
     $('#orders-stats').innerHTML = `
