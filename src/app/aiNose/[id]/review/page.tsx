@@ -118,6 +118,13 @@ export default function AiNoseReviewPage() {
     );
   if (!meeting) return null;
 
+  // 분석 결과가 비어있는지 판정 — 결정/섹션/액션 모두 0개면 분석 안 된 것
+  const hasContent =
+    meeting.decisions.length > 0 ||
+    meeting.sections.length > 0 ||
+    meeting.action_items.length > 0 ||
+    (meeting.executive_summary?.trim().length ?? 0) > 0;
+
   return (
     <div className="space-y-5">
       {/* 헤더 */}
@@ -143,12 +150,25 @@ export default function AiNoseReviewPage() {
         </button>
         <button
           onClick={() => save({ andFinalize: true })}
-          disabled={saving || reanalyzing}
-          className="px-3 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-sm disabled:opacity-50"
+          disabled={saving || reanalyzing || !hasContent}
+          title={!hasContent ? "분석 결과가 비어있어요. AI 재분석 먼저 실행해 주세요." : ""}
+          className="px-3 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           ✅ 확정 + 다운로드
         </button>
       </div>
+
+      {/* 빈 결과 경고 */}
+      {!hasContent && meeting.status !== "analyzing" && (
+        <div className="rounded-lg bg-amber-50 border-2 border-amber-300 p-4 text-sm">
+          <p className="font-semibold text-amber-900 mb-1">⚠️ 분석 결과가 비어있어요</p>
+          <p className="text-amber-800">
+            결정사항·섹션·액션 아이템이 모두 0개입니다.
+            상단 <span className="font-mono bg-amber-100 px-1">🔄 AI 재분석</span> 버튼을 눌러
+            Claude Opus 4.7 로 다시 분석해 주세요. (확정 버튼은 비활성화 상태)
+          </p>
+        </div>
+      )}
 
       {savedAt && (
         <p className="text-xs text-emerald-600">✓ {savedAt} 저장됨</p>
@@ -604,8 +624,9 @@ export default function AiNoseReviewPage() {
         </button>
         <button
           onClick={() => save({ andFinalize: true })}
-          disabled={saving}
-          className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium"
+          disabled={saving || !hasContent}
+          title={!hasContent ? "분석 결과가 비어있어요. AI 재분석 먼저 실행해 주세요." : ""}
+          className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           ✅ 확정 + .docx 다운로드
         </button>
