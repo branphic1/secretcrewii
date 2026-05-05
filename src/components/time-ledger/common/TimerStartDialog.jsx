@@ -6,7 +6,7 @@ import CategoryPicker from './CategoryPicker.jsx';
 
 const PRESETS = [15, 25, 30, 45, 60, 90, 120];
 
-export default function TimerStartDialog({ categories, onClose, onStart, defaultTaskName = '' }) {
+export default function TimerStartDialog({ categories, onClose, onStart, defaultTaskName = '', onAddCategory }) {
   const [catId, setCatId] = useState(categories[0]?.id ?? '');
   const [minutes, setMinutes] = useState(25);
   const [taskName, setTaskName] = useState(defaultTaskName);
@@ -41,7 +41,12 @@ export default function TimerStartDialog({ categories, onClose, onStart, default
         <div className="p-5 space-y-4">
           <div>
             <label className="text-xs block mb-1" style={{ color: '#8A7F73' }}>카테고리</label>
-            <CategoryPicker categories={categories} value={catId} onChange={setCatId} />
+            <CategoryPicker
+              categories={categories}
+              value={catId}
+              onChange={setCatId}
+              onAddCategory={onAddCategory}
+            />
           </div>
 
           <div>

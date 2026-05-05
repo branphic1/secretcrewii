@@ -9,6 +9,7 @@ export default function TodayView({
   date, setDate, entries, setEntries, categories, incidentsByCat = {},
   onStartTimerFromPlan, onOpenTimerDialog, activeTimer,
   onPauseTimer, onResumeTimer, onStopTimer, onCancelTimer,
+  onAddCategory,
 }) {
   const entry = entries[date] || { plan: [], logs: [] };
 
@@ -101,6 +102,7 @@ export default function TodayView({
         onResumeTimer={onResumeTimer}
         onStopTimer={onStopTimer}
         onCancelTimer={onCancelTimer}
+        onAddCategory={onAddCategory}
       />
 
       <LogSection

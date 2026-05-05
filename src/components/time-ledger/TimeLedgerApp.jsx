@@ -142,6 +142,14 @@ export default function TimeLedgerApp() {
   const handleTimerCancel = () => setTimer(null);
   const handleTimerComplete = () => { playBell(); };
 
+  // 카테고리 즉석 추가 (CategoryPicker → 새로 버튼)
+  const addCategory = (cat) => {
+    setCategories((curr) => {
+      if (curr.some((c) => c.id === cat.id)) return curr;
+      return [...curr, cat];
+    });
+  };
+
   // 현재 타이머를 그대로 기록으로 저장 (인자 없이 호출 가능)
   const handleTimerStopCurrent = () => {
     if (!timer) return;
@@ -183,6 +191,7 @@ export default function TimeLedgerApp() {
                 onResumeTimer={handleTimerResume}
                 onStopTimer={handleTimerStopCurrent}
                 onCancelTimer={handleTimerCancel}
+                onAddCategory={addCategory}
               />
             )}
             {tab === 'monthly' && (
@@ -250,6 +259,7 @@ export default function TimeLedgerApp() {
             startTimer({ categoryId, planMinutes, taskName });
             setTimerDialogOpen(false);
           }}
+          onAddCategory={addCategory}
         />
       )}
 

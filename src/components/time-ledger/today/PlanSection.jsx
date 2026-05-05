@@ -108,6 +108,7 @@ export default function PlanSection({
   plan, logs = [], categories, onChange, incidentsByCat = {},
   onStartTimer, onStartBlankTimer, activeTimer, date,
   onPauseTimer, onResumeTimer, onStopTimer, onCancelTimer,
+  onAddCategory,
 }) {
   const [catId, setCatId] = useState(categories[0]?.id ?? '');
   const [hours, setHours] = useState('');
@@ -144,7 +145,12 @@ export default function PlanSection({
           style={{ background: '#FFFDF6', border: '1px solid #EFE7D4' }}
         >
           <div className="flex flex-wrap items-center gap-2">
-            <CategoryPicker categories={categories} value={catId} onChange={setCatId} />
+            <CategoryPicker
+              categories={categories}
+              value={catId}
+              onChange={setCatId}
+              onAddCategory={onAddCategory}
+            />
             <input
               type="number"
               step="0.5"
