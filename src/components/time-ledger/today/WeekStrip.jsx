@@ -18,6 +18,8 @@ export default function WeekStrip({ date, entries, categories, onPick }) {
       for (const l of logs) {
         byCat[l.categoryId] = (byCat[l.categoryId] || 0) + (Number(l.hours) || 0);
       }
+      const stickies = entry?.stickies || [];
+      const stickyTodo = stickies.filter((s) => !s.done).length;
       arr.push({
         ds,
         day: d.getDate(),
@@ -25,6 +27,8 @@ export default function WeekStrip({ date, entries, categories, onPick }) {
         dow: d.getDay(),
         total,
         byCat,
+        stickyCount: stickies.length,
+        stickyTodo,
       });
     }
     return arr;
@@ -115,8 +119,29 @@ export default function WeekStrip({ date, entries, categories, onPick }) {
                 >
                   {d.total > 0 ? d.total.toFixed(1) : '—'}
                 </span>
-                <span className="text-[10px]" style={{ color: '#A8A29E' }}>
+                <span className="text-[10px] flex items-center gap-1" style={{ color: '#A8A29E' }}>
                   {d.day}
+                  {d.stickyCount > 0 && (
+                    <span
+                      title={`스티커 ${d.stickyCount}장 (남은 ${d.stickyTodo})`}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 14,
+                        height: 14,
+                        padding: '0 4px',
+                        borderRadius: 999,
+                        background: d.stickyTodo > 0 ? '#FFF1A8' : '#D1F5E4',
+                        color: d.stickyTodo > 0 ? '#8A6800' : '#1F7A5A',
+                        fontSize: 9,
+                        fontWeight: 600,
+                        lineHeight: 1,
+                      }}
+                    >
+                      {d.stickyTodo > 0 ? d.stickyTodo : '✓'}
+                    </span>
+                  )}
                 </span>
               </button>
             );

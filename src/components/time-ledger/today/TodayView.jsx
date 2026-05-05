@@ -4,6 +4,7 @@ import PlanSection from './PlanSection.jsx';
 import LogSection from './LogSection.jsx';
 import ProgressHero from './ProgressHero.jsx';
 import WeekStrip from './WeekStrip.jsx';
+import StickyNotes from './StickyNotes.jsx';
 
 export default function TodayView({
   date, setDate, entries, setEntries, categories, incidentsByCat = {},
@@ -20,7 +21,8 @@ export default function TodayView({
   const update = (next) => {
     setEntries((prev) => {
       const copy = { ...prev, [date]: next };
-      if (!next.plan.length && !next.logs.length) delete copy[date];
+      const empty = !next.plan?.length && !next.logs?.length && !(next.stickies?.length);
+      if (empty) delete copy[date];
       return copy;
     });
   };
@@ -86,6 +88,12 @@ export default function TodayView({
         entries={entries}
         categories={categories}
         onPick={(d) => setDate(d)}
+      />
+
+      <StickyNotes
+        stickies={entry.stickies || []}
+        isToday={isToday}
+        onChange={(stickies) => update({ ...entry, stickies })}
       />
 
       <PlanSection
